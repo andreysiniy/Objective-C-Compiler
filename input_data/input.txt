@@ -8,10 +8,12 @@ int main () {
   int c;
   float f;
  
-  /* actual initialization */
+  /* aaaa
+	actual initialization 
+  bbbb */ 
   a = 10;
   b = 20;
-  
+  // c = a + b
   c = a + b;
   NSLog(@"value of c : %d \n", c);
 
