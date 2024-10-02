@@ -26,12 +26,7 @@ UNDERLINE_LITERAL [A-Za-z_]
 %}
 
 "int" {printf("Found keyword INT: %s\n", yytext);}
-"NSInteger" {printf("Found keyword NSINTEGER: %s\n", yytext);}
 "char" {printf("Found keyword CHAR: %s\n", yytext);}
-"NSString" {printf("Found keyword NSSTRING: %s\n", yytext);}
-"NSArray" {printf("Found keyword NSARRAY: %s\n", yytext);}
-"NSSet" {printf("Found keyword NSSET: %s\n", yytext);}
-"NSDictionary" {printf("Found keyword NSDICTIONARY: %s\n", yytext);}
 "if" {printf("Found keyword IF: %s\n", yytext);}
 "else" {printf("Found keyword ELSE: %s\n", yytext);}
 "while" {printf("Found keyword WHILE: %s\n", yytext);}
@@ -42,7 +37,6 @@ UNDERLINE_LITERAL [A-Za-z_]
 "readonly" {printf("Found keyword READONLY: %s\n", yytext);}
 "readwrite" {printf("Found keyword READWRITE: %s\n", yytext);}
 "enum" {printf("Found keyword ENUM: %s\n", yytext);}
-"NSLog" {printf("Found keyword NSLOG: %s\n", yytext);}
 "unsigned" {printf("Found keyword UNSIGNED: %s\n", yytext);}
 "u" {printf("Found suffix U: %s\n", yytext);}
 "long" {printf("Found keyword LONG: %s\n", yytext);}
@@ -105,7 +99,7 @@ UNDERLINE_LITERAL [A-Za-z_]
 <CHAR>[^\\\n\'] strcat(tmp,yytext);
 <STRING,CHAR>\\b strcat(tmp,"\b");
 <STRING,CHAR>\\f strcat(tmp,"\f");
-<STRING,CHAR>\\n strcat(tmp,"\\n");
+<STRING,CHAR>\\n strcat(tmp,"\n");
 <STRING,CHAR>\\r strcat(tmp,"\r");
 <STRING,CHAR>\\t strcat(tmp,"\t");
 <STRING,CHAR>\\v strcat(tmp,"\v");
