@@ -154,9 +154,11 @@ strcat(tmp, dig);}
 {UNDERLINE_LITERAL}({UNDERLINE_LITERAL}|{DIGIT})* {printf("Found identifier: %s\n", yytext);}
 {DIGIT}({UNDERLINE_LITERAL}|{DIGIT})+ {printf("ERROR! Incorrect identifier name: %s in row: %d\n", yytext, rowCount);}
 
-"//"([^\n]|\\\n)* {printf("Found line comment: %s\n", yytext);
-    strcpy(tmp, yytext);
-    rowCount += countChar(tmp, '\n');
+"//"([^\n]|\\\n)* {
+	strcpy(tmp, "");
+    strcpy(tmp, yytext + 2);
+    printf("Found line comment: %s\n", tmp);
+	rowCount += countChar(tmp, '\n');
 }
 
 "/*" {tmp[0] = '\0'; BEGIN(MULTILINE_COMMENT);}
