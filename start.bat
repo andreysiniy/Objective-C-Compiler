@@ -1,2 +1,2 @@
 @echo off
-type input_data\input.txt | a.exe > result.txt
+type input_data\input.txt | lexer.exe > result.txt
