@@ -34,6 +34,7 @@ UNDERLINE_LITERAL [A-Za-z_]
 "for" {printf("Found keyword FOR: %s\n", yytext);}
 "in" {printf("Found keyword IN: %s\n", yytext);}
 "float" {printf("Found keyword FLOAT: %s\n", yytext);}
+"double" {printf("Found keyword DOUBLE: %s\n", yytext);}
 "readonly" {printf("Found keyword READONLY: %s\n", yytext);}
 "readwrite" {printf("Found keyword READWRITE: %s\n", yytext);}
 "enum" {printf("Found keyword ENUM: %s\n", yytext);}

@@ -1,6 +1,3 @@
-extern int a, b;
-extern int c;
-extern float f;
 
 int main () {
   /* variable definition: */

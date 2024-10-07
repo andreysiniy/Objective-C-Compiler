@@ -1,4 +1,4 @@
-CC = gcc
+CC = C:\MinGW\bin\gcc.exe
 
 FLEX_FILE = flex_rules.l
 LEX_YY_C_FILE = lex.yy.c
@@ -8,12 +8,11 @@ LEXER_TEST_FILE = input.txt
 
 .PHONY: build
 build: clean flex
-	$(CC) ./$(LEX_YY_C_FILE) -o $(LEXER_EXE_NAME) -std=c99
+	$(CC) ./$(LEX_YY_C_FILE) -o $(LEXER_EXE_NAME) 
 
 .PHONY: flex
 flex: $(FLEX_FILE)
 	flex ./$(FLEX_FILE)
-	mv ./$(LEX_YY_C_FILE) ./
 
 .PHONY: clean
 clean:
