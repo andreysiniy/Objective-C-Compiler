@@ -8,7 +8,7 @@ LEXER_TEST_FILE = input.txt
 
 .PHONY: build
 build: clean flex
-	$(CC) ./$(LEX_YY_C_FILE) -o $(LEXER_EXE_NAME)
+	$(CC) ./$(LEX_YY_C_FILE) -o $(LEXER_EXE_NAME) -std=c99
 
 .PHONY: flex
 flex: $(FLEX_FILE)
