@@ -40,9 +40,7 @@ UNDERLINE_LITERAL [A-Za-z_]
 "readwrite" {printf("Found keyword READWRITE: %s\n", yytext);}
 "enum" {printf("Found keyword ENUM: %s\n", yytext);}
 "unsigned" {printf("Found keyword UNSIGNED: %s\n", yytext);}
-"u" {printf("Found suffix U: %s\n", yytext);}
 "long" {printf("Found keyword LONG: %s\n", yytext);}
-"l" {printf("Found suffix L: %s\n", yytext);}
 "return" {printf("Found keyword RETURN: %s\n", yytext);}
 "self" {printf("Found keyword SELF: %s\n", yytext);}
 "super" {printf("Found keyword SUPER: %s\n", yytext);}
@@ -161,7 +159,7 @@ strcat(tmp, dig);}
 {UNDERLINE_LITERAL}({UNDERLINE_LITERAL}|{DIGIT})* {printf("Found identifier: %s\n", yytext);}
 {DIGIT}({UNDERLINE_LITERAL}|{DIGIT})+ {printf("ERROR! Incorrect identifier name: %s in row: %d\n", yytext, rowCount);}
 
-"//.*" {
+"//"([^\n]|\\\n)* {
 	strcpy(tmp, "");
     strcpy(tmp, yytext + 2);
     printf("Found line comment: %s\n", tmp);
