@@ -45,6 +45,7 @@ UNDERLINE_LITERAL [A-Za-z_]
 "self" {printf("Found keyword SELF: %s\n", yytext);}
 "super" {printf("Found keyword SUPER: %s\n", yytext);}
 "id" {printf("Found keyword ID: %s\n", yytext);}
+"void" {printf("Found keyword VOID: %s\n", yytext);}
 "@class" {printf("Found keyword CLASS: %s\n", yytext);}
 "@interface" {printf("Found keyword INTERFACE: %s\n", yytext);}
 "@end" {printf("Found keyword END: %s\n", yytext);}
