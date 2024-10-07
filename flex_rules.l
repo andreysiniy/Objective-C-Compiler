@@ -50,6 +50,8 @@ UNDERLINE_LITERAL [A-Za-z_]
 "@end" {printf("Found keyword END: %s\n", yytext);}
 "@implementation" {printf("Found keyword IMPLEMENTATION: %s\n", yytext);}
 "@property" {printf("Found keyword PROPERTY: %s\n", yytext);}
+"@private" {printf("Found keyword PRIVATE: %s\n", yytext);}
+"@public" {printf("Found keyword PUBLIC: %s\n", yytext);}
 
 "+" {printf("Found arithmetic operation +: %s\n", yytext);}
 "-" {printf("Found arithmetic operation -: %s\n", yytext);}
