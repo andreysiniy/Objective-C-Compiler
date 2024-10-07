@@ -16,6 +16,7 @@ UNDERLINE_LITERAL [A-Za-z_]
     int isContainsSymbol(char *string, char symbol);
     void removeSymbol(char *string, char symbol);
     void removeFloatSuffix(char *string);
+	void removeULSuffix(char *string);
     int countChar(const char *str, char character);
 %}
 
@@ -82,12 +83,19 @@ UNDERLINE_LITERAL [A-Za-z_]
 
 <*>\\\n {rowCount++;}
 
-0|[1-9]{DIGIT}* {printf("Found integer: %d\n", atoi(yytext));}
+(0|[1-9][0-9]*)([uU]|l{1,2}|L{1,2})? {
+	strcpy(tmp, yytext);
+    removeULSuffix(tmp);
+	printf("Found integer: %d\n", atoi(tmp));}
 (0x|0X)[0-9a-fA-F]+ {
     char* a;
     long number = strtol(yytext+2, &a,16);
     printf("Found hexadecimal number: %d\n", number);
     }
+	
+0[xX][0-9a-zA-Z_]+ {  
+	printf("ERROR! Incorrect hexadecimal number: %s in row: %d\n", yytext, rowCount);
+}
 0[0-7]+ {
     char *a;
     long number = strtol(yytext+2, &a,8);
@@ -126,6 +134,7 @@ strcat(tmp, dig);}
 <STRING,CHAR>\n {printf("ERROR! String Breakes in row: %d\n", rowCount); rowCount++;}
 <STRING,CHAR><<EOF>> {printf("ERROR! haven't found closing quotes in row: %d\n", rowCount); BEGIN(INITIAL);}
 <STRING>\" {printf("Found String literal: %s\n",tmp);BEGIN(INITIAL);}
+
 <CHAR>\' {
     if(strlen(tmp) != 1)
     {
@@ -143,7 +152,7 @@ strcat(tmp, dig);}
     printf("Found float constant: %f\n", (float)atof(tmp));
 }
 
-({DIGIT}+\.?{DIGIT}*|\.{DIGIT}+)(e|E)-?{DIGIT}+[fF]? {
+({DIGIT}+\.?{DIGIT}*|\.{DIGIT}+)(e|E)[-+]?{DIGIT}+[fF]? {
     strcpy(tmp, yytext);
     removeFloatSuffix(tmp);
     printf("Found float constant: %f\n", (float)atof(tmp));
@@ -152,7 +161,7 @@ strcat(tmp, dig);}
 {UNDERLINE_LITERAL}({UNDERLINE_LITERAL}|{DIGIT})* {printf("Found identifier: %s\n", yytext);}
 {DIGIT}({UNDERLINE_LITERAL}|{DIGIT})+ {printf("ERROR! Incorrect identifier name: %s in row: %d\n", yytext, rowCount);}
 
-"//"([^\n]|\\\n)* {
+"//.*" {
 	strcpy(tmp, "");
     strcpy(tmp, yytext + 2);
     printf("Found line comment: %s\n", tmp);
@@ -170,9 +179,9 @@ strcat(tmp, dig);}
 
 <*>\n {rowCount++;}
 
-" " {printf("", yytext);}
+[\r\t\f\v ]+ {printf("", yytext);}
 
-<*>.|\\n {printf("unrecognized element: %s\n", yytext);}
+<*>. {printf("unrecognized element: %s\n", yytext);}
 
 %%
 
@@ -202,6 +211,20 @@ void removeFloatSuffix(char *string)
     {
         removeSymbol(string, 'f');
         removeSymbol(string, 'F');
+    }
+}
+
+void removeULSuffix(char *string)
+{
+    if (isContainsSymbol(string, 'u') || isContainsSymbol(string, 'U') || isContainsSymbol(string, 'l') ||
+	isContainsSymbol(string, 'L'))
+    {
+        removeSymbol(string, 'u');
+        removeSymbol(string, 'U');
+		removeSymbol(string, 'L');
+		removeSymbol(string, 'L');
+		removeSymbol(string, 'l');
+		removeSymbol(string, 'l');
     }
 }
 
