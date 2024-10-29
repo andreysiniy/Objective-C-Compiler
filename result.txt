@@ -1,0 +1,77 @@
+Found identifier: extern
+Found keyword INT: int
+Found identifier: a
+Found delimiter ,: ,
+Found identifier: b
+Found delimiter ;: ;
+Found identifier: extern
+Found keyword INT: int
+Found identifier: c
+Found delimiter ;: ;
+Found identifier: extern
+Found keyword FLOAT: float
+Found identifier: f
+Found delimiter ;: ;
+Found keyword INT: int
+Found identifier: main
+Found bracket (: (
+Found bracket ): )
+Found bracket {: {
+Found multiline comment:  variable definition: 
+Found keyword INT: int
+Found identifier: a
+Found delimiter ,: ,
+Found identifier: b
+Found delimiter ;: ;
+Found keyword INT: int
+Found identifier: c
+Found delimiter ;: ;
+Found keyword FLOAT: float
+Found identifier: f
+Found delimiter ;: ;
+Found multiline comment:  aaaa
+	actual initialization 
+  bbbb 
+Found identifier: a
+Found assignment operation =: =
+Found integer: 10
+Found delimiter ;: ;
+Found identifier: b
+Found assignment operation =: =
+Found integer: 20
+Found delimiter ;: ;
+Found line comment: // c = a + b
+Found identifier: c
+Found assignment operation =: =
+Found identifier: a
+Found arithmetic operation +: +
+Found identifier: b
+Found delimiter ;: ;
+Found keyword NSLOG: NSLog
+Found bracket (: (
+Found String literal: value of c : %d \n
+Found delimiter ,: ,
+Found identifier: c
+Found bracket ): )
+Found delimiter ;: ;
+Found identifier: f
+Found assignment operation =: =
+Found float constant: 70.000000
+Found arithmetic operation /: /
+Found float constant: 3.000000
+Found delimiter ;: ;
+Found identifier: f
+Found assignment operation =: =
+Found float constant: 12.500000
+Found delimiter ;: ;
+Found keyword NSLOG: NSLog
+Found bracket (: (
+Found String literal: value of f : %f \n
+Found delimiter ,: ,
+Found identifier: f
+Found bracket ): )
+Found delimiter ;: ;
+Found keyword RETURN: return
+Found integer: 0
+Found delimiter ;: ;
+Found bracket }: }

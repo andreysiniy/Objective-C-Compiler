@@ -19,6 +19,14 @@
 %token INT_C FLOAT_C DOUBLE_C STRING_C 
 %token ID SUPER SELF
 %token IDENTIFIER
+%token IF ELSE WHILE DO FOR
+%token IN
+%token RETURN
+%token INTERFACE IMPLEMENTATION
+%token READONLY READWRITE
+%token END
+%token PROPERTY
+
 %start program
 
 %%
@@ -86,6 +94,9 @@ expr: IDENTIFIER
     | expr '>' expr
     ;
 
+empty_expr: /* empty */
+                        | expr;
+
 expr_msg: '[' receiver message ']'
         ;
 
@@ -108,12 +119,86 @@ message_arg: IDENTIFIER ':' expr
 
 // statements
 
-stmt_list: stmt
-        |  stmt_list stmt
-        ;
+if_stmnt: IF '(' expr ')' stmt
+			| IF '(' expr ')' stmt ELSE stmt
+			;
+
+while_stmt: WHILE '(' expr ')' stmt
+			   ;
+
+do_while_stmt: DO stmt WHILE '(' expr ')' ';'
+				  ;
+
+for_stmt: FOR '(' empty_expr ';' empty_expr ';' empty_expr ')' stmt
+			 | FOR '(' IDENTIFIER IN expr ')' stmt
+			 | FOR '(' type IDENTIFIER IN expr ')' stmt
+			 ;
+
 
 stmt: ';'
     |  expr ';'
     |  decl
+    |  if_stmnt
+    |  while_stmt
+    |  do_while_stmt
+    |  for_stmt
+    |  RETURN empty_expr
+    |  compound_stmt
+    |  decl
+    |  class_declaration_list
     ;
+
+stmt_list: stmt
+        |  stmt_list stmt
+        ;
+
+empty_stmt_list: /* empty */
+                        | stmt_list
+                        ;
+
+compound_stmt: '{' empty_stmt_list '}'
+                        ;
+
+
+class_stmt: class_interface
+			   | class_implementation
+			   ;
+
+class_statement_list: class_stmt
+					| class_statement_list class_stmt
+					;
+
+// classes
+class_interface: INTERFACE IDENTIFIER ':' IDENTIFIER interface_stmt END
+			   | INTERFACE IDENTIFIER interface_stmt END
+			   | INTERFACE IDENTIFIER ':' CLASS_TYPE interface_stmt END
+			   ;
+
+interface_stmt: instance_vars interface_decl_list
+                        | init_decl_list
+                        ;
+
+interface_decl_list: decl
+                        | pr
+
+implementation_stmt: instance_vars implementation_def_list
+                                | implementation_def_list
+                                ;
+
+class_implementation:
+
+implementation_def_list:
+
+instance_vars:
+
+method_type: '(' type ')'
+                ;
+
+property: PROPERTY '(' attr ')' type IDENTIFIER ';'
+                ;
+
+attr: READONLY
+                | READWRITE
+                ;
+
 %%
