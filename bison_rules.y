@@ -82,7 +82,8 @@ init_decl
         : IDENTIFIER
         | IDENTIFIER '=' expr
         | IDENTIFIER '[' empty_expr ']'
-        | IDENTIFIER '[' empty_expr ']' '=' '{'  '}'
+        | IDENTIFIER '[' empty_expr ']' '=' '{' expr_list_empty '}'
+        | IDENTIFIER '[' empty_expr ']' '=' expr
         ;
 
 // expressions
