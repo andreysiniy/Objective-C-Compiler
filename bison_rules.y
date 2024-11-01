@@ -182,7 +182,6 @@ stmt
         | RETURN empty_expr
         | compound_stmt
         | decl
-        | class_declaration_list
         ;
 
 stmt_list
