@@ -80,6 +80,8 @@ init_decl_list
 init_decl
         : IDENTIFIER
         | IDENTIFIER '=' expr
+        | IDENTIFIER '[' empty_expr ']'
+        | IDENTIFIER '[' empty_expr ']' '=' '{'  '}'
         ;
 
 // expressions
