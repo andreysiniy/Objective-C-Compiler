@@ -106,8 +106,8 @@ field_astr
         ;
 
 field_astr_list
-        : field
-        | field_astr_list ',' field
+        : field_astr
+        | field_astr_list ',' field_astr
         ;
 
 init_astr_decl
