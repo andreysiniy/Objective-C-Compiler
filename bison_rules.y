@@ -179,9 +179,8 @@ stmt
         | while_stmt
         | do_while_stmt
         | for_stmt
-        | RETURN empty_expr
+        | RETURN empty_expr ';'
         | '{' empty_stmt_list '}'
-        | decl
         ;
 
 stmt_list
