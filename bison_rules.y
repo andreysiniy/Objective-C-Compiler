@@ -13,7 +13,8 @@
 %left '+' '-'
 %left '*' '/'
 %right UMINUS UPLUS UAMPERSAND
-%nonassoc '(' ')' '[' ']'
+%left '[' ']'
+%nonassoc '(' ')' 
 
 %token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE CLASS_TYPE
 %token INT_C FLOAT_C DOUBLE_C STRING_C 
