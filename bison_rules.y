@@ -127,6 +127,7 @@ receiver
         : SUPER
         | SELF
         | CLASS_TYPE
+        | '[' receiver message ']'
         ;
 
 message
