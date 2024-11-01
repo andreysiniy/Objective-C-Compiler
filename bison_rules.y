@@ -34,7 +34,8 @@
 %%
 
 program
-        : stmt_list 
+        : stmt_list
+        | classes 
         ;
 
 type
@@ -43,7 +44,6 @@ type
         | FLOAT_TYPE
         | DOUBLE_TYPE
         | ID
-	| CLASS_TYPE '*'
         ;
 
 constants
@@ -53,10 +53,11 @@ constants
         | STRING_C
         ;
 
-// declarations
+// DECLARATIONS RULES
 
 decl
         : type init_decl_list_empt ';'
+        | CLASS_TYPE init_astr_decl_list_empty ';'
         ;
 
 decl_list
@@ -87,7 +88,45 @@ init_decl
         | IDENTIFIER '[' empty_expr ']' '=' expr
         ;
 
-// expressions
+field
+        : IDENTIFIER
+        | IDENTIFIER '[' expr ']'
+        ;
+
+field_list
+        : field
+        | field_list ',' field
+        ;
+
+field_astr
+        : '*' IDENTIFIER
+        | '*' IDENTIFIER '[' expr ']'
+        ;
+
+field_astr_list
+        : field
+        | field_astr_list ',' field
+        ;
+
+init_astr_decl
+        : '*' IDENTIFIER
+        | '*' IDENTIFIER '=' expr
+        | IDENTIFIER '[' empty_expr ']'
+        | IDENTIFIER '[' empty_expr ']' '=' '{' expr_list_empty '}'
+        | IDENTIFIER '[' empty_expr ']' '=' expr
+        ;
+
+init_astr_decl_list
+        : init_astr_decl
+        | init_astr_decl_list ',' init_astr_decl
+        ;
+
+init_astr_decl_list_empty
+        : /* empty */
+        | init_astr_decl_list
+        ;
+
+// EXPRESSIONS RULES
 
 expr
         : IDENTIFIER
@@ -150,12 +189,17 @@ message_arg
 	| ':' expr
 	;
 
-// statements
+// STATEMENTS RULES 
 
-if_stmnt
-        : IF '(' expr ')' stmt
-	| IF '(' expr ')' stmt ELSE stmt
+if_stmt
+        : IF '(' expr ')' stmt else_stmt_empty
 	;
+
+else_stmt_empty
+        : ELSE stmt
+        | /* empty */
+        ;
+
 
 while_stmt
         : WHILE '(' expr ')' stmt
@@ -176,7 +220,7 @@ stmt
         : ';'
         | expr ';'
         | decl
-        | if_stmnt
+        | if_stmt
         | while_stmt
         | do_while_stmt
         | for_stmt
@@ -204,22 +248,81 @@ class_stmt_list
 	| class_stmt_list class_stmt
 	;
 
-// classes
+// CLASSES RULES 
+
+classes
+        : class_interface
+        | class_implementation
+        ;
 
 class_interface
-        : INTERFACE IDENTIFIER ':' IDENTIFIER interface_stmt END
-	| INTERFACE IDENTIFIER interface_stmt END
-	| INTERFACE IDENTIFIER ':' CLASS_TYPE interface_stmt END
+        : INTERFACE IDENTIFIER ':' IDENTIFIER empty_interface_body END
+	| INTERFACE IDENTIFIER empty_interface_body END
+	| INTERFACE IDENTIFIER ':' CLASS_TYPE empty_interface_body END
+        | INTERFACE CLASS_TYPE ':' IDENTIFIER empty_interface_body END
+        | INTERFACE CLASS_TYPE empty_interface_body END
+        | INTERFACE CLASS_TYPE ':' CLASS_TYPE empty_interface_body END
 	;
 
-interface_stmt
-        : instance_vars interface_decl_list
-        | init_decl_list
+class_implementation
+        : IMPLEMENTATION IDENTIFIER empty_implementation_body END
+        | IMPLEMENTATION IDENTIFIER ':' IDENTIFIER empty_implementation_body END
+        | IMPLEMENTATION CLASS_TYPE implementation_body END
+        | IMPLEMENTATION CLASS_TYPE ':' IDENTIFIER  empty_implementation_body END
+        | IMPLEMENTATION IDENTIFIER ':' CLASS_TYPE empty_implementation_body END
+        | IMPLEMENTATION CLASS_TYPE ':' CLASS_TYPE empty_implementation_body END
+        ;
+
+empty_interface_body
+        : /* empty */
+        | interface_body
+        ;
+
+interface_body
+        : '{' inst_fields_decl_list_empty '}' interface_decl_list_empty
+        | interface_decl_list
+        ;
+
+empty_implementation_body
+        : /* empty */
+        | implementation_body
+        ;
+
+implementation_body
+        : '{' inst_fields_decl_list_empty '}' implementation_decl_list_empty
+        | implementation_decl_list
+
+inst_fields_decl_list_empty
+        : /* empty */
+        | inst_fields_decl_list
+        ;
+
+inst_fields_decl_list
+        : inst_fields_decl
+        | inst_fields_decl_list inst_fields_decl
+        ;
+
+inst_fields_decl
+        : type field_list ';'
+        | CLASS_TYPE field_astr_list ';'
+        ; 
+
+
+interface_decl_list_empty
+        : /* empty */
+        | interface_decl_list
         ;
 
 interface_decl_list
         : decl
-        | pr
+        | property
+        | method_decl
+        | interface_decl_list decl
+        | interface_decl_list method_decl
+        | interface_decl_list property
+        ;
+
+// TODO: params support
 method_decl
         : '+' method_type IDENTIFIER ';'
         | '-' method_type IDENTIFIER ';'
@@ -227,19 +330,17 @@ method_decl
         | '-' '(' VOID ')' IDENTIFIER ';'
         ;
 
-implementation_stmt
-        : instance_vars implementation_def_list
-        | implementation_def_list
+implementation_decl_list_empty
+        : /* empty */
+        | implementation_decl_list
         ;
 
-class_implementation
-        :
-
-implementation_def_list
-        :
-
-instance_vars
-        :
+implementation_decl_list
+        : decl
+        | method_decl
+        | implementation_decl_list decl
+        | implementation_decl_list method_decl
+        ;
 
 method_type
         : '(' type ')'
@@ -249,12 +350,15 @@ method_type
         ;
 
 property
-        : PROPERTY '(' attr ')' type IDENTIFIER ';'
+        : PROPERTY attr type IDENTIFIER ';'
+        | PROPERTY attr CLASS_TYPE '*' IDENTIFIER ';'
         ;
 
 attr
-        : READONLY
-        | READWRITE
+        : /* empty */
+        | '(' ')'
+        | '(' READONLY ')'
+        | '(' READWRITE ')'
         ;
 
 %%
