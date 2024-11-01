@@ -27,6 +27,7 @@
 %token READONLY READWRITE
 %token END
 %token PROPERTY
+%token VOID
 
 %start program
 
@@ -219,6 +220,11 @@ interface_stmt
 interface_decl_list
         : decl
         | pr
+method_decl
+        : '+' method_type IDENTIFIER ';'
+        | '-' method_type IDENTIFIER ';'
+        | '+' '(' VOID ')' IDENTIFIER ';'
+        | '-' '(' VOID ')' IDENTIFIER ';'
         ;
 
 implementation_stmt
@@ -237,6 +243,9 @@ instance_vars
 
 method_type
         : '(' type ')'
+        | '(' CLASS_TYPE '*' ')'
+        | '(' type '['']' ')' 
+        | '(' CLASS_TYPE '*' '['']' ')'
         ;
 
 property
