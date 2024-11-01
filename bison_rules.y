@@ -31,174 +31,213 @@
 
 %%
 
-program: stmt_list 
+program
+        : stmt_list 
         ;
 
-type: INT_TYPE
-    | CHAR_TYPE
-    | FLOAT_TYPE
-    | DOUBLE_TYPE
-    | ID
+type
+        : INT_TYPE
+        | CHAR_TYPE
+        | FLOAT_TYPE
+        | DOUBLE_TYPE
+        | ID
 	| CLASS_TYPE '*'
-    ;
+        ;
 
-constants: INT_C
-        |  FLOAT_C
-        |  DOUBLE_C
-        |  STRING_C
+constants
+        : INT_C
+        | FLOAT_C
+        | DOUBLE_C
+        | STRING_C
         ;
 
 // declarations
 
-decl: type init_decl_list_empt ';'
-    ;
-
-decl_list: decl
-        |  decl_list decl
+decl
+        : type init_decl_list_empt ';'
         ;
 
-decl_list_empt: /* empty */
-            |   decl_list
-            ;
-
-init_decl_list_empt: /* empty */
-                |   init_decl_list
-                ;
-
-init_decl_list: init_decl
-            |   init_decl_list ',' init_decl
-            ;
-
-init_decl: IDENTIFIER
-        |   IDENTIFIER '=' expr
+decl_list
+        : decl
+        | decl_list decl
         ;
+
+decl_list_empt
+        : /* empty */
+        | decl_list
+        ;
+
+init_decl_list_empt
+        : /* empty */
+        | init_decl_list
+        ;
+
+init_decl_list
+        : init_decl
+        | init_decl_list ',' init_decl
+        ;
+
+init_decl
+        : IDENTIFIER
+        | IDENTIFIER '=' expr
+        ;
+
 // expressions
 
-expr: IDENTIFIER
-    | constants
-    | expr_msg
-    | '(' expr ')'
-    | '-' expr %prec UMINUS
-    | '+' expr %prec UPLUS
-    | '&' expr %prec UAMPERSAND
-    | expr '+' expr
-    | expr '-' expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr EQUAL expr
-    | expr NOT_EQUAL expr
-    | expr LESS_EQUAL expr
-    | expr GREATER_EQUAL expr
-    | expr '=' expr
-    | expr '<' expr
-    | expr '>' expr
-    ;
-
-empty_expr: /* empty */
-                        | expr;
-
-expr_msg: '[' receiver message ']'
+expr
+        : IDENTIFIER
+        | constants
+        | expr_msg
+        | '(' expr ')'
+        | '-' expr %prec UMINUS
+        | '+' expr %prec UPLUS
+        | '&' expr %prec UAMPERSAND
+        | expr '+' expr
+        | expr '-' expr
+        | expr '*' expr
+        | expr '/' expr
+        | expr EQUAL expr
+        | expr NOT_EQUAL expr
+        | expr LESS_EQUAL expr
+        | expr GREATER_EQUAL expr
+        | expr '=' expr
+        | expr '<' expr
+        | expr '>' expr
         ;
 
-receiver: SUPER
+empty_expr
+        : /* empty */
+        | expr;
+
+expr_msg
+        : '[' receiver message ']'
+        ;
+
+receiver
+        : SUPER
         | SELF
         | CLASS_TYPE
         ;
 
-message: IDENTIFIER
-		| message_arg_list
-		;
+message
+        : IDENTIFIER
+	| message_arg_list
+	;
 
-message_arg_list: message_arg
-				| message_arg_list message_arg
-				;
+message_arg_list
+        : message_arg
+	| message_arg_list message_arg
+	;
 
-message_arg: IDENTIFIER ':' expr
-			| ':' expr
-			;
+message_arg
+        : IDENTIFIER ':' expr
+	| ':' expr
+	;
 
 // statements
 
-if_stmnt: IF '(' expr ')' stmt
-			| IF '(' expr ')' stmt ELSE stmt
-			;
+if_stmnt
+        : IF '(' expr ')' stmt
+	| IF '(' expr ')' stmt ELSE stmt
+	;
 
-while_stmt: WHILE '(' expr ')' stmt
-			   ;
+while_stmt
+        : WHILE '(' expr ')' stmt
+	;
 
-do_while_stmt: DO stmt WHILE '(' expr ')' ';'
-				  ;
+do_while_stmt
+        : DO stmt WHILE '(' expr ')' ';'
+	;
 
-for_stmt: FOR '(' empty_expr ';' empty_expr ';' empty_expr ')' stmt
-			 | FOR '(' IDENTIFIER IN expr ')' stmt
-			 | FOR '(' type IDENTIFIER IN expr ')' stmt
-			 ;
+for_stmt
+        : FOR '(' empty_expr ';' empty_expr ';' empty_expr ')' stmt
+	| FOR '(' IDENTIFIER IN expr ')' stmt
+	| FOR '(' type IDENTIFIER IN expr ')' stmt
+	;
 
 
-stmt: ';'
-    |  expr ';'
-    |  decl
-    |  if_stmnt
-    |  while_stmt
-    |  do_while_stmt
-    |  for_stmt
-    |  RETURN empty_expr
-    |  compound_stmt
-    |  decl
-    |  class_declaration_list
-    ;
-
-stmt_list: stmt
-        |  stmt_list stmt
+stmt
+        : ';'
+        | expr ';'
+        | decl
+        | if_stmnt
+        | while_stmt
+        | do_while_stmt
+        | for_stmt
+        | RETURN empty_expr
+        | compound_stmt
+        | decl
+        | class_declaration_list
         ;
 
-empty_stmt_list: /* empty */
-                        | stmt_list
-                        ;
+stmt_list
+        : stmt
+        | stmt_list stmt
+        ;
 
-compound_stmt: '{' empty_stmt_list '}'
-                        ;
+empty_stmt_list
+        : /* empty */
+        | stmt_list
+        ;
+
+compound_stmt
+        : '{' empty_stmt_list '}'
+        ;
 
 
-class_stmt: class_interface
-			   | class_implementation
-			   ;
+class_stmt
+        : class_interface
+	| class_implementation
+	;
 
-class_stmt_list: class_stmt
-					| class_stmt_list class_stmt
-					;
+class_stmt_list
+        : class_stmt
+	| class_stmt_list class_stmt
+	;
 
 // classes
-class_interface: INTERFACE IDENTIFIER ':' IDENTIFIER interface_stmt END
-			   | INTERFACE IDENTIFIER interface_stmt END
-			   | INTERFACE IDENTIFIER ':' CLASS_TYPE interface_stmt END
-			   ;
 
-interface_stmt: instance_vars interface_decl_list
-                        | init_decl_list
-                        ;
+class_interface
+        : INTERFACE IDENTIFIER ':' IDENTIFIER interface_stmt END
+	| INTERFACE IDENTIFIER interface_stmt END
+	| INTERFACE IDENTIFIER ':' CLASS_TYPE interface_stmt END
+	;
 
-interface_decl_list: decl
-                        | pr
+interface_stmt
+        : instance_vars interface_decl_list
+        | init_decl_list
+        ;
 
-implementation_stmt: instance_vars implementation_def_list
-                                | implementation_def_list
-                                ;
+interface_decl_list
+        : decl
+        | pr
+        ;
 
-class_implementation:
+implementation_stmt
+        : instance_vars implementation_def_list
+        | implementation_def_list
+        ;
 
-implementation_def_list:
+class_implementation
+        :
 
-instance_vars:
+implementation_def_list
+        :
 
-method_type: '(' type ')'
-                ;
+instance_vars
+        :
 
-property: PROPERTY '(' attr ')' type IDENTIFIER ';'
-                ;
+method_type
+        : '(' type ')'
+        ;
 
-attr: READONLY
-                | READWRITE
-                ;
+property
+        : PROPERTY '(' attr ')' type IDENTIFIER ';'
+        ;
+
+attr
+        : READONLY
+        | READWRITE
+        ;
 
 %%
