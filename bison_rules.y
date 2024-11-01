@@ -236,16 +236,6 @@ empty_stmt_list
         | stmt_list
         ;
 
-class_stmt
-        : class_interface
-	| class_implementation
-	;
-
-class_stmt_list
-        : class_stmt
-	| class_stmt_list class_stmt
-	;
-
 // CLASSES RULES 
 
 classes
