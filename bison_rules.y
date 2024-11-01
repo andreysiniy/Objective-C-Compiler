@@ -180,7 +180,7 @@ stmt
         | do_while_stmt
         | for_stmt
         | RETURN empty_expr
-        | compound_stmt
+        | '{' empty_stmt_list '}'
         | decl
         ;
 
@@ -193,11 +193,6 @@ empty_stmt_list
         : /* empty */
         | stmt_list
         ;
-
-compound_stmt
-        : '{' empty_stmt_list '}'
-        ;
-
 
 class_stmt
         : class_interface
