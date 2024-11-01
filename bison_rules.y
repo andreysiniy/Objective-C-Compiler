@@ -107,7 +107,17 @@ expr
 
 empty_expr
         : /* empty */
-        | expr;
+        | expr
+        ;
+        
+expr_list_empty
+        : /* empty */
+        | expr_list
+        ;
+
+expr_list
+        : expr
+        | expr_list ',' expr
 
 expr_msg
         : '[' receiver message ']'
