@@ -164,8 +164,8 @@ class_stmt: class_interface
 			   | class_implementation
 			   ;
 
-class_statement_list: class_stmt
-					| class_statement_list class_stmt
+class_stmt_list: class_stmt
+					| class_stmt_list class_stmt
 					;
 
 // classes
