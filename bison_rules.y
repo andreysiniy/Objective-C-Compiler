@@ -15,12 +15,14 @@
 %right UMINUS UPLUS UAMPERSAND
 %left '[' ']'
 %nonassoc '(' ')' 
+%nonassoc NO_ELSE
+%nonassoc ELSE
 
 %token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE CLASS_TYPE
 %token INT_C FLOAT_C DOUBLE_C STRING_C 
 %token ID SUPER SELF
 %token IDENTIFIER
-%token IF ELSE WHILE DO FOR
+%token IF WHILE DO FOR
 %token IN
 %token RETURN
 %token INTERFACE IMPLEMENTATION
@@ -192,13 +194,9 @@ message_arg
 // STATEMENTS RULES 
 
 if_stmt
-        : IF '(' expr ')' stmt else_stmt_empty
+        : IF '(' expr ')' stmt %prec NO_ELSE
+        | IF '(' expr ')' stmt ELSE stmt
 	;
-
-else_stmt_empty
-        : ELSE stmt
-        | /* empty */
-        ;
 
 
 while_stmt
@@ -218,14 +216,14 @@ for_stmt
 
 stmt
         : ';'
-        | expr ';'
-        | decl
+        | expr ';' 
         | if_stmt
         | while_stmt
         | do_while_stmt
         | for_stmt
         | RETURN empty_expr ';'
         | '{' empty_stmt_list '}'
+        | decl
         ;
 
 stmt_list
