@@ -14,11 +14,14 @@
 %left '*' '/'
 %right UMINUS UPLUS UAMPERSAND
 %left '[' ']'
+%left '.' ARROW
 %nonassoc '(' ')' 
 %nonassoc NO_ELSE
 %nonassoc ELSE
+%nonassoc PREC_EXPR
+%nonassoc ARRAY_EXPR 
 
-%token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE CLASS_TYPE
+%token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE 
 %token INT_C FLOAT_C DOUBLE_C STRING_C 
 %token ID SUPER SELF
 %token IDENTIFIER
@@ -59,7 +62,7 @@ constants
 
 decl
         : type init_decl_list_empt ';'
-        | CLASS_TYPE init_astr_decl_list_empty ';'
+        | IDENTIFIER init_astr_decl_list_empty ';'
         ;
 
 decl_list
@@ -85,9 +88,9 @@ init_decl_list
 init_decl
         : IDENTIFIER
         | IDENTIFIER '=' expr
-        | IDENTIFIER '[' empty_expr ']'
-        | IDENTIFIER '[' empty_expr ']' '=' '{' expr_list_empty '}'
-        | IDENTIFIER '[' empty_expr ']' '=' expr
+        | IDENTIFIER '[' expr ']'
+        | IDENTIFIER '[' expr ']' '=' '{' expr_list_empty '}'
+        | IDENTIFIER '[' expr ']' '=' expr
         ;
 
 field
@@ -113,9 +116,9 @@ field_astr_list
 init_astr_decl
         : '*' IDENTIFIER
         | '*' IDENTIFIER '=' expr
-        | IDENTIFIER '[' empty_expr ']'
-        | IDENTIFIER '[' empty_expr ']' '=' '{' expr_list_empty '}'
-        | IDENTIFIER '[' empty_expr ']' '=' expr
+        | IDENTIFIER '[' expr ']'
+        | IDENTIFIER '[' expr ']' '=' '{' expr_list_empty '}'
+        | IDENTIFIER '[' expr ']' '=' expr
         ;
 
 init_astr_decl_list
@@ -131,10 +134,11 @@ init_astr_decl_list_empty
 // EXPRESSIONS RULES
 
 expr
-        : IDENTIFIER
+        : IDENTIFIER %prec PREC_EXPR
         | constants
-        | expr_msg
+        | '[' receiver message ']'
         | '(' expr ')'
+        | IDENTIFIER '(' expr_list_empty ')'
         | '-' expr %prec UMINUS
         | '+' expr %prec UPLUS
         | '&' expr %prec UAMPERSAND
@@ -149,6 +153,13 @@ expr
         | expr '=' expr
         | expr '<' expr
         | expr '>' expr
+        | expr ARROW IDENTIFIER
+        | expr array_list
+        ;
+
+array_list
+        : '[' expr ']'
+        | array_list '[' expr ']'
         ;
 
 empty_expr
@@ -165,14 +176,10 @@ expr_list
         : expr
         | expr_list ',' expr
 
-expr_msg
-        : '[' receiver message ']'
-        ;
-
 receiver
         : SUPER
         | SELF
-        | CLASS_TYPE
+        | IDENTIFIER
         | '[' receiver message ']'
         ;
 
@@ -223,7 +230,7 @@ stmt
         | for_stmt
         | RETURN empty_expr ';'
         | '{' empty_stmt_list '}'
-        | decl
+        | decl 
         ;
 
 stmt_list
@@ -246,19 +253,11 @@ classes
 class_interface
         : INTERFACE IDENTIFIER ':' IDENTIFIER empty_interface_body END
 	| INTERFACE IDENTIFIER empty_interface_body END
-	| INTERFACE IDENTIFIER ':' CLASS_TYPE empty_interface_body END
-        | INTERFACE CLASS_TYPE ':' IDENTIFIER empty_interface_body END
-        | INTERFACE CLASS_TYPE empty_interface_body END
-        | INTERFACE CLASS_TYPE ':' CLASS_TYPE empty_interface_body END
 	;
 
 class_implementation
         : IMPLEMENTATION IDENTIFIER empty_implementation_body END
         | IMPLEMENTATION IDENTIFIER ':' IDENTIFIER empty_implementation_body END
-        | IMPLEMENTATION CLASS_TYPE implementation_body END
-        | IMPLEMENTATION CLASS_TYPE ':' IDENTIFIER  empty_implementation_body END
-        | IMPLEMENTATION IDENTIFIER ':' CLASS_TYPE empty_implementation_body END
-        | IMPLEMENTATION CLASS_TYPE ':' CLASS_TYPE empty_implementation_body END
         ;
 
 empty_interface_body
@@ -292,7 +291,7 @@ inst_fields_decl_list
 
 inst_fields_decl
         : type field_list ';'
-        | CLASS_TYPE field_astr_list ';'
+        | IDENTIFIER field_astr_list ';'
         ; 
 
 
@@ -332,14 +331,14 @@ implementation_decl_list
 
 method_type
         : '(' type ')'
-        | '(' CLASS_TYPE '*' ')'
+        | '(' IDENTIFIER '*' ')'
         | '(' type '['']' ')' 
-        | '(' CLASS_TYPE '*' '['']' ')'
+        | '(' IDENTIFIER '*' '['']' ')'
         ;
 
 property
         : PROPERTY attr type IDENTIFIER ';'
-        | PROPERTY attr CLASS_TYPE '*' IDENTIFIER ';'
+        | PROPERTY attr IDENTIFIER '*' IDENTIFIER ';'
         ;
 
 attr
