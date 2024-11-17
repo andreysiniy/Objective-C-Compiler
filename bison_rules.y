@@ -131,6 +131,16 @@ init_astr_decl_list_empty
         | init_astr_decl_list
         ;
 
+param_list
+        : param_decl
+        | param_list ',' param_decl
+        ;
+
+param_decl
+        : type IDENTIFIER
+        | IDENTIFIER '*' IDENTIFIER
+        ;
+
 // EXPRESSIONS RULES
 
 expr
@@ -278,6 +288,7 @@ empty_implementation_body
 implementation_body
         : '{' inst_fields_decl_list_empty '}' implementation_decl_list_empty
         | implementation_decl_list
+        ;
 
 inst_fields_decl_list_empty
         : /* empty */
@@ -309,12 +320,50 @@ interface_decl_list
         | interface_decl_list property
         ;
 
-// TODO: params support
 method_decl
-        : '+' method_type IDENTIFIER ';'
-        | '-' method_type IDENTIFIER ';'
-        | '+' '(' VOID ')' IDENTIFIER ';'
-        | '-' '(' VOID ')' IDENTIFIER ';'
+        : '+' method_type method_keywords ';'
+        | '+' '(' VOID ')' method_keywords ';'
+        | '+' method_keywords ';'
+        | '-' method_type method_keywords ';'
+        | '-' '(' VOID ')' method_keywords ';'
+        | '-' method_keywords ';'
+        ;
+
+method_def
+        : '+' method_type method_keywords decl_list_empt '{' empty_stmt_list '}' 
+        | '+' '(' VOID ')' method_keywords decl_list_empt '{' empty_stmt_list '}'
+        | '+' method_keywords decl_list_empt '{' empty_stmt_list '}'
+        | '-' method_type method_keywords decl_list_empt '{' empty_stmt_list '}'
+        | '-' '(' VOID ')' method_keywords decl_list_empt '{' empty_stmt_list '}'
+        | '-' method_keywords decl_list_empt '{' empty_stmt_list '}'
+        ;
+
+method_keywords
+        : IDENTIFIER
+        | IDENTIFIER ':' method_keyword_decl keyword_list_empty
+        | IDENTIFIER ':' method_keyword_decl keyword_list_empty ',' param_list
+        ;
+
+keyword_list_empty
+        : /* empty */
+        | keyword_list
+        ;
+
+keyword_list
+        : keyword_decl
+        | keyword_list keyword_decl
+        ; 
+
+method_keyword_decl
+        : method_type IDENTIFIER
+        | IDENTIFIER
+        ;
+
+keyword_decl
+        : ':' method_type IDENTIFIER
+        | ':' IDENTIFIER
+        | IDENTIFIER ':' method_type IDENTIFIER
+        | IDENTIFIER ':' IDENTIFIER
         ;
 
 implementation_decl_list_empty
@@ -324,16 +373,14 @@ implementation_decl_list_empty
 
 implementation_decl_list
         : decl
-        | method_decl
+        | method_def
         | implementation_decl_list decl
-        | implementation_decl_list method_decl
+        | implementation_decl_list method_def
         ;
 
 method_type
         : '(' type ')'
         | '(' IDENTIFIER '*' ')'
-        | '(' type '['']' ')' 
-        | '(' IDENTIFIER '*' '['']' ')'
         ;
 
 property
