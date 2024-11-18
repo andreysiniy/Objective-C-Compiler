@@ -325,12 +325,12 @@ method_decl
         ;
 
 method_def
-        : '+' method_type method_keywords decl_list_empty '{' empty_stmt_list '}' 
-        | '+' '(' VOID ')' method_keywords decl_list_empty '{' empty_stmt_list '}'
-        | '+' method_keywords decl_list_empty '{' empty_stmt_list '}'
-        | '-' method_type method_keywords decl_list_empty '{' empty_stmt_list '}'
-        | '-' '(' VOID ')' method_keywords decl_list_empty '{' empty_stmt_list '}'
-        | '-' method_keywords decl_list_empty '{' empty_stmt_list '}'
+        : '+' method_type method_keywords '{' empty_stmt_list '}' 
+        | '+' '(' VOID ')' method_keywords '{' empty_stmt_list '}'
+        | '+' method_keywords '{' empty_stmt_list '}'
+        | '-' method_type method_keywords '{' empty_stmt_list '}'
+        | '-' '(' VOID ')' method_keywords '{' empty_stmt_list '}'
+        | '-' method_keywords '{' empty_stmt_list '}'
         ;
 
 method_keywords
