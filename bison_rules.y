@@ -1,4 +1,4 @@
-%{
+ %{
   #include <stdio.h>
   #include <stdlib.h>
   #include <iostream>
@@ -13,8 +13,7 @@
 %left '+' '-'
 %left '*' '/'
 %right UMINUS UPLUS UAMPERSAND
-%left '[' ']'
-%left '.' ARROW
+%left '[' ']' '.' ARROW
 %nonassoc '(' ')' 
 %nonassoc NO_ELSE
 %nonassoc ELSE
@@ -61,8 +60,8 @@ constants
 // DECLARATIONS RULES
 
 decl
-        : type init_decl_list_empty ';'
-        | IDENTIFIER init_astr_decl_list_empty ';'
+        : type init_decl_list ';'
+        | IDENTIFIER init_astr_decl_list';'
         ;
 
 decl_list
@@ -164,13 +163,9 @@ expr
         | expr '<' expr
         | expr '>' expr
         | expr ARROW IDENTIFIER
-        | expr array_list
+        | expr '[' expr ']'
         ;
 
-array_list
-        : '[' expr ']'
-        | array_list '[' expr ']'
-        ;
 
 empty_expr
         : /* empty */
@@ -341,7 +336,6 @@ method_def
 method_keywords
         : IDENTIFIER
         | IDENTIFIER ':' method_keyword_decl keyword_list_empty
-        | IDENTIFIER ':' method_keyword_decl keyword_list_empty ',' param_list
         ;
 
 keyword_list_empty
