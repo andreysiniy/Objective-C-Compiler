@@ -21,7 +21,7 @@
 %nonassoc PREC_EXPR
 %nonassoc ARRAY_EXPR 
 
-%token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE 
+%token INT_TYPE FLOAT_TYPE CHAR_TYPE 
 %token INT_C FLOAT_C DOUBLE_C STRING_C 
 %token ID SUPER SELF
 %token IDENTIFIER
@@ -41,13 +41,14 @@
 program
         : stmt_list
         | classes 
+        | stmt_list classes
+        | classes stmt_list
         ;
 
 type
         : INT_TYPE
         | CHAR_TYPE
         | FLOAT_TYPE
-        | DOUBLE_TYPE
         | ID
         ;
 
@@ -144,11 +145,10 @@ param_decl
 // EXPRESSIONS RULES
 
 expr
-        : IDENTIFIER %prec PREC_EXPR
+        : IDENTIFIER 
         | constants
         | '[' receiver message ']'
         | '(' expr ')'
-        | IDENTIFIER '(' expr_list_empty ')'
         | '-' expr %prec UMINUS
         | '+' expr %prec UPLUS
         | '&' expr %prec UAMPERSAND
