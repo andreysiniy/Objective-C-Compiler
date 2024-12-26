@@ -62,8 +62,7 @@ constants
 // DECLARATIONS RULES
 
 decl
-        : type init_decl_list_empt ';'
-        | IDENTIFIER init_astr_decl_list_empty ';'
+        : type init_decl_list ';'
         ;
 
 decl_list
@@ -164,13 +163,9 @@ expr
         | expr '<' expr
         | expr '>' expr
         | expr ARROW IDENTIFIER
-        | expr array_list
+        | expr '[' expr ']'
         ;
 
-array_list
-        : '[' expr ']'
-        | array_list '[' expr ']'
-        ;
 
 empty_expr
         : /* empty */
@@ -330,18 +325,17 @@ method_decl
         ;
 
 method_def
-        : '+' method_type method_keywords decl_list_empt '{' empty_stmt_list '}' 
-        | '+' '(' VOID ')' method_keywords decl_list_empt '{' empty_stmt_list '}'
-        | '+' method_keywords decl_list_empt '{' empty_stmt_list '}'
-        | '-' method_type method_keywords decl_list_empt '{' empty_stmt_list '}'
-        | '-' '(' VOID ')' method_keywords decl_list_empt '{' empty_stmt_list '}'
-        | '-' method_keywords decl_list_empt '{' empty_stmt_list '}'
+        : '+' method_type method_keywords '{' empty_stmt_list '}' 
+        | '+' '(' VOID ')' method_keywords '{' empty_stmt_list '}'
+        | '+' method_keywords '{' empty_stmt_list '}'
+        | '-' method_type method_keywords '{' empty_stmt_list '}'
+        | '-' '(' VOID ')' method_keywords '{' empty_stmt_list '}'
+        | '-' method_keywords '{' empty_stmt_list '}'
         ;
 
 method_keywords
         : IDENTIFIER
         | IDENTIFIER ':' method_keyword_decl keyword_list_empty
-        | IDENTIFIER ':' method_keyword_decl keyword_list_empty ',' param_list
         ;
 
 keyword_list_empty
