@@ -60,71 +60,82 @@
 	Declarator_node *Declarator;
 }
 
+// ---------- Операции с их приоритетом ----------
 %right '='
 %left EQUAL NOT_EQUAL
 %left '<' '>' LESS_EQUAL GREATER_EQUAL
 %left '+' '-'
 %left '*' '/'
 %right UMINUS UPLUS UAMPERSAND
-%left '[' ']'
 %left '.' ARROW
-%nonassoc '(' ')' 
-%nonassoc NO_ELSE
-%nonassoc ELSE
-%nonassoc PREC_EXPR
-%nonassoc ARRAY_EXPR 
+%left '[' ']'
+%nonassoc '(' ')'
 
-%token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE 
-%token INT_C FLOAT_C DOUBLE_C STRING_C 
-%token ID SUPER SELF
-%token IDENTIFIER
-%token IF WHILE DO FOR
+//---------- Терминальные символы ----------
+%token <Type> INT 
+%token <Type> CHAR 
+%token <Type> FLOAT
+%token <Type> VOID
+%token ENUM
+%token IF ELSE WHILE DO FOR
 %token IN
-%token RETURN
-%token INTERFACE IMPLEMENTATION
-%token READONLY READWRITE
+%token INTERFACE IMPLEMENTATION 
 %token END
 %token PROPERTY
-%token VOID
+%token READONLY READWRITE
+%token SYNTHESIZE
+%token SELF SUPER ID /* НУЖНО ЛИ SUPER добавлять в expression */
+%token CLASS
+%token RETURN
+%token <Integer_constant> INTEGER_CONSTANT
+%token <String_constant> STRING_CONSTANT
+%token <Char_constant> CHAR_CONSTANT
+%token <Float_constant> FLOAT_CONSTANT
+%token <NSString_constant> NSSTRING_CONSTANT
+%token <Identifier> IDENTIFIER
+%token <Identifier> CLASS_NAME
 
 %type <Type> type method_type
-%type <Consts> constants
-%type <Decl> decl
-%type <Decl_list> decl_list_empty decl_list
-%type <Init_decl_list> init_astr_decl_list init_astr_decl_list_empty init_decl_list init_decl_list_empty
-%type <Init_decl> init_astr_decl init_decl
-%type <Param_list> param_list
-%type <Param_decl> param_decl
-%type <Expr> expr //TODO НЕТ ПУСТОГО ЭКСПРА
-%type <Expr_list> expr_list expr_list_empty
+%type <Numeric_constant> numeric_constant
+%type <Literal> literal
+%type <Declaration> declaration
+%type <Declaration_list> declaration_list_e declaration_list
+%type <Init_declarator_list> init_declarator_list_e init_declarator_list init_declarator_with_asterisk_list init_declarator_with_asterisk_list_e
+%type <Init_declarator> init_declarator init_declarator_with_asterisk
+%type <Parameter_list> parameter_list
+%type <Parameter_declaration> parameter_declaration
+%type <Expression> expression expression_e
+%type <Expression_list> expression_list expression_list_e
 %type <Receiver> receiver
-%type <Message> message
-%type <Arg_list> message_arg_list
-%type <Arg> message_arg
-%type <If> if_stmt
-%type <While> while_stmt
-%type <Do_while> do_while_stmt
-%type <For> for_stmt
-%type <Stmt> stmt
-%type <Stmt_list> stmt_list empty_stmt_list
-%type <Class_block> //TODO нет Class block
+%type <Message_selector> message_selector
+%type <Keyword_argument_list> keyword_argument_list keyword_argument_list_e
+%type <Keyword_argument> keyword_argument
+%type <If> if_statement
+%type <While> while_statement
+%type <Do_while> do_while_statement
+%type <For> for_statement
+%type <Statement> statement
+%type <Statement_list> statement_list_e statement_list
+%type <Class_block> class_block
 %type <Class_interface> class_interface
-%type <Interface_body> interface_body //TODO interface_body_empty
-%type <Implementation_body> implementation_body
+%type <Interface_body> interface_body interface_body_e
+%type <Implementation_body> implementation_body implementation_body_e
 %type <Class_implementation> class_implementation
-%type <Class_decl_list> //TODO ????
-%type <Class_list> classes 
-%type <Interface_decl_list> interface_decl_list interface_decl_list_empty
-%type <Method_decl> method_decl
-%type <Implementation_def_list> //TODO ???
-%type <Method_def> method_def
-//TODO Method_selector
-%type <Keyword_list> keyword_list keyword_list_empty
-%type <Keyword_decl> keyword_decl //TODO
+%type <Class_declaration_list> class_declaration_list 
+%type <Identifier_list> identifier_list
+%type <Interface_declaration_list> interface_declaration_list interface_declaration_list_e
+%type <Method_declaration> method_declaration 
+%type <Implementation_definition_list> implementation_definition_list implementation_definition_list_e
+%type <Method_definition> method_definition 
+%type <Method_selector> method_selector
+%type <Keyword_selector> keyword_selector keyword_selector_e
+%type <Keyword_declaration> keyword_declaration keyword_declaration_without_identifier
 %type <Property> property
-%type <Attr> attr
-%type <Program> program
-%type <Filed_list> field_list field_astr_list
-%type <Inst_field_decl> inst_fields_decl
-%type <Inst_field_decl_list> inst_fields_decl_list_empty inst_fields_decl_list
-%type <Field> field field_astr
+%type <Attribute> attribute
+%type <Program> program 
+%type <Function_and_class_list> function_and_class_list
+%type <Function> function
+%type <Declarator_list> declarator_list declarator_with_asterisk_list
+%type <Instance_variables_declaration> instance_variables_declaration
+%type <Instance_variables_declaration_list> instance_variables_declaration_list instance_variables_declaration_list_e
+%type <Declarator> declarator_with_asterisk declarator
