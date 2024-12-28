@@ -98,6 +98,8 @@ class Literal_node
         char *value;
 
         static Literal_node* createLiteralNode(literal_type type, char *value);
+
+};
 };
 
 // ---------- parameter_declaration ----------
