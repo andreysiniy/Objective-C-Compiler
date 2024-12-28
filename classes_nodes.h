@@ -101,6 +101,7 @@ class Literal_node
 
 };
 };
+};
 
 // ---------- parameter_declaration ----------
 
