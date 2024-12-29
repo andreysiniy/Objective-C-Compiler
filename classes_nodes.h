@@ -100,7 +100,147 @@ class Literal_node
         static Literal_node* createLiteralNode(literal_type type, char *value);
 
 };
+
+// -------------------- Объявления --------------------
+
+// ---------- statement ----------
+
+enum statement_type {
+    EMPTY_STATEMENT_TYPE,
+    SIMPLE_STATEMENT_TYPE,
+    RETURN_STATEMENT_TYPE,
+    IF_STATEMENT_TYPE,
+    WHILE_STATEMENT_TYPE,
+    DO_WHILE_STATEMENT_TYPE,
+    FOR_STATEMENT_TYPE,
+    COMPOUND_STATEMENT_TYPE,
+    DECLARATION_STATEMENT_TYPE
 };
+
+class Statement_node
+{
+    public:
+        int id;
+        enum statement_type type;
+        Expression_node *Expression;
+        Statement_node *Next;
+
+        static Statement_node* createStatementNodeFromSimpleStatement(statement_type type, Expression_node *expression);
+
+        virtual string toDot(string labelConection="");
+};
+
+// ---------- declaration ----------
+
+class Declaration_node : public Statement_node
+{
+    public:
+        int id;
+        Type_node *type;
+        Init_declarator_list_node *init_declarator_list;
+        Declaration_node *Next;
+
+        static Declaration_node* createDeclarationNode(Type_node *type, Init_declarator_list_node *initDeclarators);
+
+        string toDot(string labelConection="");
+};
+
+
+// ---------- declaration_list ----------
+
+class Declaration_list_node
+{
+    public:
+        int id;
+        Declaration_node *First;
+        Declaration_node *Last;
+
+        static Declaration_list_node* createDeclarationListNode(Declaration_node *declaration);
+        static Declaration_list_node* addToDeclarationListNode(Declaration_list_node *list, Declaration_node *declaration);
+
+        string toDot(string labelConection="");
+        vector<Declaration_node*>* getElements();        
+};
+
+// ---------- init_declarator_list ----------
+
+class Init_declarator_list_node
+{
+    public:
+        int id;
+        Init_declarator_node *First;
+        Init_declarator_node *Last;
+
+        static Init_declarator_list_node* createInitDeclaratorListNode(Init_declarator_node *initDeclarator);
+        static Init_declarator_list_node* addToInitDeclaratorListNode(Init_declarator_list_node *list, Init_declarator_node *initDeclarator);
+
+        vector<Init_declarator_node*>* getElements();
+};
+
+// ---------- init_declarator ----------
+
+enum init_declarator_type {
+    SIMPLE_DECLARATOR_TYPE,
+    DECLARATOR_WITH_INITIALIZING_TYPE,
+    ARRAY_DECLARATOR_TYPE,
+    ARRAY_WITH_INITIALIZING_DECLARATOR_TYPE
+};
+
+class Init_declarator_node
+{
+    public:
+        int id;
+        enum init_declarator_type type;
+        Expression_node *expression;
+        Expression_node *ArraySize;
+        Init_declarator_node *Next;
+        char *Declarator;
+        Expression_list_node *InitializerList;
+
+        static Init_declarator_node* createInitDeclaratorNode(init_declarator_type type, char *declarator, Expression_node *expression);
+        static Init_declarator_node* createInitDeclaratorNodeFromArray(init_declarator_type type, char *declarator, Expression_node *arraySize, Expression_node *expression, Expression_list_node *initializerList);
+        
+        string toDot(string labelConection="");
+};
+
+// ---------- declarator ----------
+class Declarator_node
+{
+    public:
+        int id;
+        char *Identifier;
+        Expression_node *Expression;
+
+        static Declarator_node* createDeclaratorNode(char *identifier, Expression_node *expression);
+
+};
+
+// ---------- declarator_list ----------
+
+class Declarator_list_node
+{
+    public:
+        int id;
+        std::vector<Declarator_node*> *Declarators;
+
+        static Declarator_list_node* createDeclaratorListNode(Declarator_node *declarator);
+        static Declarator_list_node* addToDeclaratorListNode(Declarator_list_node *list, Declarator_node *declarator);
+
+};
+
+// ---------- parameter_list ----------
+
+class Parameter_list_node
+{
+    public:
+        int id;
+        Parameter_declaration_node *First;
+        Parameter_declaration_node *Last;
+
+        static Parameter_list_node* createParameterListNode(Parameter_declaration_node *parameter);
+        static Parameter_list_node* addToParameterListNode(Parameter_list_node *list, Parameter_declaration_node *parameter);
+
+        vector<Parameter_declaration_node*>* getElements();
 };
 
 // ---------- parameter_declaration ----------
