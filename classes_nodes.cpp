@@ -141,3 +141,14 @@ Numeric_constant_node* Numeric_constant_node::createNumericConstantNodeFromFloat
     res->number.Float = number;
     return res;
 }
+
+// ---------- literal ----------
+
+Literal_node* Literal_node::createLiteralNode(literal_type type, char *value)
+{
+    Literal_node *res = new Literal_node;
+    res->id = maxId++;
+    res->type = type;
+    res->value = value;
+    return res;
+}
