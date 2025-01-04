@@ -55,6 +55,8 @@ class Type_node
 
         static Type_node* createTypeNode(type_type type);
         static Type_node* createTypeNodeFromClassName(type_type type, char *name);
+
+        string toDot(string labelConection="");
 };
 
 // -------------------- Константы --------------------
@@ -80,6 +82,7 @@ class Numeric_constant_node
         static Numeric_constant_node* createNumericConstantNodeFromInteger(int number);
         static Numeric_constant_node* createNumericConstantNodeFromFloat(float number);
 
+        string toDot();
 };
 
 // ---------- literal ----------
@@ -99,6 +102,7 @@ class Literal_node
 
         static Literal_node* createLiteralNode(literal_type type, char *value);
 
+        string toDot();
 };
 
 // -------------------- Объявления --------------------
@@ -174,6 +178,7 @@ class Init_declarator_list_node
         static Init_declarator_list_node* createInitDeclaratorListNode(Init_declarator_node *initDeclarator);
         static Init_declarator_list_node* addToInitDeclaratorListNode(Init_declarator_list_node *list, Init_declarator_node *initDeclarator);
 
+        string toDot(string labelConection="");
         vector<Init_declarator_node*>* getElements();
 };
 
@@ -213,6 +218,7 @@ class Declarator_node
 
         static Declarator_node* createDeclaratorNode(char *identifier, Expression_node *expression);
 
+        string toDot(string labelConection="");
 };
 
 // ---------- declarator_list ----------
@@ -226,6 +232,7 @@ class Declarator_list_node
         static Declarator_list_node* createDeclaratorListNode(Declarator_node *declarator);
         static Declarator_list_node* addToDeclaratorListNode(Declarator_list_node *list, Declarator_node *declarator);
 
+        string toDot(string labelConection="");
 };
 
 // ---------- parameter_list ----------
@@ -241,6 +248,7 @@ class Parameter_list_node
         static Parameter_list_node* addToParameterListNode(Parameter_list_node *list, Parameter_declaration_node *parameter);
 
         vector<Parameter_declaration_node*>* getElements();
+        string toDot(string labelConection="");
 };
 
 // ---------- parameter_declaration ----------
