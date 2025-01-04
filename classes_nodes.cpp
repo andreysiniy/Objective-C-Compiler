@@ -97,3 +97,25 @@ Function_node* Function_node::createFunctionNode(Type_node *type, char *name, St
     res->statement = statement;
     return res;
 }
+
+// -------------------- Типы --------------------
+
+// ---------- type ----------
+
+Type_node* Type_node::createTypeNode(type_type type)
+{
+    Type_node *res = new Type_node;
+    res->id = maxId++;
+    res->type = type;
+    res->ClassName = NULL;
+    return res;
+}
+
+Type_node* Type_node::createTypeNodeFromClassName(type_type type, char *name)
+{
+    Type_node *res = new Type_node;
+    res->id = maxId++;
+    res->type = type;
+    res->ClassName = name;
+    return res;
+}
