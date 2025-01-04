@@ -85,3 +85,15 @@ Function_and_class_list_node* Function_and_class_list_node::addToFunctionAndClas
     list->FunctionsAndClasses->push_back(functionAndClass);
     return list;
 }
+
+// ---------- function ----------
+
+Function_node* Function_node::createFunctionNode(Type_node *type, char *name, Statement_list_node *statement)
+{
+    Function_node *res = new Function_node;
+    res->id = maxId++;
+    res->Type = type;
+    res->Name = name;
+    res->statement = statement;
+    return res;
+}
