@@ -119,3 +119,25 @@ Type_node* Type_node::createTypeNodeFromClassName(type_type type, char *name)
     res->ClassName = name;
     return res;
 }
+
+//-------------------- Константы --------------------
+
+// ---------- numeric_constant ----------
+
+Numeric_constant_node* Numeric_constant_node::createNumericConstantNodeFromInteger(int number)
+{
+    Numeric_constant_node *res = new Numeric_constant_node;
+    res->id = maxId++;
+    res->type = INTEGER_CONSTANT_TYPE;
+    res->number.Int = number;
+    return res;
+}
+
+Numeric_constant_node* Numeric_constant_node::createNumericConstantNodeFromFloat(float number)
+{
+    Numeric_constant_node *res = new Numeric_constant_node;
+    res->id = maxId++;
+    res->type = FLOAT_CONSTANT_TYPE;
+    res->number.Float = number;
+    return res;
+}
