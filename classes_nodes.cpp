@@ -591,3 +591,36 @@ For_statement_node* For_statement_node::createForStatementNodeFromForeach(for_ty
     return res;
 }
 
+// -------------------- Операторы --------------------
+
+// ---------- statement ----------
+
+Statement_node* Statement_node::createStatementNodeFromSimpleStatement(statement_type type, Expression_node *expression)
+{
+    Statement_node *res = new Statement_node;
+    res->id = maxId++;
+    res->type = type;
+    res->Expression = expression;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- statement_list ----------
+
+Statement_list_node* Statement_list_node::createStatementListNode(Statement_node *statement)
+{
+    Statement_list_node *res = new Statement_list_node;
+    res->id = maxId++;
+    res->type = COMPOUND_STATEMENT_TYPE;
+    res->First = statement;
+    res->Last = statement;
+    return res;
+}
+
+Statement_list_node* Statement_list_node::addToStatementListNode(Statement_list_node *list, Statement_node *statement)
+{
+    list->Last->Next = statement;
+    list->Last = statement;
+    return list;
+}
+
