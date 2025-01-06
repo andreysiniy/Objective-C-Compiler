@@ -288,3 +288,216 @@ Parameter_declaration_node* Parameter_declaration_node::createParameterDeclarati
     res->Next = NULL;
     return res;
 }
+
+// -------------------- Выражения --------------------
+
+// ---------- expression ----------
+
+Expression_node* Expression_node::createExpressionNodeFromIdentifier(char *name)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = IDENTIFIER_EXPRESSION_TYPE;
+    res->name = name;
+    res->Left = NULL;
+    res->Right = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromLiteral(Literal_node *value)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = LITERAL_EXPRESSION_TYPE;
+    res->name = NULL;
+    res->constant.literal = value;
+    res->Left = NULL;
+    res->Right = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromNumericConstant(Numeric_constant_node *value)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = NUMERIIC_CONSTANT_EXPRESSION_TYPE;
+    res->name = NULL;
+    res->constant.num = value;
+    res->Left = NULL;
+    res->Right = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromSimpleExpression(expression_type type, Expression_node *expression)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = type;
+    res->name = NULL;
+    res->Left = NULL;
+    res->Right = expression;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromSelf()
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = SELF_EXPRESSION_TYPE;
+    res->name = NULL;
+    res->Left = NULL;
+    res->Right = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromSuper()
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = SUPER_EXPRESSION_TYPE;
+    res->name = NULL;
+    res->Left = NULL;
+    res->Right = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromOperator(expression_type type, Expression_node *leftExpression, Expression_node *rightExpression)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = type;
+    res->name = NULL;
+    res->Left = leftExpression;
+    res->Right = rightExpression;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromMessageExpression(Receiver_node *receiver, Message_selector_node *arguments)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = MESSAGE_EXPRESSION_EXPRESSION_TYPE;
+    res->Receiver = receiver;
+    res->Arguments = arguments;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromFunctionCall(char *name, Expression_list_node *argumentsList)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = FUNCTION_CALL_EXPRESSION_TYPE;
+    res->name = name;
+    res->ArgumentsList = argumentsList;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::createExpressionNodeFromMemberAccessOperator(expression_type type, Expression_node *expression, char *memberName)
+{
+    Expression_node *res = new Expression_node;
+    res->id = maxId++;
+    res->type = type;
+    res->name = memberName;
+    res->Left = expression;
+    res->Right = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Expression_node* Expression_node::setPriority(Expression_node *expression, bool priority)
+{
+    expression->isPriority = priority;
+    return expression;
+}
+
+// ---------- expression_list ----------
+
+Expression_list_node* Expression_list_node::createExpressionListNode(Expression_node *expression)
+{
+    Expression_list_node *res = new Expression_list_node;
+    res->id = maxId++;
+    res->First = expression;
+    res->Last = expression;
+    return res;
+}
+
+Expression_list_node* Expression_list_node::addToExpressionListNode(Expression_list_node *list, Expression_node *expression)
+{
+    list->Last->Next = expression;
+    list->Last = expression;
+    return list;
+}
+
+// ---------- receiver ----------
+
+Receiver_node* Receiver_node::createReceiverNode(receiver_type type, char *name)
+{
+    Receiver_node *res = new Receiver_node;
+    res->id = maxId++;
+    res->Type = type;
+    res->name = name;
+    return res;
+}
+
+Receiver_node* Receiver_node::createReceiverNodeFromMessageExpression(Receiver_node *receiver, Message_selector_node *arguments)
+{
+    Receiver_node *res = new Receiver_node;
+    res->id = maxId++;
+    res->Type = MESSAGE_EXPRESSION_RECEIVER_TYPE;
+    res->Receiver = receiver;
+    res->Arguments = arguments;
+    return res;
+}
+
+// ---------- message_selector ----------
+
+Message_selector_node* Message_selector_node::createMessageSelectorNode(char *methodName,Expression_node *expression, Keyword_argument_list_node *arguments, Expression_list_node *exprArguments)
+{
+    Message_selector_node *res = new Message_selector_node;
+    res->id = maxId++;
+    res->MethodName = methodName;
+    res->Arguments = arguments;
+    res->Expression = expression;
+    res->ExprArguments = exprArguments;
+    return res;
+}
+
+// ---------- keyword_argument_list ----------
+
+Keyword_argument_list_node* Keyword_argument_list_node::createKeywordArgumentListNode(Keyword_argument_node *argument)
+{
+    Keyword_argument_list_node *res = new Keyword_argument_list_node;
+    res->id = maxId++;
+    res->First = argument;
+    res->Last = argument;
+    return res;
+}
+
+Keyword_argument_list_node* Keyword_argument_list_node::addToKeywordArgumentListNode(Keyword_argument_list_node *list, Keyword_argument_node *argument)
+{
+    list->Last->Next = argument;
+    list->Last = argument;
+    return list;
+}
+
+// ---------- keyword_argument ----------
+
+Keyword_argument_node* Keyword_argument_node::createKeywordArgumentNode(keyword_argument_type type, char *identifier, Expression_node *expression)
+{
+    Keyword_argument_node *res = new Keyword_argument_node;
+    res->id = maxId++;
+    res->type = type;
+    res->name = identifier;
+    res->expression = expression;
+    res->Next = NULL;
+    return res;
+}
