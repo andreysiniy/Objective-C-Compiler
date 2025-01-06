@@ -517,3 +517,77 @@ If_statement_node* If_statement_node::createIfStatementNode(if_type type, Expres
     res->FalseBranch = falseBranch;
     return res;
 }
+
+// -------------------- Управляющие структуры: циклы --------------------
+
+// ---------- while_statement ----------
+
+While_statement_node* While_statement_node::createWhileStatementNode(Expression_node *condition, Statement_node *body)
+{
+    While_statement_node *res = new While_statement_node;
+    res->id = maxId++;
+    res->type = WHILE_STATEMENT_TYPE;
+    res->LoopCondition = condition;
+    res->LoopBody = body;
+    return res;
+}
+
+// ---------- do_while_statement ----------
+
+Do_while_statement_node* Do_while_statement_node::createDoWhileStatementNode(Expression_node *condition, Statement_node *body)
+{
+    Do_while_statement_node *res = new Do_while_statement_node;
+    res->id = maxId++;
+    res->type = DO_WHILE_STATEMENT_TYPE;
+    res->LoopCondition = condition;
+    res->LoopBody = body;
+    return res;
+}
+
+// ---------- for_statement ----------
+
+For_statement_node* For_statement_node::createForStatementNode(Expression_list_node *initExpression, Expression_node *condition, Expression_list_node *loopExpression, Statement_node *body)
+{
+    For_statement_node *res = new For_statement_node;
+    res->id = maxId++;
+    res->ForType = FOR_FOR_TYPE;
+    res->type = FOR_STATEMENT_TYPE;
+    res->InitExpression = initExpression;
+    res->ConditionExpression = condition;
+    res->LoopExpression = loopExpression;
+    res->LoopBody = body;
+    res->name = NULL;
+    res->NameType = NULL;
+    return res;
+}
+
+For_statement_node* For_statement_node::createForStatementNodeFromForWithDeclaration(Type_node *type, Init_declarator_list_node *initList, Expression_node *condition, Expression_list_node *loopExpression, Statement_node *body)
+{
+    For_statement_node *res = new For_statement_node;
+    res->id = maxId++;
+    res->ForType = FOR_WITH_DECLARATION_FOR_TYPE;
+    res->type = FOR_STATEMENT_TYPE;
+    res->InitExpression = NULL;
+    res->ConditionExpression = condition;
+    res->LoopExpression = loopExpression;
+    res->LoopBody = body;
+    res->NameType = type;
+    res->InitList = initList;
+    return res;
+}
+
+For_statement_node* For_statement_node::createForStatementNodeFromForeach(for_type type, Type_node *varType, char *loopVar, Expression_node *expression, Statement_node *body)
+{
+    For_statement_node *res = new For_statement_node;
+    res->id = maxId++;
+    res->ForType = type;
+    res->type = FOR_STATEMENT_TYPE;
+    res->InitExpression = NULL;
+    res->LoopExpression = NULL;
+    res->ConditionExpression = expression;
+    res->LoopBody = body;
+    res->name = loopVar;
+    res->NameType = varType;
+    return res;
+}
+
