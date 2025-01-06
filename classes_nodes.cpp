@@ -501,3 +501,19 @@ Keyword_argument_node* Keyword_argument_node::createKeywordArgumentNode(keyword_
     res->Next = NULL;
     return res;
 }
+
+// -------------------- Управляющие структуры: развилки --------------------
+
+// ---------- if_statement ----------
+
+If_statement_node* If_statement_node::createIfStatementNode(if_type type, Expression_node *condition, Statement_node *trueBranch, Statement_node *falseBranch)
+{
+    If_statement_node *res = new If_statement_node;
+    res->id = maxId++;
+    res->IfType = type;
+    res->type = IF_STATEMENT_TYPE;
+    res->Condition = condition;
+    res->TrueBranch = trueBranch;
+    res->FalseBranch = falseBranch;
+    return res;
+}
