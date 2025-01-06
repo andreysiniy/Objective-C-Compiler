@@ -624,3 +624,370 @@ Statement_list_node* Statement_list_node::addToStatementListNode(Statement_list_
     return list;
 }
 
+
+// -------------------- Классы --------------------
+
+// ---------- class_interface ----------
+
+Class_interface_node* Class_interface_node::createClassInterfaceNode(char *className, char *superclassName, Interface_body_node *body)
+{
+    Class_interface_node *res = new Class_interface_node;
+    res->id = maxId++;
+    res->type = INTERFACE_CLASS_BLOCK_TYPE;
+    res->ClassName = className;
+    res->SuperclassName = superclassName;
+    res->Body = body;
+
+    string classStr = className;
+    ClassNames.insert(classStr);
+    if (superclassName!= NULL)
+    {
+        string superClassStr = superclassName;
+        ClassNames.insert(superClassStr);
+    }
+    return res;
+}
+
+// ---------- interface_body ----------
+
+Interface_body_node* Interface_body_node::createInterfaceBodyNode(Instance_variables_declaration_list_node *variables, Interface_declaration_list_node *declarationList)
+{
+    Interface_body_node *res= new Interface_body_node;
+    res->id = maxId++;
+    res->Variables = variables;
+    res->Declaration_list = declarationList;
+    return res;
+}
+
+// ---------- implementation_body ----------
+
+Implementation_body_node* Implementation_body_node::createImplementationBodyNode(Instance_variables_declaration_list_node *variables, Implementation_definition_list_node *definitionList)
+{
+    Implementation_body_node *res= new Implementation_body_node;
+    res->id = maxId++;
+    res->Variables = variables;
+    res->Declaration_list = definitionList;
+    return res;
+}
+
+// ---------- class_implementation ----------
+
+Class_implementation_node* Class_implementation_node::createClassImplementationNode(char *className, char *superclassName, Implementation_body_node *body)
+{
+    Class_implementation_node *res = new Class_implementation_node;
+    res->id = maxId++;
+    res->type = IMPLEMENTATION_CLASS_BLOCK_TYPE;
+    res->ClassName = className;
+    res->SuperclassName = superclassName;
+    res->Body = body;
+
+    string classStr = className;
+    ClassNames.insert(classStr);
+    if (superclassName!= NULL)
+    {
+        string superClassStr = superclassName;
+        ClassNames.insert(superClassStr);
+    }
+    return res;
+}
+
+// ---------- class_declaration_list, class_list ----------
+
+Class_list_node* Class_list_node::createClassListNode(char *className)
+{
+    Class_list_node *res = new Class_list_node;
+    res->id = maxId++;
+    res->Class_names = new vector<char*>;
+    res->Class_names->push_back(className);
+
+    string classStr = className;
+    ClassNames.insert(classStr);
+    return res;
+}
+
+Class_list_node* Class_list_node::addToClassListNode(Class_list_node *list, char *className)
+{
+    list->Class_names->push_back(className);
+    string classStr = className;
+    ClassNames.insert(classStr);
+    return list;
+}
+
+Class_declaration_list_node* Class_declaration_list_node::createClassDeclarationListNode(Class_list_node *list)
+{
+    Class_declaration_list_node *res = new Class_declaration_list_node;
+    res->id = maxId++;
+    res->List = list;
+    for(char * className : *list->Class_names)
+    {
+        string classStr = className;
+        ClassNames.insert(classStr);
+    }
+    return res;
+}
+
+// ---------- instance_variables_declaration ----------
+
+Instance_variables_declaration_node* Instance_variables_declaration_node::createInstanceVariablesDeclarationNode(Type_node *type, Declarator_list_node *declaratorList)
+{
+    Instance_variables_declaration_node *res= new Instance_variables_declaration_node;
+    res->id = maxId++;
+    res->Type = type;
+    res->DeclaratorList = declaratorList;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- instance_variables_declaration_list ----------
+
+Instance_variables_declaration_list_node* Instance_variables_declaration_list_node::createInstanceVariablesDeclarationListNode(Instance_variables_declaration_node *declaration)
+{
+    Instance_variables_declaration_list_node *res= new Instance_variables_declaration_list_node;
+    res->id = maxId++;
+    res->First = declaration;
+    res->Last = declaration;
+    return res;
+}
+
+Instance_variables_declaration_list_node* Instance_variables_declaration_list_node::addToInstanceVariablesDeclarationListNode(Instance_variables_declaration_list_node *list, Instance_variables_declaration_node *declaration)
+{
+    list->Last->Next = declaration;
+    list->Last = declaration;
+    return list;
+}
+
+// ---------- interface_declaration_list ----------
+
+Interface_declaration_list_node* Interface_declaration_list_node::createInterfaceDeclarationListNodeFromDeclaration(Declaration_node *interfaceDeclaration)
+{
+    Interface_declaration_list_node *res = new Interface_declaration_list_node;
+    res->id = maxId++;
+    res->Declarations = new vector<interface_declaration>;
+    struct interface_declaration Declaration;
+    Declaration.declaration = interfaceDeclaration;
+    Declaration.method_declaration = NULL;
+    Declaration.property = NULL;
+    res->Declarations->push_back(Declaration);
+    return res;
+}
+
+Interface_declaration_list_node* Interface_declaration_list_node::createInterfaceDeclarationListNodeFromProperty(Property_node *interfaceDeclaration)
+{
+    Interface_declaration_list_node *res = new Interface_declaration_list_node;
+    res->id = maxId++;
+    res->Declarations = new vector<interface_declaration>;
+    struct interface_declaration Declaration;
+    Declaration.property = interfaceDeclaration;
+    Declaration.method_declaration = NULL;
+    Declaration.declaration = NULL;
+    res->Declarations->push_back(Declaration);
+    return res;
+}
+
+Interface_declaration_list_node* Interface_declaration_list_node::createInterfaceDeclarationListNodeFromMethodDeclaration(Method_declaration_node *interfaceDeclaration)
+{
+    Interface_declaration_list_node *res = new Interface_declaration_list_node;
+    res->id = maxId++;
+    res->Declarations = new vector<interface_declaration>;
+    struct interface_declaration Declaration;
+    Declaration.method_declaration = interfaceDeclaration;
+    Declaration.declaration = NULL;
+    Declaration.property = NULL;
+    res->Declarations->push_back(Declaration);
+    return res;
+}
+
+Interface_declaration_list_node* Interface_declaration_list_node::addDeclarationToInterfaceDeclarationListNode(Interface_declaration_list_node *list, Declaration_node *interfaceDeclaration)
+{
+    struct interface_declaration Declaration;
+    Declaration.declaration = interfaceDeclaration;
+    Declaration.method_declaration = NULL;
+    Declaration.property = NULL;
+    list->Declarations->push_back(Declaration);
+    return list;
+}
+
+Interface_declaration_list_node* Interface_declaration_list_node::addPropertyToInterfaceDeclarationListNode(Interface_declaration_list_node *list, Property_node *interfaceDeclaration)
+{
+    interface_declaration Declaration;
+    Declaration.property = interfaceDeclaration;
+    Declaration.method_declaration = NULL;
+    Declaration.declaration = NULL;
+    list->Declarations->push_back(Declaration);
+    return list;
+}
+
+Interface_declaration_list_node* Interface_declaration_list_node::addMethodDeclarationToInterfaceDeclarationListNode(Interface_declaration_list_node *list, Method_declaration_node *interfaceDeclaration)
+{
+    interface_declaration Declaration;
+    Declaration.method_declaration = interfaceDeclaration;
+    Declaration.declaration = NULL;
+    Declaration.property = NULL;
+    list->Declarations->push_back(Declaration);
+    return list;
+}
+
+// ---------- method_declaration, class_method_declaration, instance_method_declaration ----------
+
+Method_declaration_node* Method_declaration_node::createMethodDeclarationNode(method_declaration_type type, Type_node *methodType, Method_selector_node *selector)
+{
+    Method_declaration_node *res = new Method_declaration_node;
+    res->id = maxId++;
+    res->type = type;
+    res->MethodType = methodType;
+    res->MethodSelector = selector;
+    return res;
+}
+
+// ---------- implementation_definition_list ----------
+
+Implementation_definition_list_node* Implementation_definition_list_node::createImplementationDefinitionListNodeFromDeclaration(Declaration_node *implementationDefinition)
+{
+    Implementation_definition_list_node *res = new Implementation_definition_list_node;
+    res->id = maxId++;
+    res->Definitions = new vector<implementation_definition>;
+    struct implementation_definition Definition;
+    Definition.declaration = implementationDefinition;
+    Definition.method_definition = NULL;
+    Definition.synthesize = NULL;
+    res->Definitions->push_back(Definition);
+    return res;
+}
+
+Implementation_definition_list_node* Implementation_definition_list_node::createImplementationDefinitionListNodeFromMethodDeclaration(Method_definition_node *implementationDefinition)
+{
+    Implementation_definition_list_node *res = new Implementation_definition_list_node;
+    res->id = maxId++;
+    res->Definitions = new vector<implementation_definition>;
+    struct implementation_definition Definition;
+    Definition.method_definition = implementationDefinition;
+    Definition.declaration = NULL;
+    Definition.synthesize = NULL;
+    res->Definitions->push_back(Definition);
+    return res;
+}
+
+Implementation_definition_list_node* Implementation_definition_list_node::createImplementationDefinitionListNodeFromSynthesize(char *implementationDefinition)
+{
+    Implementation_definition_list_node *res = new Implementation_definition_list_node;
+    res->id = maxId++;
+    res->Definitions = new vector<implementation_definition>;
+    struct implementation_definition Definition;
+    Definition.synthesize = implementationDefinition;
+    Definition.declaration = NULL;
+    Definition.method_definition = NULL;
+    res->Definitions->push_back(Definition);
+    return res;
+}
+
+Implementation_definition_list_node* Implementation_definition_list_node::addDeclarationToImplementationDefinitionListNode(Implementation_definition_list_node *list, Declaration_node *implementationDefinition)
+{
+    struct implementation_definition Definition;
+    Definition.declaration = implementationDefinition;
+    Definition.method_definition = NULL;
+    Definition.synthesize = NULL;
+    list->Definitions->push_back(Definition);
+    return list;
+}
+
+Implementation_definition_list_node* Implementation_definition_list_node::addMethodDeclarationToImplementationDefinitionListNode(Implementation_definition_list_node *list, Method_definition_node *implementationDefinition)
+{
+    struct implementation_definition Definition;
+    Definition.method_definition = implementationDefinition;
+    Definition.declaration = NULL;
+    Definition.synthesize = NULL;
+    list->Definitions->push_back(Definition);
+    return list;
+}
+
+Implementation_definition_list_node* Implementation_definition_list_node::addSynthesizeToImplementationDefinitionListNode(Implementation_definition_list_node *list, char *implementationDefinition)
+{
+    implementation_definition Definition;
+    Definition.synthesize = implementationDefinition;
+    Definition.declaration = NULL;
+    Definition.method_definition = NULL;
+    list->Definitions->push_back(Definition);
+    return list;
+}
+
+// ---------- method_definition, class_method_definition, instance_method_definition ----------
+
+Method_definition_node* Method_definition_node::createMethodDefinitionNode(method_definition_type type, Type_node *methodType, Method_selector_node *selector, Declaration_list_node *declarationList, Statement_list_node *methodBody)
+{
+    Method_definition_node *res = new Method_definition_node;
+    res->id = maxId++;
+    res->type = type;
+    res->MethodType = methodType;
+    res->MethodSelector = selector;
+    res->DeclarationList = declarationList;
+    res->MethodBody = methodBody;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- method_selector ----------
+
+Method_selector_node* Method_selector_node::createMethodSelectorNode(char *methodName,Keyword_declaration_node *keywordDeclaration, Keyword_selector_node *selector, Parameter_list_node *parameters)
+{
+    Method_selector_node *res = new Method_selector_node;
+    res->id = maxId++;
+    res->MethodName = methodName;
+    res->KeywordSelector = selector;
+    res->ParameterListNode = parameters;
+    res->KeywordDeclaration = keywordDeclaration;
+    return res;
+}
+
+// ---------- keyword_selector ----------
+
+Keyword_selector_node* Keyword_selector_node::createKeywordSelectorNode(Keyword_declaration_node *declaration)
+{
+    Keyword_selector_node *res = new Keyword_selector_node;
+    res->id = maxId++;
+    res->First = declaration;
+    res->Last = declaration;
+    return res;
+}
+
+Keyword_selector_node* Keyword_selector_node::addToKeywordSelectorNode(Keyword_selector_node *list, Keyword_declaration_node *declaration)
+{
+    list->Last->Next = declaration;
+    list->Last = declaration;
+    return list;
+}
+
+// ---------- keyword_declaration ----------
+
+Keyword_declaration_node* Keyword_declaration_node::createKeywordDeclarationNode(Type_node *type, char *identifier, char *keywordName)
+{
+    Keyword_declaration_node *res = new Keyword_declaration_node;
+    res->id = maxId++;
+    res->KeywordType = type;
+    res->Identifier = identifier;
+    res->KeywordName = keywordName;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- property ----------
+
+Property_node* Property_node::createPropertyNode(Attribute_node *attribute, Type_node *type, char *name)
+{
+    Property_node *res = new Property_node;
+    res->id = maxId++;
+    res->Attribute = attribute;
+    res->type = type;
+    res->Name = name;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- attribute ----------
+
+Attribute_node* Attribute_node::createAttributeNode(attrribute_type type)
+{
+    Attribute_node *res = new Attribute_node;
+    res->id = maxId++;
+    res->type = type;
+    return res;
+}
