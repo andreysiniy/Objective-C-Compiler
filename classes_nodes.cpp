@@ -152,3 +152,139 @@ Literal_node* Literal_node::createLiteralNode(literal_type type, char *value)
     res->value = value;
     return res;
 }
+
+// --------------------- Объявления --------------------
+
+// ---------- declaration ----------
+
+Declaration_node* Declaration_node::createDeclarationNode(Type_node *type, Init_declarator_list_node *initDeclarators)
+{
+    Declaration_node *res = new Declaration_node;
+    res->id = maxId++;
+    res->type = type;
+    res->init_declarator_list = initDeclarators;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- declaration_list ----------
+
+Declaration_list_node* Declaration_list_node::createDeclarationListNode(Declaration_node *declaration)
+{
+    Declaration_list_node *res = new Declaration_list_node;
+    res->id = maxId++;
+    res->First = declaration;
+    res->Last = declaration;
+    return res;
+}
+
+Declaration_list_node* Declaration_list_node::addToDeclarationListNode(Declaration_list_node *list, Declaration_node *declaration)
+{
+    list->Last->Next = declaration;
+    list->Last = declaration;
+    return list;
+}
+
+// ---------- init_declarator_list ----------
+
+Init_declarator_list_node* Init_declarator_list_node::createInitDeclaratorListNode(Init_declarator_node *initDeclarator)
+{
+    Init_declarator_list_node *res = new Init_declarator_list_node;
+    res->id = maxId++;
+    res->First = initDeclarator;
+    res->Last = initDeclarator;
+    return res;
+}
+
+Init_declarator_list_node* Init_declarator_list_node::addToInitDeclaratorListNode(Init_declarator_list_node *list, Init_declarator_node *initDeclarator)
+{
+    list->Last->Next = initDeclarator;
+    list->Last = initDeclarator;
+    return list;
+}
+
+// ---------- init_declarator ----------
+
+Init_declarator_node* Init_declarator_node::createInitDeclaratorNode(init_declarator_type type, char *declarator, Expression_node *expression)
+{
+    Init_declarator_node *res = new Init_declarator_node;
+    res->id = maxId++;
+    res->type = type;
+    res->Declarator = declarator;
+    res->expression = expression;
+    res->ArraySize = NULL;
+    res->InitializerList = NULL;
+    res->Next = NULL;
+    return res;
+}
+
+Init_declarator_node* Init_declarator_node::createInitDeclaratorNodeFromArray(init_declarator_type type, char *declarator, Expression_node *arraySize, Expression_node *expression, Expression_list_node *initializerList)
+{
+    Init_declarator_node *res = new Init_declarator_node;
+    res->id = maxId++;
+    res->type = type;
+    res->Declarator = declarator;
+    res->expression = expression;
+    res->ArraySize = arraySize;
+    res->InitializerList = initializerList;
+    res->Next = NULL;
+    return res;
+}
+
+// ---------- declarator ----------
+
+Declarator_node* Declarator_node::createDeclaratorNode(char *identifier, Expression_node *expression)
+{
+    Declarator_node *res = new Declarator_node;
+    res->id = maxId++;
+    res->Identifier = identifier;
+    res->Expression = expression;
+    return res;
+}
+
+// ---------- declarator_list ----------
+
+Declarator_list_node* Declarator_list_node::createDeclaratorListNode(Declarator_node *declarator)
+{
+    Declarator_list_node *res = new Declarator_list_node;
+    res->id = maxId++;
+    res->Declarators = new vector<Declarator_node*>;
+    res->Declarators->push_back(declarator);
+    return res;
+}
+
+Declarator_list_node* Declarator_list_node::addToDeclaratorListNode(Declarator_list_node *list, Declarator_node *declarator)
+{
+    list->Declarators->push_back(declarator);
+    return list;
+}
+
+// ---------- parameter_list ----------
+
+Parameter_list_node* Parameter_list_node::createParameterListNode(Parameter_declaration_node *parameter)
+{
+    Parameter_list_node *res = new Parameter_list_node;
+    res->id = maxId++;
+    res->First = parameter;
+    res->Last = parameter;
+    return res;
+}
+
+Parameter_list_node* Parameter_list_node::addToParameterListNode(Parameter_list_node *list, Parameter_declaration_node *parameter)
+{
+    list->Last->Next = parameter;
+    list->Last = parameter;
+    return list;
+}
+
+// ---------- parameter_declaration ----------
+
+Parameter_declaration_node* Parameter_declaration_node::createParameterDeclarationNode(Type_node *type, char *name)
+{
+    Parameter_declaration_node *res = new Parameter_declaration_node;
+    res->id = maxId++;
+    res->type = type;
+    res->name = name;
+    res->Next = NULL;
+    return res;
+}
