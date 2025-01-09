@@ -991,3 +991,93 @@ Attribute_node* Attribute_node::createAttributeNode(attrribute_type type)
     res->type = type;
     return res;
 }
+
+
+// ------------------------------ ФУНКЦИИ ПОСТРОЕНИЯ ДЕРЕВА ------------------------------
+
+// -------------------- Типы --------------------
+
+// ---------- Type_node ----------
+
+string Type_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection != "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"";
+    switch (type)
+    {
+        case INT_TYPE:
+            res += "int";
+            break;
+        case CHAR_TYPE:
+            res += "char";
+            break;
+        case FLOAT_TYPE:
+            res += "float";
+            break;
+        case ID_TYPE:
+            res += "id";
+            break;
+        case CLASS_NAME_TYPE:
+            res += "class_name: ";
+            res += ClassName;
+            break;
+        case VOID_TYPE:
+            res += "void";
+            break;
+        default:
+            break;
+    }
+    res += "\"];\n";
+    return res;
+}
+
+// -------------------- Константы --------------------
+
+// ---------- Numeric_constant_node ----------
+
+string Numeric_constant_node::toDot()
+{
+    string res = "->" + to_string(id) + ";\n";
+    if (type == INTEGER_CONSTANT_TYPE)
+    {
+        res += to_string(id) + "[label=\"" + to_string(number.Int) + "\"];\n";
+    }
+    else if (type == FLOAT_CONSTANT_TYPE)
+    {
+        res += to_string(id) + "[label=\"" + to_string(number.Float) + "\"];\n";
+    }
+    
+    return res;
+}
+
+// ---------- Literal_node ----------
+
+string Literal_node::toDot()
+{
+    string res = "->" + to_string(id) + ";\n";
+    res += to_string(id) + "[label=<";
+    if (type == STRING_CONSTANT_TYPE)
+    {
+        res += "\"";
+        res += value;
+        res += "\"";
+    }
+    else if (type == CHAR_CONSTANT_TYPE)
+    {
+        res += "'";
+        res += value;
+        res += "'";
+    }
+    else if (type == NSSTRING_CONSTANT_TYPE)
+    {
+        res += "@\"";
+        res += value;
+        res += "\"";
+    }
+    res += ">];\n";
+    return res;
+}
+
