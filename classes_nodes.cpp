@@ -1571,3 +1571,154 @@ string Expression_node::toDot(string labelConection)
 
     return res;
 }
+
+// ---------- Expression_list_node ----------
+
+vector<Expression_node*>* Expression_list_node::getElements()
+{
+    vector<Expression_node*> *res = new vector<Expression_node*>;
+    Expression_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Expression_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id); 
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res+= ";\n";
+    res += to_string(id) + "[label=\"expression_list\"];\n";
+    vector<Expression_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+    delete elements;
+    return res;
+}
+
+// ---------- Receiver_node ----------
+
+string Receiver_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    if (Type == SUPER_RECEIVER_TYPE)
+        res += to_string(id) + "[label=\"receiver: super\"];\n";
+    else if (Type == SELF_RECEIVER_TYPE)
+        res += to_string(id) + "[label=\"receiver: self\"];\n";
+    else if (Type == OBJECT_NAME_RECEIVER_TYPE)
+    {
+        res += to_string(id) + "[label=\"receiver: object_name\"];\n";
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+    }
+    else if (Type == CLASS_NAME_RECEIVER_TYPE)
+    {
+        res += to_string(id) + "[label=\"receiver: class_name\"];\n";
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+    }
+    else if (Type == MESSAGE_EXPRESSION_RECEIVER_TYPE)
+    {
+        res += to_string(id) + "[label=\"receiver: message_expression\"];\n";
+        res += to_string(id);
+        res += Receiver->toDot("receiver");
+        res += to_string(id);
+        res += Arguments->toDot("arguments");
+    }
+    
+    return res;
+}
+
+// ---------- Message_selector_node ----------
+
+string Message_selector_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"message_selector\"];\n";
+    res += to_string(id) + ".1 [label=\"" + MethodName + "\"];\n";
+    res += to_string(id) + "->" + to_string(id) + ".1 [label=\"method name\"]; \n";
+    if (Arguments!= NULL)
+    {
+        res += to_string(id);
+        res += Arguments->toDot("arguments");
+    }
+    if (Expression != NULL)
+    {
+        res += to_string(id);
+        res += Expression->toDot("expression");
+    }
+    if (ExprArguments!= NULL)
+    {
+        res += to_string(id);
+        res += ExprArguments->toDot("expr_arguments");
+    }
+
+    return res;
+}
+
+// ---------- Keyword_argument_list_node ----------
+
+vector<Keyword_argument_node*>* Keyword_argument_list_node::getElements()
+{
+    vector<Keyword_argument_node*> *res = new vector<Keyword_argument_node*>;
+    Keyword_argument_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Keyword_argument_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"keyword_argument_list\"];\n";
+    vector<Keyword_argument_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+    delete elements;
+    return res;
+}
+
+// ---------- Keyword_argument_node ----------
+
+string Keyword_argument_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"keyword_argument\"];\n";
+
+    if (type == WITH_IDENTIFIER_KW_ARGUMENT_TYPE)
+    {
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"identifier\"]; \n";
+    }
+
+    res += to_string(id);
+    res += expression->toDot("expression");
+    return res;
+}
