@@ -1081,3 +1081,217 @@ string Literal_node::toDot()
     return res;
 }
 
+// -------------------- Объявления --------------------
+
+// ---------- Declaration_node ----------
+
+string Declaration_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+        
+    res += ";\n";
+    res += to_string(id) + "[label=\"declaration\"];\n";
+    res += to_string(id);
+    res += type->toDot();
+    if (init_declarator_list != NULL)
+    {
+        res += to_string(id);
+        res += init_declarator_list->toDot();
+    }
+    return res;
+}
+
+// ---------- Declaration_list_node ----------
+
+vector<Declaration_node*>* Declaration_list_node::getElements()
+{
+    vector<Declaration_node*>* res = new vector<Declaration_node*>;
+    Declaration_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Declaration_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"declaration_list\"];\n";
+    vector<Declaration_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot();
+    }
+    delete elements;
+    return res;
+}
+
+// ---------- Init_declarator_list_node ----------
+
+vector<Init_declarator_node*>* Init_declarator_list_node::getElements()
+{
+    vector<Init_declarator_node*>* res = new vector<Init_declarator_node*>;
+    Init_declarator_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Init_declarator_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"init_declarator_list\"];\n";
+    vector<Init_declarator_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+    delete elements;
+    return res;
+}
+
+// ---------- Init_declarator_node ----------
+
+string Init_declarator_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection != "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"init_declarator\"];\n";
+    res += to_string(id) + ".1 [label=\"" + Declarator + "\"];\n";
+    res += to_string(id) + "->" + to_string(id) + ".1[label=\"declarator\"];\n";
+    if (type == DECLARATOR_WITH_INITIALIZING_TYPE)
+    {
+        res += to_string(id);
+        res += expression->toDot("expression"); 
+    }
+    if (type == ARRAY_DECLARATOR_TYPE)
+    {
+        if (ArraySize!= NULL)
+        {
+            res += to_string(id);
+            res += ArraySize->toDot("array_size");
+        }
+    }
+    if (type == ARRAY_WITH_INITIALIZING_DECLARATOR_TYPE)
+    {
+        if (ArraySize!= NULL)
+        {
+            res += to_string(id);
+            res += ArraySize->toDot("array_size");
+        }
+        if (expression!= NULL)
+        {
+            res += to_string(id);
+            res += expression->toDot("expression");
+        }
+        if (InitializerList != NULL)
+        {
+            res += to_string(id);
+            res += InitializerList->toDot("initializer_list");
+        }
+    }
+    return res;
+}
+
+// ---------- Declarator_node ----------
+
+string Declarator_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"declarator\"];\n";
+    res += to_string(id) + ".1 [label=\"" + Identifier + "\"];\n";
+    res += to_string(id) + "->" + to_string(id) + ".1[label=\"identifier\"];\n";
+    if (Expression!= NULL)
+    {
+        res += to_string(id);
+        res += Expression->toDot("array_size");
+    }
+    return res;
+}
+
+// ---------- Declarator_list_node ----------
+
+string Declarator_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id); 
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]"; 
+    res+= ";\n";
+    res += to_string(id) + "[label=\"declarator_list\"];\n";
+    for (int i = 0; i < Declarators->size(); i++)
+    {
+        res += to_string(id);
+        res += Declarators->at(i)->toDot(to_string(i));
+    }
+    return res;
+}
+
+// ---------- Parameter_list ----------
+
+vector<Parameter_declaration_node*>* Parameter_list_node::getElements()
+{
+    vector<Parameter_declaration_node*>* res = new vector<Parameter_declaration_node*>;
+    Parameter_declaration_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Parameter_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]"; 
+    res += ";\n";
+    res += to_string(id) + "[label=\"parameter_list\"];\n";
+    vector<Parameter_declaration_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+    delete elements;
+    return res;
+}
+
+// ---------- Parameter_declaration_node ----------
+
+string Parameter_declaration_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"parameter_declaration :"; 
+    res += name;
+    res += "\"];\n";
+    res += to_string(id);
+    res += type->toDot("type");
+    return res;
+}
