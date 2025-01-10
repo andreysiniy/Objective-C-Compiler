@@ -1295,3 +1295,279 @@ string Parameter_declaration_node::toDot(string labelConection)
     res += type->toDot("type");
     return res;
 }
+
+// -------------------- Выражения --------------------
+
+// ---------- Expression_node ----------
+
+string Expression_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    if (isPriority)
+        res += to_string(id) + "[label=\"(expression)\"];\n";
+    else
+        res += to_string(id) + "[label=\"expression\"];\n";
+    if (type == IDENTIFIER_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        res += "->";
+        res += to_string(id) + ".1 [label=\"identifier\"];";
+        res += to_string(id) + ".1";
+        res += "[label=\"";
+        res += name;
+        res += "\"];\n";
+    }
+    else if (type == LITERAL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        res += constant.literal->toDot();
+    }
+    else if (type == NUMERIIC_CONSTANT_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        res += constant.num->toDot();
+    }
+    else if (type == SELF_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(self_expression)\"];\n";
+        else
+            res += "[label=\"self_expression\"];\n"; 
+    }
+    else if (type == SUPER_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(super_expression)\"];\n";
+        else 
+            res += "[label=\"super_expression\"];\n";
+    }
+    else if (type == MESSAGE_EXPRESSION_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(message_expression)\"];\n";
+        else
+            res += "[label=\"message_expression\"];\n";
+        res += to_string(id);
+        res += Receiver->toDot("receiver");
+        res += to_string(id);
+        res += Arguments->toDot("arguments");
+    }
+    else if (type == FUNCTION_CALL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(function_call_expression)\"];\n";
+        else
+            res += "[label=\"function_call_expression\"];\n";
+        res += to_string(id) + ".1 [label=\""+ name +"\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+        res += to_string(id);
+        res += ArgumentsList->toDot("arguments_list");
+    }
+    else if (type == UMINUS_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(-)\"];\n";
+        else
+            res += "[label=\"-\"];\n";
+        res += to_string(id);
+        res += Right->toDot();
+    }
+    else if (type == UPLUS_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(+)\"];\n";
+        else
+            res += "[label=\"+\"];\n";
+        res += to_string(id);
+        res += Right->toDot();
+    }
+    else if (type == UAMPERSAND_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(&)\"];\n";
+        else
+            res += "[label=\"&\"];\n";
+        res += to_string(id);
+        res += Right->toDot();
+    }
+    else if (type == PLUS_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(+)\"];\n";
+        else
+            res += "[label=\"+\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == MINUS_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(-)\"];\n";
+        else
+            res += "[label=\"-\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == MUL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(*)\"];\n";
+        else
+            res += "[label=\"*\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == DIV_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(/)\"];\n";
+        else
+            res += "[label=\"/\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == EQUAL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(==)\"];\n";
+        else
+            res += "[label=\"==\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == NOT_EQUAL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(!=)\"];\n";
+        else
+            res += "[label=\"!=\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == GREATER_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(>)\"];\n";
+        else
+            res += "[label=\">\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == LESS_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(<)\"];\n";
+        else
+            res += "[label=\"<\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == GREATER_EQUAL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(>=)\"];\n";
+        else
+            res += "[label=\">=\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == LESS_EQUAL_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(<=)\"];\n";
+        else
+            res += "[label=\"<=\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == ASSIGNMENT_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(=)\"];\n";
+        else
+            res += "[label=\"=\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+    else if (type == DOT_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(.)\"];\n";
+        else
+            res += "[label=\".\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+    }
+    else if (type == ARROW_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"(->)\"];\n";
+        else
+            res += "[label=\"->\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+    }
+    else if (type == ARRAY_ELEMENT_ACCESS_EXPRESSION_TYPE)
+    {
+        res += to_string(id);
+        if (isPriority)
+            res += "[label=\"([])\"];\n";
+        else
+            res += "[label=\"[]\"];\n";
+        res += to_string(id);
+        res += Left->toDot("left");
+        res += to_string(id);
+        res += Right->toDot("right");
+    }
+
+    return res;
+}
