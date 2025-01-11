@@ -1722,3 +1722,211 @@ string Keyword_argument_node::toDot(string labelConection)
     res += expression->toDot("expression");
     return res;
 }
+
+// -------------------- Операторы --------------------
+
+// ---------- Statement_node ----------
+
+string Statement_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    if (type == EMPTY_STATEMENT_TYPE)
+    {
+        res += to_string(id) + "[label=\"empty_statement\"];\n";
+    }
+    else if (type == SIMPLE_STATEMENT_TYPE)
+    {
+        res += to_string(id) + "[label=\"simple_statement\"];\n";
+        res += to_string(id);
+        res += Expression->toDot("expression");
+    }
+    else if (type == RETURN_STATEMENT_TYPE)
+    {
+        res += to_string(id) + "[label=\"return_statement\"];\n";
+        if (Expression!= NULL)
+        {
+            res += to_string(id);
+            res += Expression->toDot("expression");
+        }
+    }
+    return res;
+}
+
+// ----------- If_statement_node ----------
+
+string If_statement_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"if\"];\n";
+    
+    res += to_string(id);
+    res += Condition->toDot("condition");
+
+    res += to_string(id);
+    res += TrueBranch->toDot("true");
+
+    if (FalseBranch!= NULL)
+    {
+        res += to_string(id);
+        res += FalseBranch->toDot("false");
+    }
+    return res;
+}
+
+// ----------- While_statement_node ----------
+
+string While_statement_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"while\"];\n";
+    
+    res += to_string(id);
+    res += LoopCondition->toDot("condition");
+    
+    res += to_string(id);
+    res += LoopBody->toDot("body");
+    
+    return res;
+}
+
+// ---------- Do_while_statement_node ----------
+
+string Do_while_statement_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"do_while\"];\n";
+    
+    res += to_string(id);
+    res += LoopCondition->toDot("condition");
+
+    res += to_string(id);
+    res += LoopBody->toDot("body");
+    
+    return res;
+}
+
+// ---------- For_statement_node ----------
+
+string For_statement_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"for\"];\n";
+    
+    if (ForType == FOR_FOR_TYPE)
+    {
+        if (InitExpression!= NULL)
+        {
+            res += to_string(id);
+            res += InitExpression->toDot("init_expression");
+        }
+        if (ConditionExpression!= NULL)
+        {
+            res += to_string(id);
+            res += ConditionExpression->toDot("condition_expression");
+        }
+        if (LoopExpression!= NULL)
+        {
+            res += to_string(id);
+            res += LoopExpression->toDot("loop_expression");
+        }
+
+        res += to_string(id);
+        res += LoopBody->toDot("body");
+    }
+    else if (ForType == FOR_WITH_DECLARATION_FOR_TYPE)
+    {
+        res += to_string(id);
+        res += NameType->toDot("type");
+
+        res += to_string(id);
+        res += InitList->toDot("init_list");
+
+        if (ConditionExpression!= NULL)
+        {
+            res += to_string(id);
+            res += ConditionExpression->toDot("condition_expression");
+        }
+        if (LoopExpression!= NULL)
+        {
+            res += to_string(id);
+            res += LoopExpression->toDot("loop_expression");
+        }
+        res += to_string(id);
+        res += LoopBody->toDot("body");
+    }
+    else if (ForType == FOREACH_FOR_TYPE)
+    {
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"identifier\"];\n";
+
+        res += to_string(id);
+        res += ConditionExpression->toDot("expression");
+
+        res += to_string(id);
+        res += LoopBody->toDot("body");
+    }
+    else if (ForType == FOREACH_WITH_DECLARATION_FOR_TYPE)
+    {
+        res += to_string(id);
+        res += NameType->toDot("type");
+
+        res += to_string(id) + ".1 [label=\"" + name + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"identifier\"];\n";
+
+        res += to_string(id);
+        res += ConditionExpression->toDot("expression");
+
+        res += to_string(id);
+        res += LoopBody->toDot("body");
+    }
+    return res;
+}
+
+
+// ---------- Statement_list_node ----------
+
+vector<Statement_node*>* Statement_list_node::getElements()
+{
+    vector<Statement_node*>* res = new vector<Statement_node*>;
+    Statement_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Statement_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"statement_list\"];\n";
+
+    vector<Statement_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+    delete elements;
+    return res;
+}
