@@ -1930,3 +1930,467 @@ string Statement_list_node::toDot(string labelConection)
     delete elements;
     return res;
 }
+
+// -------------------- Классы --------------------
+
+
+string Class_block_node::toDot(string labelConection)
+{
+    return string();
+}
+
+// ---------- Class_interface_node ----------
+
+string Class_interface_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"class_interface\"];\n";
+
+    res += to_string(id) + ".1 [label=\"" + ClassName + "\"];\n";
+    res += to_string(id) + "->" + to_string(id) + ".1 [label=\"class name\"];\n";
+
+    if (SuperclassName!= NULL)
+    {
+        res += to_string(id) + ".2 [label=\"" + SuperclassName + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".2 [label=\"superclass name\"];\n";
+    }
+
+    if (Body != NULL)
+    {
+        res += to_string(id);
+        res += Body->toDot("body");
+    }
+
+    return res;
+}
+
+// ---------- Interface_body_node ----------
+
+string Interface_body_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"interface_body\"];\n";
+
+    if (Variables!= NULL)
+    {
+        res += to_string(id);
+        res += Variables->toDot("variables");
+    }
+
+    if (Declaration_list != NULL)
+    {
+        res += to_string(id);
+        res += Declaration_list->toDot("declaration_list");
+    }
+
+    return res;
+}
+
+// ---------- Implementation_body_node ----------
+
+string Implementation_body_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"implementation_body\"];\n";
+
+    if (Variables!= NULL)
+    {
+        res += to_string(id);
+        res += Variables->toDot("variables");
+    }
+
+    if (Declaration_list != NULL)
+    {
+        res += to_string(id);
+        res += Declaration_list->toDot("definition_list");
+    }
+
+    return res;
+}
+
+// ---------- Class_implementation_node ----------
+
+string Class_implementation_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"class_implementation\"];\n";
+
+    res += to_string(id) + ".1 [label=\"" + ClassName + "\"];\n";
+    res += to_string(id) + "->" + to_string(id) + ".1 [label=\"class name\"];\n";
+
+    if (SuperclassName!= NULL)
+    {
+        res += to_string(id) + ".2 [label=\"" + SuperclassName + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + ".2 [label=\"superclass name\"];\n";
+    }
+
+    if (Body!= NULL)
+    {
+        res += to_string(id);
+        res += Body->toDot("body");
+    }
+    return res;
+}
+
+// ---------- Class_declaration_list_node ----------
+
+string Class_declaration_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"class_declaration_list\"];\n";
+
+    res += to_string(id);
+    res += List->toDot();
+
+    return res;
+}
+
+// ---------- Class_list_node ----------
+
+string Class_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"class_list\"];\n";
+
+    for (int i = 0; i < Class_names->size(); i++)
+    {
+        res += to_string(id) + "." + to_string(i) + " [label=\"" + Class_names->at(i) + "\"];\n";
+        res += to_string(id) + "->" + to_string(id) + "." + to_string(i) + " [label=\"" + to_string(i) + "\"];\n";
+    }
+
+    return res;
+}
+
+// ---------- Instance_variables_declaration_node ----------
+
+string Instance_variables_declaration_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"instance_variables_declaration\"];\n";
+
+    res += to_string(id);
+    res += Type->toDot("type");
+
+    res += to_string(id);
+    res += DeclaratorList->toDot("declarator_list");
+
+    return res;
+}
+
+// ---------- Instance_variables_declaration_list_node ----------
+
+vector<Instance_variables_declaration_node*>* Instance_variables_declaration_list_node::getElements()
+{
+    vector<Instance_variables_declaration_node*>* res = new vector<Instance_variables_declaration_node*>;
+    Instance_variables_declaration_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Instance_variables_declaration_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"instance_variables_declaration_list\"];\n";
+
+    vector<Instance_variables_declaration_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+
+    return res;
+}
+
+// ---------- Interface_declaration_list_node ----------
+
+string Interface_declaration_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"interface_declaration_list\"];\n";
+
+    for (int i = 0; i < Declarations->size(); i++)
+    {
+        res += to_string(id);
+        if (Declarations->at(i).declaration != NULL)
+            res += Declarations->at(i).declaration->toDot(to_string(i));
+        else if (Declarations->at(i).property != NULL)
+            res += Declarations->at(i).property->toDot(to_string(i));
+        else if (Declarations->at(i).method_declaration != NULL)
+            res += Declarations->at(i).method_declaration->toDot(to_string(i));
+    }
+
+    return res;
+}
+
+// ---------- Method_declaration_node ----------
+
+string Method_declaration_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    
+    if (type == CLASS_METHOD_DECLARATION_TYPE)
+        res += to_string(id) + "[label=\"class_method_declaration\"];\n";
+    else if (type == INSTANCE_METHOD_DECLARATION_TYPE)
+        res += to_string(id) + "[label=\"instance_method_declaration\"];\n";
+    
+    if (MethodType != NULL)
+    {
+        res += to_string(id);
+        res += MethodType->toDot("method_type");
+    }
+
+    res += to_string(id);
+    res += MethodSelector->toDot("selector");
+
+    return res;
+}
+
+// ---------- Implementation_definition_list_node ----------
+
+string Implementation_definition_list_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"implementation_definition_list\"];\n";
+
+    for (int i = 0; i < Definitions->size(); i++)
+    {
+        if (Definitions->at(i).declaration!= NULL)
+        {
+            res += to_string(id);
+            res += Definitions->at(i).declaration->toDot(to_string(i));
+        }
+        else if (Definitions->at(i).method_definition!= NULL)
+        {
+            res += to_string(id);
+            res += Definitions->at(i).method_definition->toDot(to_string(i));
+        }
+        else if (Definitions->at(i).synthesize!= NULL)
+        {
+            res += to_string(id) + ".1 [label=\"synthesize: " + Definitions->at(i).synthesize + "\"];\n";
+            res += to_string(id) + "->" + to_string(id) + ".1 [label=\"" + to_string(i) + "\"];\n";
+        }
+    }
+
+    return res;
+}
+
+// ---------- Method_definition_node ----------
+
+string Method_definition_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    
+    if (type == CLASS_METHOD_DEFINITION_TYPE)
+        res += to_string(id) + "[label=\"class_method_definition\"];\n";
+    else if (type == INSTANCE_METHOD_DEFINITION_TYPE)
+        res += to_string(id) + "[label=\"instance_method_definition\"];\n";
+
+    if (MethodType!= NULL)
+    {
+        res += to_string(id);
+        res += MethodType->toDot("method_type");
+    }
+
+    res += to_string(id);
+    res += MethodSelector->toDot("selector");
+
+    if (DeclarationList != NULL)
+    {
+        res += to_string(id);
+        res += DeclarationList->toDot("declaration_list");
+    }
+
+    if (MethodBody != NULL)
+    {
+        res += to_string(id);
+        res += MethodBody->toDot("body");
+    }
+
+    return res;
+}
+
+// ---------- Method_selector_node ----------
+
+string Method_selector_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"method_selector\"];\n";
+
+    res += to_string(id) + "->" + to_string(id) + ".1 [label=\"method_name\"];\n";
+    res += to_string(id) + ".1 [label=\"" + MethodName + "\"];\n";
+
+    if (KeywordSelector != NULL)
+    {
+        res += to_string(id);
+        res += KeywordSelector->toDot("keyword_selector");
+    }
+
+    if (ParameterListNode != NULL)
+    {
+        res += to_string(id);
+        res += ParameterListNode->toDot("parameter_list");
+    }
+
+    if (KeywordDeclaration != NULL)
+    {
+        res += to_string(id);
+        res += KeywordDeclaration->toDot("keyword_parameters");
+    }
+
+    return res;
+}
+
+// ---------- Keyword_selector_node ----------
+
+vector<Keyword_declaration_node*>* Keyword_selector_node::getElements()
+{
+    vector<Keyword_declaration_node*>* res = new vector<Keyword_declaration_node*>;
+    Keyword_declaration_node *current = First;
+    res->push_back(current);
+    while (current->Next!= NULL)
+    {
+        current = current->Next;
+        res->push_back(current);
+    }
+    return res;
+}
+
+string Keyword_selector_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"];\n";
+    res += to_string(id) + "[label=\"keyword_selector\"];\n";
+    
+    vector<Keyword_declaration_node*>* elements = getElements();
+    for (int i = 0; i < elements->size(); i++)
+    {
+        res += to_string(id);
+        res += elements->at(i)->toDot(to_string(i));
+    }
+    
+    return res;
+}
+
+// ---------- Keyword_declaration_node ----------
+
+string Keyword_declaration_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"keyword_declaration\"];\n";
+
+    if (KeywordType!= NULL)
+    {
+        res += to_string(id);
+        res += KeywordType->toDot("keyword_type");
+    }
+
+    if (Identifier!= NULL)
+    {
+        res += to_string(id) + "->" + to_string(id) + ".1 [label=\"identifier\"];\n";
+        res += to_string(id) + ".1 [label=\"" + Identifier + "\"];\n";
+    }
+
+    res += to_string(id) + "->" + to_string(id) + ".2 [label=\"keyword_name\"];\n";
+    res += to_string(id) + ".2 [label=\"" + KeywordName + "\"];\n";
+
+    return res;
+}
+
+// ---------- Property_node ----------
+
+string Property_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"property\"];\n";
+
+    if (Attribute != NULL)
+    {
+        res += to_string(id);
+        res += Attribute->toDot("attribute_type");
+    }
+
+    res += to_string(id);
+    res += type->toDot("type");
+
+    res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+    res += to_string(id) + ".1 [label=\"" + Name + "\"];\n";
+
+    return res;
+}
+
+// ---------- Attribute_node ----------
+
+string Attribute_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id);
+    
+    if (type == READONLY_ATTRIBUTE_TYPE)
+    {
+        res += "[label=\"readonly\"];\n";
+    }
+    else if (type == READWRITE_ATTRIBUTE_TYPE)
+    {
+        res += "[label=\"readwrite\"];\n";
+    }
+    else if (type == EMPTY_ATTRIBUTE_TYPE)
+    {
+        res += "[label=\"empty\"];\n";
+    }
+    return res;
+}
