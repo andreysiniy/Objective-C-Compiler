@@ -2394,3 +2394,65 @@ string Attribute_node::toDot(string labelConection)
     }
     return res;
 }
+
+// -------------------- Program ----------------------
+
+// ---------- Program_node ----------
+
+string Program_node::toDot()
+{
+    string res = "digraph ObjectiveC { rankdir=\"LR\";\n";
+    res += to_string(id) + "[label=\"program\"];\n";
+
+    res += to_string(id);
+    res += list->toDot();
+    res += "}\n";
+    return res;
+}
+
+// ---------- Function_and_class_list_node ----------
+
+string Function_and_class_list_node::toDot()
+{
+    string res = "->" + to_string(id) + ";\n";
+    res += to_string(id) + "[label=\"function_and_class_list\"];\n";
+
+    for (int i = 0; i < FunctionsAndClasses->size(); i++)
+    {
+        res += to_string(id);
+        if (FunctionsAndClasses->at(i).function!= NULL)
+            res += FunctionsAndClasses->at(i).function->toDot(to_string(i));
+        else if (FunctionsAndClasses->at(i).class_block!= NULL)
+            res += FunctionsAndClasses->at(i).class_block->toDot(to_string(i));
+        else if (FunctionsAndClasses->at(i).class_declaration_list!= NULL)
+            res += FunctionsAndClasses->at(i).class_declaration_list->toDot(to_string(i));
+    }
+
+    return res;
+}
+
+// ---------- Function_node ----------
+
+string Function_node::toDot(string labelConection)
+{
+    string res = "->" + to_string(id);
+    if (labelConection!= "")
+        res += "[label=\"" + labelConection + "\"]";
+    res += ";\n";
+    res += to_string(id) + "[label=\"function\"];\n";
+
+    res += to_string(id);
+    res += Type->toDot("type");
+
+    res += to_string(id) + "->" + to_string(id) + ".1 [label=\"name\"];\n";
+    res += to_string(id) + ".1 [label=\""; 
+    res += Name;
+    res += "\"];\n";
+
+    if (statement != NULL)
+    {
+        res += to_string(id);
+        res += statement->toDot("body");
+    }
+    return res;
+}
