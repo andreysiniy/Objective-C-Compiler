@@ -31,6 +31,18 @@ public class InOutFuncs {
         return  System.console().readLine();
     }
 
+    /**
+     * Считывает целое число с консоли
+     * */
+    public static int readIntStatic() {
+        int res = 0;
+        try {
+            res = Integer.parseInt(readStatic());
+        } catch (NumberFormatException e) {
+            res = 0;
+        }
+        return res;
+    }
 
     /**
      * Считывает символ с консоли
