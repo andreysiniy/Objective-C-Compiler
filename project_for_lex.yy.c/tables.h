@@ -54,6 +54,13 @@ public:
 
     ConstantsTable();
 
+
+    int findOrAddFieldRefConstant(string className, string fieldName, string descriptor); // Поиск или формирование константы fieldRef
+
+	int findOrAddMethodRefConstant(string className, string methodName, string descriptor); // Поиск или формирование константы methodRef
+
+
+    int findConstant(constantType type, string* utf8string, int number = NULL, int firstRef = NULL, int secondRef = NULL);
 };
 
 // ---------- Таблица функций ----------
