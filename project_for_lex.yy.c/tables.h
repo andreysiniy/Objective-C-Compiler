@@ -123,6 +123,11 @@ public:
 
     ClassesTableElement(string name, string *superclassName, bool isImplementation);
 
+    string getClassName(); // Получение имени класса
+	string getSuperClassName(); // Получение имени родительского класса
+    void fillFieldRefs(); // Заполнение fieldRef для текущего класса
+	void fillMethodRefs(); // Заполнение methodRef для текущего класса
+    void fillLiterals(); // Заполнение строковых констант и integer констант более 2 байт для текущего класса
 
 	void addConstantsToTable(); //Добавляет константы типа Class в таблицу
 
