@@ -205,6 +205,7 @@ public:
     void addProperty(ConstantsTable* constantTable, string name, string descriptor, bool isReadonly, Type* type);
 
 };
+};
 
 	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
 };
