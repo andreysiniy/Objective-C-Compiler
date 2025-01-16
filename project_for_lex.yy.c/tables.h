@@ -180,6 +180,32 @@ public:
     MethodsTableElement* addMethod(ConstantsTable* constantTable, string name, string descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes);
 
 };
+
+// ----------- Таблица свойств ----------
+
+class PropertiesTableElement
+{
+public:
+    int Name = NULL; // Ссылка на константу с именем свойства
+    int Descriptor = NULL; // Ссылка на константу с дескриптором типа свойства
+    bool IsReadonly = NULL; // Флаг, который показывает, что свойство доступно только для чтения
+    Type* type; // Тип свойства
+    string NameStr; // Имя свойства
+    string DescriptorStr; // Дескриптор свойства
+
+    PropertiesTableElement(int name, int descriptor, bool isReadonly, Type* type, string nameStr, string descriptorStr);
+
+};
+
+class PropertiesTable
+{
+public:
+    map<string, PropertiesTableElement*> items; // Таблица  свойств класса, в качестве ключа - Имя свойства класса
+
+    void addProperty(ConstantsTable* constantTable, string name, string descriptor, bool isReadonly, Type* type);
+
+};
+
 	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
 };
 };
