@@ -99,6 +99,10 @@ public:
 	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в функциях
 	static void fillLiterals(); //Функция поиска и заполнения литералов
 
+
+	static void semanticTransform(); // Преобразования дерева
+};
+
 // ---------- Таблица классов ----------
 
 class ClassesTableElement
