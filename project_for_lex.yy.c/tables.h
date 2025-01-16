@@ -51,6 +51,7 @@ public:
     ConstantsTable();
 
 };
+
 // ---------- Таблица функций ----------
 
 class FunctionsTableElement
@@ -74,4 +75,47 @@ public:
     static map<string, FunctionsTableElement*> items; // Таблица функций, в качестве ключа - Имя функции
 
     static FunctionsTableElement* addFunction(string name, string descriptor, Statement_node* bodyStart, vector<Type*>* params, Type* returnType);
+// ---------- Таблица классов ----------
+
+class ClassesTableElement
+{
+public:
+    int Name; // Ссылка на константу с именем класса
+    int SuperclassName; // Ссылка на константу с именем родительского класса
+    bool IsImplementation; //Флаг, который показывает является ли класс реализацией (ВОЗМОЖНО, СТОИТ ДОБАВИТЬ ИМЕННО НАЛИЧИЕ РЕАЛИЗАЦИИ КЛАССА)
+    bool IsHaveInterface = false; // Флаг, который показывает имеет ли реализация интерфейс
+    int ThisClass; // Ссылка на константу текущего класса
+    int Superclass; // Ссылка на константу родительского класса
+    FieldsTable* Fields; // Ссылка на соответствующую таблицу полей класса
+    MethodsTable* Methods; // Ссылка на соответстующую таблицу методов класса
+    PropertiesTable* Properties; // Ссылка на соответствующую таблицу свойств класса
+    ConstantsTable* ConstantTable; // Таблица констант
+    int constructorNumber; //Ссылка на константу с methodRef конструктора родителя
+
+    ClassesTableElement(string name, string *superclassName, bool isImplementation);
+
+
+	void addConstantsToTable(); //Добавляет константы типа Class в таблицу
+
+
+private:
+	void appendConstructor();
+};
+
+class ClassesTable
+{
+public:
+    static map<string, ClassesTableElement*> *items; // Таблица классов, в качестве ключа - Имя класса
+
+    static ClassesTableElement* addClass(string name, string *superclassName, bool isImplementation, Class_block_node *classBlock);
+
+	static void initRTL();
+
+private:
+    static void initClassProgram();
+	static void initClassInOutFuncs();
+    static void initClassNSObject();
+	static void initClassNSString();
+    static void initClassNSArray();
+};
 };
