@@ -47,6 +47,10 @@ public:
     int maxId = 1; // Наибольший номер константы
     map<int, ConstantsTableElement*> items; // Таблица констант
 
+    int findOrAddConstant(constantType type, string utf8string);
+    int findOrAddConstant(constantType type, int number = NULL, int firstRef = NULL, int secondRef = NULL);
+    ConstantsTableElement* getConstant(int id); //Получение константы
+    string getConstantString(int id); //Получение значения UTF8 константы
 
     ConstantsTable();
 
