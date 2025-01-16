@@ -40,3 +40,38 @@ public:
 
 	vector<char> generateBytes(); //Генерация байт кода константы
 };
+
+class ConstantsTable
+{
+public:
+    int maxId = 1; // Наибольший номер константы
+    map<int, ConstantsTableElement*> items; // Таблица констант
+
+
+    ConstantsTable();
+
+};
+// ---------- Таблица функций ----------
+
+class FunctionsTableElement
+{
+public:
+    Statement_node* BodyStart = NULL; // Ссылка на узел начала тела функции
+    LocalVariablesTable* LocalVariables = NULL; // Ссылка на соответствующую таблицу локальных переменных
+    string NameStr; // Имя функции
+    string DescriptorStr; // Дескриптор функции
+	vector<Type*>* ParametersTypes = NULL; // Типы параметров
+	Type* ReturnType = NULL; // Тип возвращаемого значения
+
+    FunctionsTableElement(Statement_node* bodyStart, string nameStr, string descriptorStr, vector<Type*> *params, Type* returnType);
+
+
+};
+
+class FunctionsTable
+{
+public:
+    static map<string, FunctionsTableElement*> items; // Таблица функций, в качестве ключа - Имя функции
+
+    static FunctionsTableElement* addFunction(string name, string descriptor, Statement_node* bodyStart, vector<Type*>* params, Type* returnType);
+};
