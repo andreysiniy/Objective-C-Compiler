@@ -78,6 +78,10 @@ public:
     FunctionsTableElement(Statement_node* bodyStart, string nameStr, string descriptorStr, vector<Type*> *params, Type* returnType);
 
 
+    void fillFieldRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение fieldRef для текущей функции
+	void fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение methodRef для текущей функции
+	void fillLiterals(ConstantsTable* constantTable); // Заполнение литералов
+
 };
 
 class FunctionsTable
