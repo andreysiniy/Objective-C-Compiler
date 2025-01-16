@@ -205,7 +205,29 @@ public:
     void addProperty(ConstantsTable* constantTable, string name, string descriptor, bool isReadonly, Type* type);
 
 };
+
+// ---------- Таблица локальных переменных ----------
+
+class LocalVariablesTableElement
+{
+public:
+    int Id = NULL; // Номер локальной переменной
+    string Name; // Имя локальной переменной
+    Type* type; //Тип переменной
+
+    LocalVariablesTableElement(int id, string name, Type* type);
+
 };
+
+class LocalVariablesTable
+{
+public:
+    int maxId = 0; // Наибольший номер локальной переменной
+    map<string, LocalVariablesTableElement*> items; // Таблица локальных переменных, в качестве ключа - Имя локальной переменной
+
+    int findOrAddLocalVariable(string name, Type* type);
+
+    bool isContains(string name);
 
 	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
 };
