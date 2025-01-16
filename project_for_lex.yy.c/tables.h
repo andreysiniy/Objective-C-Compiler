@@ -94,6 +94,11 @@ public:
     static map<string, FunctionsTableElement*> items; // Таблица функций, в качестве ключа - Имя функции
 
     static FunctionsTableElement* addFunction(string name, string descriptor, Statement_node* bodyStart, vector<Type*>* params, Type* returnType);
+
+    static void fillFieldRefs(); //Функция поиска и заполнения fieldRef в функциях, побочным эфектом контролирует наличие функции main
+	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в функциях
+	static void fillLiterals(); //Функция поиска и заполнения литералов
+
 // ---------- Таблица классов ----------
 
 class ClassesTableElement
