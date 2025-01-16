@@ -172,4 +172,13 @@ public:
 
 };
 
+class MethodsTable
+{
+public:
+    map< string, MethodsTableElement* > items; //Таблица методов класса, в качестве ключа - Имя метода класса
+
+    MethodsTableElement* addMethod(ConstantsTable* constantTable, string name, string descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes);
+
+	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
+};
 };
