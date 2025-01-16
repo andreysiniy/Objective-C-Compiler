@@ -153,6 +153,11 @@ public:
 
 	static void initRTL();
 
+
+	static void fillFieldRefs(); //Функция поиска и заполнения fieldRef в классах
+	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в классах
+    static void fillLiterals(); //Функция поиска и заполнения строковых констант и integer констант более 2 байт
+
 private:
     static void initClassProgram();
 	static void initClassInOutFuncs();
