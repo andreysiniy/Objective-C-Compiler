@@ -158,7 +158,10 @@ public:
 	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в классах
     static void fillLiterals(); //Функция поиска и заполнения строковых констант и integer констант более 2 байт
 
+
+    static void semanticTransform(); // Преобразования дерева
 	static void addConstantsToTable(); //Добавляет константы типа Class в таблицу
+
 private:
     static void initClassProgram();
 	static void initClassInOutFuncs();
