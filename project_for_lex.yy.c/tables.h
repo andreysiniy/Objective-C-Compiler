@@ -99,6 +99,7 @@ public:
 	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в функциях
 	static void fillLiterals(); //Функция поиска и заполнения литералов
 
+	static void convertToClassProgramMethods(); //Преобразование функций в методы класса Program и проверка наличия функции main
 
 	static void semanticTransform(); // Преобразования дерева
 };
