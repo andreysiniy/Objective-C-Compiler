@@ -118,4 +118,58 @@ private:
 	static void initClassNSString();
     static void initClassNSArray();
 };
+
+// ---------- Таблица полей класса ----------
+
+class FieldsTableElement
+{
+public:
+    int Name = NULL; // Ссылка на константу с именем поля
+    int Descriptor = NULL; // Ссылка на константу с дескриптором поля
+    bool IsInstance = NULL; // Флаг, показывающий является ли поле частью экземпляра класса
+	int InstanceIndex = NULL; // Индекс instance variable в списке (нужно, так как важен их порядок)
+    Type* type; // Тип поля
+    string NameStr; // Имя поля
+    string DescriptorStr; // Дескриптор поля
+	Expression_node* InitialValue = NULL; // Инициализирующее выражение
+
+    FieldsTableElement(int name, int descriptor, bool isInstance, int instanceIndex, Type* type, string nameStr, string descriptorStr, Expression_node* initialValue);
+
+    void fillLiterals(ConstantsTable* constantTable);
+
+};
+
+class FieldsTable
+{
+public:
+	int maxInstanceIndex = 1;
+    map < string, FieldsTableElement*> items; //Таблица полей класса, в качестве ключа - Имя поля класса
+
+    void addField(ConstantsTable* constantTable, string name, string descriptor, bool isInstance, Type* type, Expression_node* initValue);
+
+};
+
+// ---------- Таблица методов ----------
+
+class MethodsTableElement
+{
+public:
+    int Name = NULL; // Ссылка на константу с именем метода
+    int Descriptor = NULL; // Ссылка на константу с дескриптором метода (НУЖНО ЛИ НА KEYWORD ИЛИ ИХ НУЖНО ПРЕОБРАЗОВЫВАТЬ К СТАНДАРТНОМУ ДЕСКРИПТОРУ ФУНКЦИИ?)
+    bool IsClassMethod = NULL; // Флаг, который показывает принадлежность метода к классу, а не объекту
+    Statement_node* BodyStart = NULL; // Ссылка на узел начала тела метода
+    LocalVariablesTable* LocalVariables = NULL; // Ссылка на соответствующую таблицу локальных переменных
+    Type* ReturnType; //Тип возвращаемого значения
+    vector<Type*>* ParamsTypes = NULL; //Тип параметров
+    vector<Type*>* KeywordsTypes = NULL; //Тип параметров keyword
+
+    string NameStr; // Имя метода
+    string DescriptorStr; // Дескриптор метода
+
+    MethodsTableElement(int name, int descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes, string nameStr, string descriptorStr);
+	void fillLiterals(ConstantsTable* constantTable);
+
+
+};
+
 };
