@@ -129,6 +129,14 @@ public:
 	void fillMethodRefs(); // Заполнение methodRef для текущего класса
     void fillLiterals(); // Заполнение строковых констант и integer констант более 2 байт для текущего класса
 
+    bool isContainsField(string fieldName); // Проверка наличия поля
+    FieldsTableElement* getFieldForRef(string name, string* descriptor, string* className); //Получение информации о поле
+	bool isHaveOneOfSuperclass(string name); // Является ли указанный класс одним из потомков указанного класса
+	bool isContainsMethod(string methodName); // Проверка наличия метода
+	MethodsTableElement* getMethodForRef(string name, string* descriptor, string* className, bool isSupercall = false); //Получение информации о методе
+
+
+	void semanticTransform();
 	void addConstantsToTable(); //Добавляет константы типа Class в таблицу
 
 
