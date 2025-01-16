@@ -218,9 +218,14 @@ public:
     string DescriptorStr; // Дескриптор метода
 
     MethodsTableElement(int name, int descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes, string nameStr, string descriptorStr);
+    void fillFieldRefs(ConstantsTable *constantTable, ClassesTableElement* classTableElement); // Заполнение fieldRef для текущего метода
+	void fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение methodRef для текущего метода
 	void fillLiterals(ConstantsTable* constantTable);
 
 
+    void semanticTransform(ConstantsTable* constants);
+    void addDefaultReturn(Statement_node *lastStatement);
+	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
 };
 
 class MethodsTable
