@@ -231,4 +231,28 @@ public:
 
 	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
 };
+
+// ---------- Типы ----------
+class Type
+{
+public:
+    type_type DataType; // Тип данных
+    string ClassName; //Имя класса
+    Expression_node *ArrSize = NULL; // Размер массива
+
+    Type(type_type dataType, string className, Expression_node* arrSize);
+    Type(type_type dataType, string className);
+    Type(type_type dataType);
+    Type(type_type dataType, Expression_node* arrSize);
+    Type(type_type dataType, string className, int arrSize);
+    Type(type_type dataType, int arrSize);
+
+    string toString();
+    string getDescriptor();
+    bool equal(Type* other);
+
+    int getDefaultValue();
+	bool isCastableTo(Type* other); // Метод, который проверяет можно ли привести текущий тип к other
+	bool isPrimitive(); // Метод, который проверяет является ли текущий тип примитивным
+	Type* getSuperType(); // Метод, который возвращает родительский тип
 };
