@@ -928,3 +928,20 @@ void MethodsTableElement::semanticTransform(ConstantsTable* constants)
 		}
 	}
 }
+// -------------------- MethodsTable --------------------
+
+MethodsTableElement* MethodsTable::addMethod(ConstantsTable* constantTable, string name, string descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes)
+{
+	if (items.count(name) != 0)
+	{
+		string msg = "Method '" + name + "' already exists";
+		throw new std::exception(msg.c_str());
+	}
+	int NameId = constantTable->findOrAddConstant(UTF8, name);
+	int DescriptorId = constantTable->findOrAddConstant(UTF8, descriptor);
+	MethodsTableElement* method = new MethodsTableElement(NameId, DescriptorId, isClassMethod, bodyStart, returnType, paramsTypes, keywordsTypes, name, descriptor);
+	items[name] = method;
+
+	return method;
+}
+
