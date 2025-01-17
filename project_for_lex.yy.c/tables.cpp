@@ -96,3 +96,15 @@ int ConstantsTable::findOrAddFieldRefConstant(string className, string fieldName
 	return fieldRefConst;
 }
 
+int ConstantsTable::findOrAddMethodRefConstant(string className, string methodName, string descriptor)
+{
+	int classNameConst = this->findOrAddConstant(UTF8, className);
+	int classConst = this->findOrAddConstant(Class, NULL, classNameConst);
+	int nameConst = this->findOrAddConstant(UTF8, methodName);
+	int descriptorConst = this->findOrAddConstant(UTF8, descriptor);
+	int nameAndTypeConst = this->findOrAddConstant(NameAndType, NULL, nameConst, descriptorConst);
+	int methodRefConst = this->findOrAddConstant(MethodRef, NULL, nameAndTypeConst, classConst);
+
+	return methodRefConst;
+}
+
