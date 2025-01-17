@@ -1084,3 +1084,15 @@ bool Type::isPrimitive()
 {
 	return DataType == INT_TYPE || DataType == CHAR_TYPE || DataType == VOID_TYPE;
 }
+
+Type* Type::getSuperType()
+{
+	if (DataType != CLASS_NAME_TYPE)
+		throw new std::exception("Type is not a class");
+
+	ClassesTableElement* thisClass = ClassesTable::items->at(ClassName);
+	string superClassName = thisClass->getSuperClassName();
+	if (superClassName == "")
+		return NULL;
+	return new Type(CLASS_NAME_TYPE, superClassName);
+}
