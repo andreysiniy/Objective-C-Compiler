@@ -1047,3 +1047,35 @@ int Type::getDefaultValue()
 	return 0;
 }
 
+bool Type::isCastableTo(Type* other)
+{
+	if (ArrSize != NULL || other->ArrSize != NULL)
+		return false;
+	if (this->DataType == other->DataType) {
+		if (this->DataType == CLASS_NAME_TYPE && this->ClassName == other->ClassName)
+			return true;
+		else if (this->DataType != CLASS_NAME_TYPE)
+			return true;
+	}
+
+	if (this->DataType == INT_TYPE && other->DataType == CHAR_TYPE)
+		return true;
+	if (this->DataType == CHAR_TYPE && other->DataType == INT_TYPE)
+		return true;
+
+	if (this->DataType == CLASS_NAME_TYPE && other->DataType == ID_TYPE)
+		return true;
+	if (this->DataType == ID_TYPE && other->DataType == CLASS_NAME_TYPE)
+		return true;
+
+	if (this->DataType == CLASS_NAME_TYPE && other->DataType == CLASS_NAME_TYPE) {
+		ClassesTableElement* thisClass = ClassesTable::items->at(this->ClassName);
+		ClassesTableElement* otherClass = ClassesTable::items->at(other->ClassName);
+		if (thisClass->isHaveOneOfSuperclass(other->ClassName))
+			return true;
+		if (otherClass->isHaveOneOfSuperclass(this->ClassName))
+			return true;
+	}
+
+	return false;
+}
