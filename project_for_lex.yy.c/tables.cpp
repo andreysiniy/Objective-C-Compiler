@@ -843,3 +843,9 @@ FieldsTableElement::FieldsTableElement(int name, int descriptor, bool isInstance
 	InitialValue = initialValue;
 }
 
+void FieldsTableElement::fillLiterals(ConstantsTable* constantTable)
+{
+	if (InitialValue != NULL)
+		InitialValue->fillLiterals(constantTable);
+}
+
