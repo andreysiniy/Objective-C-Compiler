@@ -108,3 +108,19 @@ int ConstantsTable::findOrAddMethodRefConstant(string className, string methodNa
 	return methodRefConst;
 }
 
+// -------------------- ClassesTableElement --------------------
+
+ClassesTableElement::ClassesTableElement(string name, string* superclassName, bool isImplementation)
+{
+	ConstantTable = new ConstantsTable();
+	Fields = new FieldsTable();
+	Methods = new MethodsTable();
+	Properties = new PropertiesTable();
+	Name = ConstantTable->findOrAddConstant(UTF8, name);
+	if (superclassName != NULL)
+		SuperclassName = ConstantTable->findOrAddConstant(UTF8, *superclassName);
+	ThisClass = ConstantTable->findOrAddConstant(Class, NULL, Name);
+	if (superclassName != NULL)
+		Superclass = ConstantTable->findOrAddConstant(Class, NULL, SuperclassName);
+	IsImplementation = isImplementation;
+}
