@@ -153,3 +153,15 @@ void ClassesTableElement::fillMethodRefs()
 	}
 }
 
+void ClassesTableElement::fillLiterals()
+{
+	for (auto iter = Methods->items.cbegin(); iter != Methods->items.cend(); ++iter)
+	{
+		iter->second->fillLiterals(ConstantTable);
+	}
+
+	for (auto iter = Fields->items.cbegin(); iter != Fields->items.cend(); ++iter)
+	{
+		iter->second->fillLiterals(ConstantTable);
+	}
+}
