@@ -973,3 +973,11 @@ void PropertiesTable::addProperty(ConstantsTable* constantTable, string name, st
 	items[name] = property;
 }
 
+// ------------------- LocalVariablesTableElement --------------------
+
+LocalVariablesTableElement::LocalVariablesTableElement(int id, string name, Type* type)
+{
+	Id = id;
+	Name = name;
+	this->type = type;
+}
