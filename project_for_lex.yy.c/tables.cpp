@@ -319,3 +319,77 @@ ClassesTableElement* ClassesTable::addClass(string name, string* superclassName,
 
 	return items->at(fullName);
 }
+void ClassesTable::initClassInOutFuncs()
+{
+	// Создание класса InOutFuncs
+	ClassesTableElement* InOutFuncs = new ClassesTableElement("rtl/InOutFuncs", NULL, true);
+
+	// Добавление метода printInt
+	ConstantsTable* сonstantTable = InOutFuncs->ConstantTable;
+	Type* printIntReturnType = new Type(VOID_TYPE);
+	vector<Type*>* printIntKeywordsType = new vector<Type*>{ new Type(INT_TYPE) };
+	vector<Type*>* printIntParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "printIntStatic", "(I)V", true, NULL, printIntReturnType, printIntParamsType, printIntKeywordsType);
+
+	//Добавление метода printChar
+	Type* printCharReturnType = new Type(VOID_TYPE);
+	vector<Type*>* printCharKeywordsType = new vector<Type*>{ new Type(CHAR_TYPE) };
+	vector<Type*>* printCharParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "printCharStatic", "(C)V", true, NULL, printCharReturnType, printCharParamsType, printCharKeywordsType);
+
+	//Добавление метода printString
+	Type* printStringReturnType = new Type(VOID_TYPE);
+	vector<Type*>* printStringKeywordsType = new vector<Type*>{ new Type(CLASS_NAME_TYPE, "rtl/NSString") };
+	vector<Type*>* printStringParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "printNSStringStatic", "(Lrtl/NSString;)V", true, NULL, printStringReturnType, printStringParamsType, printStringKeywordsType);
+
+	//Добавление метода printCharArray
+	Type* printCharArrayReturnType = new Type(VOID_TYPE);
+	vector<Type*>* printCharArrayKeywordsType = new vector<Type*>{ new Type(CHAR_TYPE, 1024) };
+	vector<Type*>* printCharArrayParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "printCharArrayStatic", "([C)V", true, NULL, printCharArrayReturnType, printCharArrayParamsType, printCharArrayKeywordsType);
+
+	//Добавление метода printObject
+	Type* printObjectReturnType = new Type(VOID_TYPE);
+	vector<Type*>* printObjectKeywordsType = new vector<Type*>{ new Type(CLASS_NAME_TYPE, "java/lang/Object") };
+	vector<Type*>* printObjectParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "printObjectStatic", "(Ljava/lang/Object;)V", true, NULL, printObjectReturnType, printObjectParamsType, printObjectKeywordsType);
+
+	//Добавление метода read
+	Type* readReturnType = new Type(CLASS_NAME_TYPE, "java/lang/String");
+	vector<Type*>* readKeywordsType = new vector<Type*>;
+	vector<Type*>* readParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "readStatic", "()Ljava/lang/String;", true, NULL, readReturnType, readParamsType, readKeywordsType);
+
+	//Добавление метода readInt
+	Type* readIntReturnType = new Type(INT_TYPE);
+	vector<Type*>* readIntKeywordsType = new vector<Type*>;
+	vector<Type*>* readIntParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "readIntStatic", "()I", true, NULL, readIntReturnType, readIntParamsType, readIntKeywordsType);
+
+	//Добавление метода readChar
+	Type* readCharReturnType = new Type(CHAR_TYPE);
+	vector<Type*>* readCharKeywordsType = new vector<Type*>;
+	vector<Type*>* readCharParamsType = new vector<Type*>;
+	InOutFuncs->Methods->addMethod(сonstantTable, "readCharStatic", "()C", true, NULL, readCharReturnType, readCharParamsType, readCharKeywordsType);
+
+
+	//Добавление FieldRef
+	сonstantTable->findOrAddFieldRefConstant("java/lang/System", "out", "Ljava/io/PrintStream;");
+
+	//Добавление MethodRef
+	сonstantTable->findOrAddMethodRefConstant("java/lang/Object", "<init>", "()V");
+	сonstantTable->findOrAddMethodRefConstant("java/io/PrintStream", "print", "(I)V");
+	сonstantTable->findOrAddMethodRefConstant("java/io/PrintStream", "print", "(C)V");
+	сonstantTable->findOrAddMethodRefConstant("java/io/PrintStream", "print", "(Ljava/lang/String;)V");
+	сonstantTable->findOrAddMethodRefConstant("java/io/PrintStream", "print", "([C)V");
+	сonstantTable->findOrAddMethodRefConstant("java/io/PrintStream", "print", "Ljava/lang/Object;");
+	сonstantTable->findOrAddMethodRefConstant("java/lang/System", "console", "Ljava/io/Console;");
+	сonstantTable->findOrAddMethodRefConstant("java/io/Console", "readLine", "()Ljava/lang/String;");
+	сonstantTable->findOrAddMethodRefConstant("rtl/InOutFuncs", "read", "()Ljava/lang/String;");
+	сonstantTable->findOrAddMethodRefConstant("java/lang/Integer", "parseInt", "(Ljava/lang/String;)I");
+	сonstantTable->findOrAddMethodRefConstant("java/lang/String", "charAt", "(I)C");
+
+	//Добавление класса InOutFuncs в таблицу классов
+	(*items)["rtl/InOutFuncs"] = InOutFuncs;
+}
