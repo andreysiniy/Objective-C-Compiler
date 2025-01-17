@@ -255,3 +255,67 @@ void ClassesTableElement::semanticTransform()
 
 	appendConstructor();
 }
+
+// -------------------- ClassesTable --------------------
+map<string, ClassesTableElement*>* ClassesTable::items = new map<string, ClassesTableElement*>;
+
+ClassesTableElement* ClassesTable::addClass(string name, string* superclassName, bool isImplementation, Class_block_node* classBlock)
+{
+	string fullName = "global/" + name;
+	string* fullSuperclassName = NULL;
+	if (superclassName != NULL) {
+		if (*superclassName == "NSObject" || *superclassName == "NSString" || *superclassName == "NSArray" || *superclassName == "InOutFuncs")
+			fullSuperclassName = new string("rtl/" + *superclassName);
+		else
+			fullSuperclassName = new string("global/" + *superclassName);
+	}
+	if (name == "NSObject" || name == "NSString" || name == "NSArray" || name == "InOutFuncs") {
+		string msg = "Unsupported protocols. Because of class '" + name + "' is reserved.";
+		throw new std::exception(msg.c_str());
+	}
+		
+	ClassesTableElement* element = new ClassesTableElement("global/" + name, fullSuperclassName, isImplementation); // Новый добавляемый элемент
+
+
+	if (!isImplementation && items->count(fullName) && items->at(fullName)->IsImplementation) { // Проверка, чтобы интерфейс класса при его наличии находился раньше реализации
+		string msg = "Class interface'" + name + "' after implementation";
+		throw new std::exception(msg.c_str());
+	}
+	else if (items->count(fullName) && items->at(fullName)->IsImplementation == isImplementation) { // Проверка на повторное объявление класса
+		string msg = "Rediifnition of class '" + name + "'";
+		throw new std::exception(msg.c_str());
+	}
+	else if (superclassName != NULL && items->count(fullName) && items->at(fullName)->ConstantTable->getConstantString(items->at(fullName)->SuperclassName) != *fullSuperclassName) { // Проверка на совпадение суперкласса в интерфейсе и реаизации
+		string msg = "Class '" + name + "' with different superclass";
+		throw new std::exception(msg.c_str());
+	}
+	else if (items->count(fullName) && !items->at(fullName)->IsImplementation && isImplementation) { // Объявление реализации после интерфейса
+		items->at(fullName)->IsImplementation = true;
+		items->at(fullName)->IsHaveInterface = true;
+		delete element;
+	}
+	else {
+		(*items)[fullName] = element; // Добавление (обновление элемента в таблице классов)
+	}
+
+	//Преобразование имени в узле дерева
+	if (isImplementation) {
+		Class_implementation_node* implementation = (Class_implementation_node*)classBlock;
+		strcpy(implementation->ClassName, fullName.c_str());
+		if (fullSuperclassName != NULL)
+			strcpy(implementation->SuperclassName, fullSuperclassName->c_str());
+		else
+			implementation->SuperclassName = NULL;
+
+	}
+	else {
+		Class_interface_node* interface = (Class_interface_node*)classBlock;
+		strcpy(interface->ClassName, fullName.c_str());
+		if (fullSuperclassName != NULL)
+			strcpy(interface->SuperclassName, fullSuperclassName->c_str());
+		else
+			interface->SuperclassName = NULL;
+	}
+
+	return items->at(fullName);
+}
