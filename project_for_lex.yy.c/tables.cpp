@@ -771,3 +771,50 @@ void ClassesTable::initClassNSArray()
 	(*items)["rtl/NSArray"] = nsarray;
 }
 
+void ClassesTable::fillFieldRefs()
+{
+	auto iter = items->cbegin();
+	while (iter != items->cend())
+	{
+		iter->second->fillFieldRefs();
+		++iter;
+	}
+}
+
+void ClassesTable::fillMethodRefs()
+{
+	auto iter = items->cbegin();
+	while (iter != items->cend())
+	{
+		iter->second->fillMethodRefs();
+		++iter;
+	}
+}
+
+void ClassesTable::fillLiterals()
+{
+	auto iter = items->cbegin();
+	while (iter != items->cend())
+	{
+		iter->second->fillLiterals();
+		++iter;
+	}
+}
+
+string ClassesTable::getFullClassName(string name)
+{
+	if (name.find("global/") != string::npos)
+		return name;
+	if (name.find("rtl/") != string::npos)
+		return name;
+	string fullName;
+	if (name == "NSString" || name == "NSArray" || name == "NSObject" || name == "InOutFuncs")
+		fullName = "rtl/" + name;
+	else
+		fullName = "global/" + name;
+	if (items->count(fullName) == 0) {
+		string msg = "Class '" + name + "' not found";
+		throw new std::exception(msg.c_str());
+	}
+	return fullName;
+}
