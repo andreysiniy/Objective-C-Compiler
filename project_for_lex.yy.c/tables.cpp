@@ -882,3 +882,32 @@ MethodsTableElement::MethodsTableElement(int name, int descriptor, bool isClassM
 	DescriptorStr = descriptorStr;
 }
 
+void MethodsTableElement::fillFieldRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->fillFieldRefs(constantTable, LocalVariables, classTableElement); // Заполнить таблицу
+		cur = cur->Next;
+	}
+}
+
+void MethodsTableElement::fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->fillMethodRefs(constantTable, LocalVariables, classTableElement, !IsClassMethod); // Заполнить таблицу
+		cur = cur->Next;
+	}
+}
+
+void MethodsTableElement::fillLiterals(ConstantsTable* constantTable)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->fillLiterals(constantTable); // Заполнить таблицу
+		cur = cur->Next;
+	}
+}
