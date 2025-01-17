@@ -23,3 +23,33 @@ ConstantsTableElement::ConstantsTableElement(int id, constantType type, int numb
 	FirstRef = firstRef;
 	SecondRef = secondRef;
 }
+
+// -------------------- ConstantsTable --------------------
+
+ConstantsTable::ConstantsTable()
+{
+	items[maxId] = new ConstantsTableElement(maxId, UTF8, "Code");
+	maxId++;
+}
+
+int ConstantsTable::findOrAddConstant(constantType type, string utf8string)
+{
+	int res = findConstant(type, &utf8string);
+	if (res == -1)
+	{
+		res = maxId++;
+		items[res] = new ConstantsTableElement(res, type, utf8string);
+	}
+	return res;
+}
+
+int ConstantsTable::findOrAddConstant(constantType type, int number, int firstRef, int secondRef)
+{
+	int res = findConstant(type, NULL, number, firstRef, secondRef);
+	if (res == -1)
+	{
+		res = maxId++;
+		items[res] = new ConstantsTableElement(res, type, number, firstRef, secondRef);
+	}
+	return res;
+}
