@@ -1040,3 +1040,10 @@ Type::Type(type_type dataType, Expression_node* arrSize)
 	ArrSize = arrSize;
 }
 
+int Type::getDefaultValue()
+{
+	if (DataType == CLASS_NAME_TYPE)
+		return NULL;
+	return 0;
+}
+
