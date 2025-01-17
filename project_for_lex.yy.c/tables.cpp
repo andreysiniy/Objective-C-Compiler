@@ -53,3 +53,18 @@ int ConstantsTable::findOrAddConstant(constantType type, int number, int firstRe
 	}
 	return res;
 }
+int ConstantsTable::findConstant(constantType type, string* utf8string, int number, int firstRef, int secondRef)
+{
+	string compared = utf8string == NULL ? "" : *utf8string;
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		string curStr = iter->second->Utf8String == NULL ? "" : *iter->second->Utf8String;
+		if (iter->second->Type == type && curStr == compared && iter->second->Number == number && iter->second->FirstRef == firstRef && iter->second->SecondRef == secondRef)
+		{
+			return iter->first;
+		}
+		++iter;
+	}
+	return -1;
+}
