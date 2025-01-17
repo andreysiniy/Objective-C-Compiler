@@ -137,3 +137,19 @@ string ClassesTableElement::getSuperClassName()
 		return ConstantTable->getConstantString(SuperclassName);
 }
 
+void ClassesTableElement::fillFieldRefs()
+{
+	for (auto iter = Methods->items.cbegin(); iter != Methods->items.cend(); ++iter)
+	{
+		iter->second->fillFieldRefs(ConstantTable, this);
+	}
+}
+
+void ClassesTableElement::fillMethodRefs()
+{
+	for (auto iter = Methods->items.cbegin(); iter != Methods->items.cend(); ++iter)
+	{
+		iter->second->fillMethodRefs(ConstantTable, this);
+	}
+}
+
