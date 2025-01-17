@@ -83,3 +83,16 @@ string ConstantsTable::getConstantString(int id)
 	}
 	return *items[id]->Utf8String;
 }
+
+int ConstantsTable::findOrAddFieldRefConstant(string className, string fieldName, string descriptor)
+{
+	int classNameConst = this->findOrAddConstant(UTF8, className);
+	int classConst = this->findOrAddConstant(Class, NULL, classNameConst);
+	int nameConst = this->findOrAddConstant(UTF8, fieldName);
+	int descriptorConst = this->findOrAddConstant(UTF8, descriptor);
+	int nameAndTypeConst = this->findOrAddConstant(NameAndType, NULL, nameConst, descriptorConst);
+	int fieldRefConst = this->findOrAddConstant(FieldRef, NULL, nameAndTypeConst, classConst);
+
+	return fieldRefConst;
+}
+
