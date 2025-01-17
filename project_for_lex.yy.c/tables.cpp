@@ -849,3 +849,20 @@ void FieldsTableElement::fillLiterals(ConstantsTable* constantTable)
 		InitialValue->fillLiterals(constantTable);
 }
 
+// -------------------- FieldsTable --------------------
+
+void FieldsTable::addField(ConstantsTable* constantTable, string name, string descriptor, bool isInstance, Type* type, Expression_node* initValue)
+{
+	int NameId = constantTable->findOrAddConstant(UTF8, name);
+	int DescriptorId = constantTable->findOrAddConstant(UTF8, descriptor);
+	if (isInstance) {
+		FieldsTableElement* field = new FieldsTableElement(NameId, DescriptorId, isInstance, maxInstanceIndex, type, name, descriptor, initValue);
+		maxInstanceIndex++;
+		items[name] = field;
+	}
+	else {
+		FieldsTableElement* field = new FieldsTableElement(NameId, DescriptorId, isInstance, 0, type, name, descriptor, initValue);
+		items[name] = field;
+	}
+
+}
