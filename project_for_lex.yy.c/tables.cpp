@@ -319,6 +319,25 @@ ClassesTableElement* ClassesTable::addClass(string name, string* superclassName,
 
 	return items->at(fullName);
 }
+
+void ClassesTable::initRTL()
+{
+	initClassProgram();
+	initClassInOutFuncs();
+	initClassNSObject();
+	initClassNSString();
+	initClassNSArray();
+}
+
+void ClassesTable::initClassProgram()
+{
+	// Создание класса Program
+	ClassesTableElement* Program = new ClassesTableElement("rtl/!Program!", NULL, true);
+
+	//Добавление класса Program в таблицу классов
+	(*items)["rtl/!Program!"] = Program;
+}
+
 void ClassesTable::initClassInOutFuncs()
 {
 	// Создание класса InOutFuncs
