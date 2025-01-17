@@ -124,3 +124,16 @@ ClassesTableElement::ClassesTableElement(string name, string* superclassName, bo
 		Superclass = ConstantTable->findOrAddConstant(Class, NULL, SuperclassName);
 	IsImplementation = isImplementation;
 }
+string ClassesTableElement::getClassName()
+{
+	return ConstantTable->getConstantString(Name);
+}
+
+string ClassesTableElement::getSuperClassName()
+{
+	if (SuperclassName == NULL)
+		return "java/lang/Object";
+	else
+		return ConstantTable->getConstantString(SuperclassName);
+}
+
