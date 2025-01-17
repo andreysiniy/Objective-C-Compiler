@@ -192,3 +192,30 @@ FieldsTableElement* ClassesTableElement::getFieldForRef(string name, string* des
 	}
 	return NULL;
 }
+
+bool ClassesTableElement::isHaveOneOfSuperclass(string name)
+{
+	if (SuperclassName == NULL) { //Родительский класс отсутствует
+		return false;
+	}
+	else {
+		if (getSuperClassName() == name) //Имя родительского класса совпадает с искомым
+			return true;
+		else if (getSuperClassName() != "java/lang/Object")
+			return ClassesTable::items->at(getSuperClassName())->isHaveOneOfSuperclass(name); //Проверить является искомый класс родительским для родительского
+		else
+			return false;
+	}
+}
+
+bool ClassesTableElement::isContainsMethod(string methodName)
+{
+	if (Methods->items.count(methodName) != 0)
+		return true;
+	else {
+		if (SuperclassName != NULL)
+			return ClassesTable::items->at(getSuperClassName())->isContainsMethod(methodName);
+	}
+	return false;
+}
+
