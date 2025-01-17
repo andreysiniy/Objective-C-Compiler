@@ -1079,3 +1079,8 @@ bool Type::isCastableTo(Type* other)
 
 	return false;
 }
+
+bool Type::isPrimitive()
+{
+	return DataType == INT_TYPE || DataType == CHAR_TYPE || DataType == VOID_TYPE;
+}
