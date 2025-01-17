@@ -219,3 +219,24 @@ bool ClassesTableElement::isContainsMethod(string methodName)
 	return false;
 }
 
+MethodsTableElement* ClassesTableElement::getMethodForRef(string name, string* descriptor, string* className, bool isSupercall)
+{
+	if (isContainsMethod(name)) { // Содержит метод
+		if (Methods->items.count(name) != 0) { //Метод содержится в текущем классе
+			*descriptor = Methods->items[name]->DescriptorStr;
+			*className = getClassName();
+			return Methods->items[name];
+		}
+		else { //Метод содержится в одном из родительских классов
+			if (SuperclassName != NULL) {
+				MethodsTableElement* method = ClassesTable::items->at(getSuperClassName())->getMethodForRef(name, descriptor, className);
+				if (isSupercall)
+					*className = getSuperClassName();
+				else
+					*className = getClassName();
+				return method;
+			}
+		}
+	}
+	return NULL;
+}
