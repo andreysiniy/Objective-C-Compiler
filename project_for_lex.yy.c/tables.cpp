@@ -240,3 +240,18 @@ MethodsTableElement* ClassesTableElement::getMethodForRef(string name, string* d
 	}
 	return NULL;
 }
+
+void ClassesTableElement::semanticTransform()
+{
+	for (auto iter = Methods->items.cbegin(); iter != Methods->items.cend(); ++iter)
+	{
+		iter->second->semanticTransform(ConstantTable);
+	}
+
+	if (Superclass == NULL) {
+		SuperclassName = ConstantTable->findOrAddConstant(UTF8, "java/lang/Object");
+		Superclass = ConstantTable->findOrAddConstant(Class, NULL, SuperclassName);
+	}
+
+	appendConstructor();
+}
