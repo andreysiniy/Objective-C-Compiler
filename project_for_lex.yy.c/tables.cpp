@@ -945,3 +945,16 @@ MethodsTableElement* MethodsTable::addMethod(ConstantsTable* constantTable, stri
 	return method;
 }
 
+
+// -------------------- PropertiesTableElement --------------------
+
+PropertiesTableElement::PropertiesTableElement(int name, int descriptor, bool isReadonly, Type* type, string nameStr, string descriptorStr)
+{
+	Name = name;
+	Descriptor = descriptor;
+	IsReadonly = isReadonly;
+	this->type = type;
+	NameStr = nameStr;
+	DescriptorStr = descriptorStr;
+}
+
