@@ -828,3 +828,18 @@ void ClassesTable::semanticTransform()
 		++iter;
 	}
 }
+
+// ------------------- FieldsTableElement --------------------
+
+FieldsTableElement::FieldsTableElement(int name, int descriptor, bool isInstance, int instanceIndex, Type* type, string nameStr, string descriptorStr, Expression_node* initialValue)
+{
+	Name = name;
+	Descriptor = descriptor;
+	IsInstance = isInstance;
+	InstanceIndex = instanceIndex;
+	this->type = type;
+	NameStr = nameStr;
+	DescriptorStr = descriptorStr;
+	InitialValue = initialValue;
+}
+
