@@ -53,6 +53,7 @@ int ConstantsTable::findOrAddConstant(constantType type, int number, int firstRe
 	}
 	return res;
 }
+
 int ConstantsTable::findConstant(constantType type, string* utf8string, int number, int firstRef, int secondRef)
 {
 	string compared = utf8string == NULL ? "" : *utf8string;
@@ -67,4 +68,18 @@ int ConstantsTable::findConstant(constantType type, string* utf8string, int numb
 		++iter;
 	}
 	return -1;
+}
+
+ConstantsTableElement* ConstantsTable::getConstant(int id)
+{
+	return items[id];
+}
+
+string ConstantsTable::getConstantString(int id)
+{
+	if (items[id]->Type != constantType::UTF8)
+	{
+		return "";
+	}
+	return *items[id]->Utf8String;
 }
