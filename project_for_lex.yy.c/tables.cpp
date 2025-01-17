@@ -165,3 +165,15 @@ void ClassesTableElement::fillLiterals()
 		iter->second->fillLiterals(ConstantTable);
 	}
 }
+
+bool ClassesTableElement::isContainsField(string fieldName)
+{
+	if (Fields->items.count(fieldName) != 0)
+		return true;
+	else {
+		if (SuperclassName != NULL)
+			return ClassesTable::items->at(getSuperClassName())->isContainsField(fieldName);
+	}
+	return false;
+}
+
