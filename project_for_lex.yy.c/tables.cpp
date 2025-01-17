@@ -911,3 +911,20 @@ void MethodsTableElement::fillLiterals(ConstantsTable* constantTable)
 		cur = cur->Next;
 	}
 }
+
+void MethodsTableElement::semanticTransform(ConstantsTable* constants)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->semanticTransform(LocalVariables, constants);
+		if (cur->Next == NULL) {
+			addDefaultReturn(cur);
+			cur->Next->semanticTransform(LocalVariables, constants);
+			cur = NULL;
+		}
+		else {
+			cur = cur->Next;
+		}
+	}
+}
