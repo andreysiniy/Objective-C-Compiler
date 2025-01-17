@@ -981,3 +981,19 @@ LocalVariablesTableElement::LocalVariablesTableElement(int id, string name, Type
 	Name = name;
 	this->type = type;
 }
+
+// -------------------- LocalVariablesTable --------------------
+
+int LocalVariablesTable::findOrAddLocalVariable(string name, Type* type)
+{
+	if (items.count(name) == 0)
+	{
+		items[name] = new LocalVariablesTableElement(maxId++, name, type);
+	}
+	else {
+		string msg = "Variable '" + name + "' already exists";
+		throw new std::exception(msg.c_str());
+	}
+	return items[name]->Id;
+}
+
