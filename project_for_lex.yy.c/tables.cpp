@@ -866,3 +866,19 @@ void FieldsTable::addField(ConstantsTable* constantTable, string name, string de
 	}
 
 }
+// -------------------- MethodsTableElement --------------------
+
+MethodsTableElement::MethodsTableElement(int name, int descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes, string nameStr, string descriptorStr)
+{
+	Name = name;
+	Descriptor = descriptor;
+	IsClassMethod = isClassMethod;
+	BodyStart = bodyStart;
+	ReturnType = returnType;
+	ParamsTypes = paramsTypes;
+	KeywordsTypes = keywordsTypes;
+	LocalVariables = new LocalVariablesTable();
+	NameStr = nameStr;
+	DescriptorStr = descriptorStr;
+}
+
