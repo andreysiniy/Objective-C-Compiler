@@ -177,3 +177,18 @@ bool ClassesTableElement::isContainsField(string fieldName)
 	return false;
 }
 
+FieldsTableElement* ClassesTableElement::getFieldForRef(string name, string* descriptor, string* className)
+{
+	if (isContainsField(name)) { // Содержит поле
+		if (Fields->items.count(name) != 0) { //Поле содержится в текущем классе
+			*descriptor = Fields->items[name]->DescriptorStr;
+			*className = getClassName();
+			return Fields->items[name];
+		}
+		else { //Поле содержится в одном из родительских классов
+			if (SuperclassName != NULL)
+				return ClassesTable::items->at(getSuperClassName())->getFieldForRef(name, descriptor, className);
+		}
+	}
+	return NULL;
+}
