@@ -818,3 +818,13 @@ string ClassesTable::getFullClassName(string name)
 	}
 	return fullName;
 }
+
+void ClassesTable::semanticTransform()
+{
+	auto iter = items->cbegin();
+	while (iter != items->cend())
+	{
+		iter->second->semanticTransform();
+		++iter;
+	}
+}
