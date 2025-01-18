@@ -1096,3 +1096,21 @@ Type* Type::getSuperType()
 		return NULL;
 	return new Type(CLASS_NAME_TYPE, superClassName);
 }
+
+Type::Type(type_type dataType, string className, int arrSize)
+{
+	DataType = dataType;
+	ClassName = className;
+
+	Numeric_constant_node* Num = Numeric_constant_node::createNumericConstantNodeFromInteger(arrSize);
+	ArrSize = Expression_node::createExpressionNodeFromNumericConstant(Num);
+}
+
+Type::Type(type_type dataType, int arrSize)
+{
+	DataType = dataType;
+
+	Numeric_constant_node* Num = Numeric_constant_node::createNumericConstantNodeFromInteger(arrSize);
+	ArrSize = Expression_node::createExpressionNodeFromNumericConstant(Num);
+}
+
