@@ -1156,3 +1156,33 @@ string Type::toString()
 	}
 	return res;
 }
+
+string Type::getDescriptor()
+{
+	string res = "";
+	if (ArrSize != NULL)
+	{
+		res += '[';
+	}
+	switch (DataType)
+	{
+	case INT_TYPE:
+		res += string("I");
+		break;
+	case CHAR_TYPE:
+		res += string("C");
+		break;
+	case ID_TYPE:
+		res += string("Lrtl/NSObject;");
+		break;
+	case CLASS_NAME_TYPE:
+		res += 'L' + ClassName + ';';
+		break;
+	case VOID_TYPE:
+		res += string("V");
+		break;
+	default:
+		break;
+	}
+	return res;
+}
