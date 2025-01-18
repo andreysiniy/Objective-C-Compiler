@@ -1208,3 +1208,32 @@ FunctionsTableElement::FunctionsTableElement(Statement_node* bodyStart, string n
 	ReturnType = returnType;
 }
 
+void FunctionsTableElement::fillFieldRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->fillFieldRefs(constantTable, LocalVariables, classTableElement); // Заполнить таблицу
+		cur = cur->Next;
+	}
+}
+
+void FunctionsTableElement::fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->fillMethodRefs(constantTable, LocalVariables, classTableElement, false); // Заполнить таблицу
+		cur = cur->Next;
+	}
+}
+
+void FunctionsTableElement::fillLiterals(ConstantsTable* constantTable)
+{
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->fillLiterals(constantTable); // Заполнить таблицу
+		cur = cur->Next;
+	}
+}
