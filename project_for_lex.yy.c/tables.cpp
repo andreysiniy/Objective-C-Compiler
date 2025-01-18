@@ -1189,3 +1189,9 @@ string Type::getDescriptor()
 	}
 	return res;
 }
+
+bool Type::equal(Type* other)
+{
+	bool isBouthArray = (ArrSize != NULL && other->ArrSize != NULL) || (ArrSize == NULL && other->ArrSize == NULL); // Показывает, что оба типа являются массивами
+	return DataType == other->DataType && ClassName == other->ClassName && isBouthArray;
+}
