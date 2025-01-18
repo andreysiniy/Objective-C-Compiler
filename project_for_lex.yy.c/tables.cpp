@@ -1277,3 +1277,19 @@ void FunctionsTableElement::semanticTransform()
 		}
 	}
 }
+
+// -------------------- FunctionsTable --------------------
+map<string, FunctionsTableElement*> FunctionsTable::items;
+
+
+FunctionsTableElement* FunctionsTable::addFunction(string name, string descriptor, Statement_node* bodyStart, vector<Type*>* params, Type* returnType)
+{
+	if (items.count(name) != 0)
+	{
+		string msg = "Function '" + name + "' already exists";
+		throw new std::exception(msg.c_str());
+	}
+	FunctionsTableElement* function = new FunctionsTableElement(bodyStart, name, descriptor, params, returnType);
+	items[name] = function;
+	return function;
+}
