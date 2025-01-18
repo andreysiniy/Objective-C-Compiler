@@ -1349,4 +1349,13 @@ void FunctionsTable::convertToClassProgramMethods()
 		++iter;
 	}
 }
+
+void FunctionsTable::semanticTransform()
+{
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		iter->second->semanticTransform();
+		++iter;
+	}
 }
