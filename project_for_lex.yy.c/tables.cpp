@@ -1172,6 +1172,9 @@ string Type::getDescriptor()
 	case CHAR_TYPE:
 		res += string("C");
 		break;
+	case FLOAT_TYPE:
+		res += string("F");
+		break;
 	case ID_TYPE:
 		res += string("Lrtl/NSObject;");
 		break;
