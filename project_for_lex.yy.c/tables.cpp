@@ -1195,3 +1195,16 @@ bool Type::equal(Type* other)
 	bool isBouthArray = (ArrSize != NULL && other->ArrSize != NULL) || (ArrSize == NULL && other->ArrSize == NULL); // Показывает, что оба типа являются массивами
 	return DataType == other->DataType && ClassName == other->ClassName && isBouthArray;
 }
+
+// -------------------- FunctionsTableElement --------------------
+
+FunctionsTableElement::FunctionsTableElement(Statement_node* bodyStart, string nameStr, string descriptorStr, vector<Type*>* params, Type* returnType)
+{
+	BodyStart = bodyStart;
+	LocalVariables = new LocalVariablesTable();
+	NameStr = nameStr;
+	DescriptorStr = descriptorStr;
+	ParametersTypes = params;
+	ReturnType = returnType;
+}
+
