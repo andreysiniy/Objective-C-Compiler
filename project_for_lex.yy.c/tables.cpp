@@ -1293,3 +1293,42 @@ FunctionsTableElement* FunctionsTable::addFunction(string name, string descripto
 	items[name] = function;
 	return function;
 }
+void FunctionsTable::fillFieldRefs()
+{
+	ClassesTableElement* classTableElement = ClassesTable::items->at("rtl/!Program!");
+	bool isDontContainsMain = true;
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		isDontContainsMain = isDontContainsMain && iter->first == "main";
+		iter->second->fillFieldRefs(classTableElement->ConstantTable, classTableElement);
+		++iter;
+	}
+
+	if (!isDontContainsMain) { //Функция main не найдена
+		string msg = "Function 'main' not found";
+		throw new std::exception(msg.c_str());
+	}
+}
+
+void FunctionsTable::fillMethodRefs()
+{
+	ClassesTableElement* classTableElement = ClassesTable::items->at("rtl/!Program!");
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		iter->second->fillMethodRefs(classTableElement->ConstantTable, classTableElement);
+		++iter;
+	}
+}
+
+void FunctionsTable::fillLiterals()
+{
+	ClassesTableElement* classTableElement = ClassesTable::items->at("rtl/!Program!");
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		iter->second->fillLiterals(classTableElement->ConstantTable);
+		++iter;
+	}
+}
