@@ -1259,3 +1259,21 @@ void FunctionsTableElement::convertToClassProgramMethods(ClassesTableElement* cl
 		method->LocalVariables = LocalVariables;
 	}
 }
+
+void FunctionsTableElement::semanticTransform()
+{
+	ConstantsTable* constants = ClassesTable::items->at("rtl/!Program!")->ConstantTable;
+	Statement_node* cur = BodyStart;
+	while (cur != NULL)
+	{
+		cur->semanticTransform(LocalVariables, constants);
+		if (cur->Next == NULL) {
+			addDefaultReturn(cur);
+			cur->Next->semanticTransform(LocalVariables, constants);
+			cur = NULL;
+		}
+		else {
+			cur = cur->Next;
+		}
+	}
+}
