@@ -1332,3 +1332,19 @@ void FunctionsTable::fillLiterals()
 		++iter;
 	}
 }
+
+void FunctionsTable::convertToClassProgramMethods()
+{
+	if (items.count("main") == 0) //Функция main не найдена
+	{
+		string msg = "Function 'main' not found";
+		throw new std::exception(msg.c_str());
+	}
+
+	ClassesTableElement* classTableElement = ClassesTable::items->at("rtl/!Program!");
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		iter->second->convertToClassProgramMethods(classTableElement);
+		++iter;
+}
