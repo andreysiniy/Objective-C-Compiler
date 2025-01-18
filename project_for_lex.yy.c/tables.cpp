@@ -1114,3 +1114,45 @@ Type::Type(type_type dataType, int arrSize)
 	ArrSize = Expression_node::createExpressionNodeFromNumericConstant(Num);
 }
 
+string Type::toString()
+{
+	string res = "";
+
+	// Формирование строки с типом
+	switch (DataType)
+	{
+	case INT_TYPE:
+		res += string("int");
+		break;
+	case CHAR_TYPE:
+		res += string("char");
+		break;
+	case FLOAT_TYPE:
+		res += string("float");
+		break;
+	case ID_TYPE:
+		res += string("id");
+		break;
+	case CLASS_NAME_TYPE:
+		res += ClassName;
+		break;
+	case VOID_TYPE:
+		res += string("void");
+		break;
+	default:
+		break;
+	}
+
+	// Формирование строки с учетом массива
+	if (ArrSize != NULL)
+	{
+		if (ArrSize->type == NUMERIIC_CONSTANT_EXPRESSION_TYPE)
+		{
+			res += '[' + to_string(ArrSize->num->Int) + ']';
+		}
+		else {
+			res += string("[ expr(") + to_string(ArrSize->id) + ") ]";
+		}
+	}
+	return res;
+}
