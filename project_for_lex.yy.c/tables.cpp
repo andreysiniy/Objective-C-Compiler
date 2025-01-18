@@ -1347,4 +1347,6 @@ void FunctionsTable::convertToClassProgramMethods()
 	{
 		iter->second->convertToClassProgramMethods(classTableElement);
 		++iter;
+	}
+}
 }
