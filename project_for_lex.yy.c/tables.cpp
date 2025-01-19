@@ -969,6 +969,20 @@ FieldsTableElement::FieldsTableElement(int name, int descriptor, bool isInstance
 	InitialValue = initialValue;
 }
 
+string FieldsTableElement::toCsvString(char separator)
+{
+	string res = "";
+	res += to_string(Name) + " (" + NameStr + ")" + separator; //Добавление имени
+	res += to_string(Descriptor) + " (" + DescriptorStr + ")" + separator; //Добавление дескриптора
+	res += string((IsInstance ? "true" : "false")) + separator; //Добавление флага, который показывает принадлежность поля к экземпляру
+	res += type->toString() + separator; //Добавление типа
+	if (InitialValue == NULL)
+		res += string("empty");
+	else
+		res += to_string(InitialValue->id); //Добавление id узла инициализации
+	return res;
+}
+
 void FieldsTableElement::fillLiterals(ConstantsTable* constantTable)
 {
 	if (InitialValue != NULL)
@@ -992,6 +1006,21 @@ void FieldsTable::addField(ConstantsTable* constantTable, string name, string de
 	}
 
 }
+
+void FieldsTable::toCsvFile(string filename, string filepath, char separator)
+{
+	ofstream out(filepath + filename); //Создание и открытие потока на запись в файл
+	out << "Name" << separator << "Descriptor" << separator << "IsInstance" << separator << "Type" << separator << "InitValueIdNode" << endl; // Запись заголовков
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		string str = iter->second->toCsvString(separator); // Формирование строки
+		out << str << endl; //Запись строки в файл
+		++iter;
+	}
+	out.close(); // Закрытие потока
+}
+
 // -------------------- MethodsTableElement --------------------
 
 MethodsTableElement::MethodsTableElement(int name, int descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes, string nameStr, string descriptorStr)
