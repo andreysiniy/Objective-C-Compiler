@@ -155,3 +155,32 @@ void Init_declarator_node::semanticTransform(LocalVariablesTable* locals, Type *
 		delete castType;
 	}
 }
+void Expression_node::assignmentTransform()
+{
+	arrayAssignmentTransform();
+	memberAccessAssignmentTransform();
+}
+
+void Expression_node::arrayAssignmentTransform()
+{
+	if (this->type == ASSIGNMENT_EXPRESSION_TYPE && this->Left->type == ARRAY_ELEMENT_ACCESS_EXPRESSION_TYPE) {
+		this->type = ARRAY_ASSIGNMENT_EXPRESSION_TYPE; 
+		
+		Expression_node* tmp = this->Left;
+		this->Left = tmp->Left; //����� ����� �� expr �������
+		this->Child = tmp->Right; //������ ����� �� expr �������
+		delete tmp;
+	}
+	
+	// ����� �������������� �� ��������
+	if (this->Left != NULL)
+		this->Left->assignmentTransform();
+	if (this->Right != NULL)
+		this->Right->assignmentTransform();
+	if (this->Child != NULL)
+		this->Child->assignmentTransform();
+}
+
+void Expression_node::memberAccessAssignmentTransform()
+{
+}
