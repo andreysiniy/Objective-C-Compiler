@@ -90,3 +90,68 @@ void Statement_node::semanticTransform(LocalVariablesTable* locals, ConstantsTab
 			cur->init_declarator_list->semanticTransform(locals, cur->typeNode->toDataType(), constants);
 	}
 }
+
+void Init_declarator_list_node::semanticTransform(LocalVariablesTable *locals, Type *dataType, ConstantsTable *constants)
+{
+	Init_declarator_node* declarator = First;
+	while (declarator != NULL)
+	{
+		declarator->semanticTransform(locals, dataType, constants);
+		declarator = declarator->Next;
+	}
+}
+
+void Init_declarator_node::semanticTransform(LocalVariablesTable* locals, Type *dataType, ConstantsTable *constants)
+{
+	if (expression != NULL) {
+		expression->assignmentTransform();
+		expression->setDataTypesAndCasts(locals);
+		expression->setAttributes(locals, constants);
+
+		if (type == ARRAY_WITH_INITIALIZING_DECLARATOR_TYPE) {
+			if (dataType->DataType != CHAR_TYPE || expression->type != LITERAL_EXPRESSION_TYPE) {
+				string msg = string("Type '") + expression->DataType->toString() + "' can't assignment to '" + dataType->toString() + "' in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+		}
+
+		if (!expression->DataType->equal(dataType) && !(type == ARRAY_WITH_INITIALIZING_DECLARATOR_TYPE && expression->DataType->DataType == dataType->DataType && expression->DataType->ClassName == dataType->ClassName)) {
+			if (expression->DataType->isCastableTo(dataType)) {
+				Expression_node* cast = new Expression_node();
+				cast->id = maxId++;
+				if (dataType->DataType == INT_TYPE) {
+					cast->type = INT_CAST;
+				}
+				else if (dataType->DataType == CHAR_TYPE) {
+					cast->type = CHAR_CAST;
+				}
+				else {
+					cast->type = CLASS_CAST;
+				}
+				cast->DataType = dataType;
+				cast->Right = expression;
+				expression = cast;
+			}
+			else {
+				string msg = string("Type '") + expression->DataType->toString() + "' doesn't castable to type '" + dataType->toString() + "' in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+		}
+	}
+	if (InitializerList != NULL) {
+		InitializerList->assignmentTransform();
+		InitializerList->setDataTypesAndCasts(locals);
+		InitializerList->setAttributes(locals, constants);
+	}
+	if (ArraySize != NULL) {
+		ArraySize->assignmentTransform();
+		ArraySize->setDataTypesAndCasts(locals);
+		ArraySize->setAttributes(locals, constants);
+		Type* castType = new Type(INT_TYPE);
+		if (!ArraySize->DataType->isCastableTo(castType)) {
+			string msg = "Array size isn't 'int' or castable to 'int'. It has type '" + ArraySize->DataType->toString() + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		delete castType;
+	}
+}
