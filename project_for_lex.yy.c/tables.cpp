@@ -1482,6 +1482,25 @@ FunctionsTableElement::FunctionsTableElement(Statement_node* bodyStart, string n
 	ReturnType = returnType;
 }
 
+string FunctionsTableElement::toCsvString(string funcName, char separator)
+{
+	string res = "";
+	res += NameStr + separator; //Добавление имени
+	res += DescriptorStr + separator; //Добавление дескриптора
+	res += to_string(BodyStart->id) + separator; //Добавление id узла начала тела функции
+	if (LocalVariables->items.size() > 0)
+		res += funcName + "_LocalVariablesTable.csv"; //имя таблицы с локальными переменными
+	else
+		res += string("empty");
+	return res;
+}
+
+void FunctionsTableElement::refTablesToCsvFile(string filename, string filepath, char separator)
+{
+	if (LocalVariables->items.size() > 0)
+		LocalVariables->toCsvFile(filename, filepath, separator);
+}
+
 void FunctionsTableElement::fillFieldRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement)
 {
 	Statement_node* cur = BodyStart;
@@ -1567,6 +1586,23 @@ FunctionsTableElement* FunctionsTable::addFunction(string name, string descripto
 	items[name] = function;
 	return function;
 }
+
+void FunctionsTable::toCsvFile(string filename, string filepath, char separator)
+{
+	ofstream out(filepath + filename); //Создание и открытие потока на запись в файл
+	out << "Name" << separator << "Descriptor" << separator << "BodyStartStatementId" << separator << "LocalVariablesTableName" << endl; // Запись заголовков
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		string funcName = filename.substr(0, filename.find(".")) + string("_") + iter->first + "_LocalVariables.csv"; // Имя функции
+		string str = iter->second->toCsvString(funcName, separator); // Формирование строки
+		out << str << endl; //Запись строки в файл
+		iter->second->refTablesToCsvFile(funcName, filepath, separator); // Запись вложенных таблиц функции
+		++iter;
+	}
+	out.close(); // Закрытие потока
+}
+
 void FunctionsTable::fillFieldRefs()
 {
 	ClassesTableElement* classTableElement = ClassesTable::items->at("rtl/!Program!");
