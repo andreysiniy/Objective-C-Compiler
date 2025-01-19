@@ -819,6 +819,23 @@ void ClassesTable::initClassNSArray()
 	(*items)["rtl/NSArray"] = nsarray;
 }
 
+
+
+void ClassesTable::toCsvFile(string filepath, char separator)
+{
+	ofstream out(filepath + "ClassesTable.csv"); //Создание и открытие потока на запись в файл
+	out << "Name" << separator << "SuperclassName" << separator << "IsImplementation" << separator << "ThisClass" << separator << "Superclass" << separator << "FieldsTableName" << separator << "MethodsTableName" << separator << "PropertiesTableName" << separator << "ConstantsTableName" << endl; // Запись заголовков
+	auto iter = items->cbegin();
+	while (iter != items->cend())
+	{
+		string str = iter->second->toCsvString(separator); // Формирование строки
+		out << str << endl; //Запись строки в файл
+		iter->second->refTablesToCsvFile(filepath, separator); // Запись вложенных таблиц класса
+		++iter;
+	}
+	out.close(); // Закрытие потока
+}
+
 void ClassesTable::fillFieldRefs()
 {
 	auto iter = items->cbegin();
