@@ -124,6 +124,54 @@ ClassesTableElement::ClassesTableElement(string name, string* superclassName, bo
 		Superclass = ConstantTable->findOrAddConstant(Class, NULL, SuperclassName);
 	IsImplementation = isImplementation;
 }
+
+string ClassesTableElement::toCsvString(char separator)
+{
+	string res = "";
+	res += to_string(Name) + '(' + *ConstantTable->getConstant(Name)->Utf8String + ')' + separator;
+	if (SuperclassName != NULL)
+		res += to_string(SuperclassName) + '(' + *ConstantTable->getConstant(SuperclassName)->Utf8String + ')' + separator;
+	else
+		res += string("empty") + separator;
+	res += string((IsImplementation ? "true" : "false")) + separator;
+	res += to_string(ThisClass) + separator;
+	res += to_string(Superclass) + separator;
+
+	if (Fields->items.size() > 0)
+		res += *ConstantTable->getConstant(Name)->Utf8String + "_FieldsTable.csv" + separator;
+	else
+		res += string("emptyTable") + separator;
+
+	if (Methods->items.size() > 0)
+		res += *ConstantTable->getConstant(Name)->Utf8String + "_MethodsTable.csv" + separator;
+	else
+		res += string("emptyTable") + separator;
+
+	if (Properties->items.size() > 0)
+		res += *ConstantTable->getConstant(Name)->Utf8String + "_PropertiesTable.csv" + separator;
+	else
+		res += string("emptyTable") + separator;
+
+	res += *ConstantTable->getConstant(Name)->Utf8String + "_ConstantsTable.csv";
+	return res;
+}
+
+void ClassesTableElement::refTablesToCsvFile(string filepath, char separator)
+{
+	string className = *ConstantTable->getConstant(Name)->Utf8String;
+	replace(className.begin(), className.end(), '/', '_');
+	if (Fields->items.size() > 0)
+		Fields->toCsvFile(className + "_FieldsTable.csv", filepath, separator); //Записать таблицу полей в файл
+
+	if (Methods->items.size() > 0)
+		Methods->toCsvFile(className + "_MethodsTable.csv", filepath, separator); //Записать таблицу методов в файл
+
+	if (Properties->items.size() > 0)
+		Properties->toCsvFile(className + "_PropertiesTable.csv", filepath, separator); //Записать таблицу свойств в файл
+
+	ConstantTable->toCsvFile(className + "_ConstantsTable.csv", filepath, separator); //Записать таблицу констант в файл
+}
+
 string ClassesTableElement::getClassName()
 {
 	return ConstantTable->getConstantString(Name);
