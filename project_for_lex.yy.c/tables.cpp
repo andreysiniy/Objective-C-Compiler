@@ -1179,6 +1179,16 @@ PropertiesTableElement::PropertiesTableElement(int name, int descriptor, bool is
 	DescriptorStr = descriptorStr;
 }
 
+string PropertiesTableElement::toCsvString(char separator)
+{
+	string res = "";
+	res += to_string(Name) + " (" + NameStr + ")" + separator; //Добавление имени
+	res += to_string(Descriptor) + " (" + DescriptorStr + ")" + separator; //Добавление дескриптора
+	res += string((IsReadonly ? "true" : "false")) + separator; //Добавление флага, который показывает принадлежность свойства к экземпляру
+	res += type->toString() + separator; //Добавление типа
+	return res;
+}
+
 // -------------------- PropertiesTable --------------------
 
 void PropertiesTable::addProperty(ConstantsTable* constantTable, string name, string descriptor, bool isReadonly, Type* type)
@@ -1192,6 +1202,20 @@ void PropertiesTable::addProperty(ConstantsTable* constantTable, string name, st
 	int DescriptorId = constantTable->findOrAddConstant(UTF8, descriptor);
 	PropertiesTableElement* property = new PropertiesTableElement(NameId, DescriptorId, isReadonly, type, name, descriptor);
 	items[name] = property;
+}
+
+void PropertiesTable::toCsvFile(string filename, string filepath, char separator)
+{
+	ofstream out(filepath + filename); //Создание и открытие потока на запись в файл
+	out << "Name" << separator << "Descriptor" << separator << "IsReadonly" << separator << "Type" << endl; // Запись заголовков
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		string str = iter->second->toCsvString(separator); // Формирование строки
+		out << str << endl; //Запись строки в файл
+		++iter;
+	}
+	out.close(); // Закрытие потока
 }
 
 // ------------------- LocalVariablesTableElement --------------------
