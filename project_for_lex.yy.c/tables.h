@@ -254,6 +254,8 @@ public:
 
     void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
 
+	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
+
 };
 
 // ----------- Таблица свойств ----------
