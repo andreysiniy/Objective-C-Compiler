@@ -1227,6 +1227,15 @@ LocalVariablesTableElement::LocalVariablesTableElement(int id, string name, Type
 	this->type = type;
 }
 
+string LocalVariablesTableElement::toCsvString(char separator)
+{
+	string res = "";
+	res += to_string(Id) + separator;
+	res += Name + separator;
+	res += type->toString();
+	return res;
+}
+
 // -------------------- LocalVariablesTable --------------------
 
 int LocalVariablesTable::findOrAddLocalVariable(string name, Type* type)
@@ -1242,6 +1251,26 @@ int LocalVariablesTable::findOrAddLocalVariable(string name, Type* type)
 	return items[name]->Id;
 }
 
+void LocalVariablesTable::toCsvFile(string filename, string fileoath, char separator)
+{
+	filename.erase(std::remove(filename.begin(), filename.end(), '<'), filename.end());
+	filename.erase(std::remove(filename.begin(), filename.end(), '>'), filename.end());
+	ofstream out(fileoath + filename); //Создание и открытие потока на запись в файл
+	out << "Id" << separator << "Name" << separator << "Type" << endl; // Запись заголовков
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+		string str = iter->second->toCsvString(separator); // Формирование строки
+		out << str << endl; //Запись строки в файл
+		++iter;
+	}
+	out.close(); // Закрытие потока
+}
+
+bool LocalVariablesTable::isContains(string name)
+{
+	return items.count(name) != 0;
+}
 
 // -------------------- Type --------------------
 
