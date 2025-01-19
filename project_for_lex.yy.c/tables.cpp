@@ -130,6 +130,21 @@ string ConstantsTable::getConstantString(int id)
 	return *items[id]->Utf8String;
 }
 
+void ConstantsTable::toCsvFile(string filename, string filepath, char separator)
+{
+	ofstream out(filepath + filename); //Создание и открытие потока на запись в файл
+	out << "ID" << separator << "Type" << separator << "Value" << endl; // Запись заголовков
+	auto iter = items.cbegin();
+	while (iter != items.cend())
+	{
+
+		string str = iter->second->toCsvString(separator); // Формирование строки
+		out << str << endl; //Запись строки в файл
+		++iter;
+	}
+	out.close(); // Закрытие потока
+}
+
 int ConstantsTable::findOrAddFieldRefConstant(string className, string fieldName, string descriptor)
 {
 	int classNameConst = this->findOrAddConstant(UTF8, className);
