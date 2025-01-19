@@ -82,6 +82,7 @@ public:
 	void fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение methodRef для текущей функции
 	void fillLiterals(ConstantsTable* constantTable); // Заполнение литералов
 
+	void convertToClassProgramMethods(ClassesTableElement* classTableElement);
 
 
 	void semanticTransform();
