@@ -24,6 +24,52 @@ ConstantsTableElement::ConstantsTableElement(int id, constantType type, int numb
 	SecondRef = secondRef;
 }
 
+string ConstantsTableElement::toCsvString(char separator)
+{
+	string res = "";
+	res += to_string(Id) + separator; //Добавление ID
+
+	// Добавление типа и значения
+	switch (Type)
+	{
+	case constantType::UTF8:
+		res += string("UTF8") + separator;
+		res += *Utf8String;
+		break;
+	case constantType::Integer:
+		res += string("Integer") + separator;
+		res += to_string(Number);
+		break;
+	case constantType::String:
+		res += string("String") + separator;
+		res += to_string(FirstRef);
+		break;
+	case constantType::Class:
+		res += string("Class") + separator;
+		res += to_string(FirstRef);
+		break;
+	case constantType::NameAndType:
+		res += string("NameAndType") + separator;
+		res += to_string(FirstRef) + ", ";
+		res += to_string(SecondRef);
+		break;
+	case constantType::FieldRef:
+		res += string("FieldRef") + separator;
+		res += to_string(FirstRef) + ", ";
+		res += to_string(SecondRef);
+		break;
+	case constantType::MethodRef:
+		res += string("MethodRef") + separator;
+		res += to_string(FirstRef) + ", ";
+		res += to_string(SecondRef);
+		break;
+	default:
+		break;
+	}
+
+	return res;
+}
+
 // -------------------- ConstantsTable --------------------
 
 ConstantsTable::ConstantsTable()
