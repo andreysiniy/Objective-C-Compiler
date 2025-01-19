@@ -54,6 +54,7 @@ public:
 
     ConstantsTable();
 
+    void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
 
     int findOrAddFieldRefConstant(string className, string fieldName, string descriptor); // Поиск или формирование константы fieldRef
 
@@ -77,6 +78,8 @@ public:
 
     FunctionsTableElement(Statement_node* bodyStart, string nameStr, string descriptorStr, vector<Type*> *params, Type* returnType);
 
+    string toCsvString(string funcName, char separator = '|'); //Преобразование в строку формата CSV
+    void refTablesToCsvFile(string filename, string filepath, char separator = '|');
 
     void fillFieldRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение fieldRef для текущей функции
 	void fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение methodRef для текущей функции
@@ -95,6 +98,8 @@ public:
     static map<string, FunctionsTableElement*> items; // Таблица функций, в качестве ключа - Имя функции
 
     static FunctionsTableElement* addFunction(string name, string descriptor, Statement_node* bodyStart, vector<Type*>* params, Type* returnType);
+
+    static void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
 
     static void fillFieldRefs(); //Функция поиска и заполнения fieldRef в функциях, побочным эфектом контролирует наличие функции main
 	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в функциях
@@ -124,6 +129,8 @@ public:
 
     ClassesTableElement(string name, string *superclassName, bool isImplementation);
 
+    string toCsvString(char separator = '|'); //Преобразование в строку формата CSV
+    void refTablesToCsvFile(string filepath, char separator = '|'); //Запись вложенных таблиц в файлы
     string getClassName(); // Получение имени класса
 	string getSuperClassName(); // Получение имени родительского класса
     void fillFieldRefs(); // Заполнение fieldRef для текущего класса
@@ -154,11 +161,13 @@ public:
 
 	static void initRTL();
 
+    static void toCsvFile(string filepath, char separator = '|'); //Преобразование в CSV-файл
 
 	static void fillFieldRefs(); //Функция поиска и заполнения fieldRef в классах
 	static void fillMethodRefs(); //Функция поиска и заполнения methodRef в классах
     static void fillLiterals(); //Функция поиска и заполнения строковых констант и integer констант более 2 байт
 
+	static string getFullClassName(string name); //Получение полного имени класса по короткому
 
     static void semanticTransform(); // Преобразования дерева
 	static void addConstantsToTable(); //Добавляет константы типа Class в таблицу
@@ -187,6 +196,8 @@ public:
 
     FieldsTableElement(int name, int descriptor, bool isInstance, int instanceIndex, Type* type, string nameStr, string descriptorStr, Expression_node* initialValue);
 
+    string toCsvString(char separator = '|'); //Преобразование в строку формата CSV
+
     void fillLiterals(ConstantsTable* constantTable);
 
 };
@@ -198,6 +209,8 @@ public:
     map < string, FieldsTableElement*> items; //Таблица полей класса, в качестве ключа - Имя поля класса
 
     void addField(ConstantsTable* constantTable, string name, string descriptor, bool isInstance, Type* type, Expression_node* initValue);
+
+    void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
 
 };
 
@@ -219,6 +232,9 @@ public:
     string DescriptorStr; // Дескриптор метода
 
     MethodsTableElement(int name, int descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes, string nameStr, string descriptorStr);
+
+    string toCsvString(string methodName, char separator = '|'); //Преобразование в строку формата CSV
+    void refTablesToCsvFile(string methodName, string filepath, char separator = '|');
     void fillFieldRefs(ConstantsTable *constantTable, ClassesTableElement* classTableElement); // Заполнение fieldRef для текущего метода
 	void fillMethodRefs(ConstantsTable* constantTable, ClassesTableElement* classTableElement); // Заполнение methodRef для текущего метода
 	void fillLiterals(ConstantsTable* constantTable);
@@ -236,6 +252,8 @@ public:
 
     MethodsTableElement* addMethod(ConstantsTable* constantTable, string name, string descriptor, bool isClassMethod, Statement_node* bodyStart, Type* returnType, vector<Type*>* paramsTypes, vector<Type*>* keywordsTypes);
 
+    void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
+
 };
 
 // ----------- Таблица свойств ----------
@@ -252,6 +270,7 @@ public:
 
     PropertiesTableElement(int name, int descriptor, bool isReadonly, Type* type, string nameStr, string descriptorStr);
 
+    string toCsvString(char separator = '|'); //Преобразование в строку формата CSV
 };
 
 class PropertiesTable
@@ -261,6 +280,7 @@ public:
 
     void addProperty(ConstantsTable* constantTable, string name, string descriptor, bool isReadonly, Type* type);
 
+    void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
 };
 
 // ---------- Таблица локальных переменных ----------
@@ -274,6 +294,7 @@ public:
 
     LocalVariablesTableElement(int id, string name, Type* type);
 
+    string toCsvString(char separator = '|'); //Преобразование в строку формата CSV
 };
 
 class LocalVariablesTable
@@ -283,6 +304,8 @@ public:
     map<string, LocalVariablesTableElement*> items; // Таблица локальных переменных, в качестве ключа - Имя локальной переменной
 
     int findOrAddLocalVariable(string name, Type* type);
+
+    void toCsvFile(string filename, string fileoath, char separator = '|'); //Преобразование в CSV-файл
 
     bool isContains(string name);
 
