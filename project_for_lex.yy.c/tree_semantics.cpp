@@ -1,6 +1,37 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Init_declarator_list_node ----------
+void Init_declarator_list_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
+{
+	Init_declarator_node* declarator = First;
+	while (declarator != NULL)
+	{
+		declarator->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		declarator = declarator->Next;
+	}
+}
+
+void Init_declarator_list_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement, bool isInInstanceMethod)
+{
+	Init_declarator_node* declarator = First;
+	while (declarator != NULL)
+	{
+		declarator->fillMethodRefs(constantTable, localVariablesTable, classTableElement, isInInstanceMethod);
+		declarator = declarator->Next;
+	}
+}
+
+void Init_declarator_list_node::fillLiterals(ConstantsTable* constantTable)
+{
+	Init_declarator_node* declarator = First;
+	while (declarator != NULL)
+	{
+		declarator->fillLiterals(constantTable);
+		declarator = declarator->Next;
+	}
+}
+
 // ---------- Init_declarator_node ---------- 
 void Init_declarator_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
 {
