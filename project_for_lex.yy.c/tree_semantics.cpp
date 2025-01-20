@@ -1,6 +1,37 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Keyword_argument_list_node ----------
+void Keyword_argument_list_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
+{
+	Keyword_argument_node* arg = First;
+	while (arg != NULL)
+	{
+		arg->expression->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		arg = arg->Next;
+	}
+}
+
+void Keyword_argument_list_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement, bool isInstanceMethod)
+{
+	Keyword_argument_node* arg = First;
+	while (arg != NULL)
+	{
+		arg->expression->fillMethodRefs(constantTable, localVariablesTable, classTableElement, isInstanceMethod);
+		arg = arg->Next;
+	}
+}
+
+void Keyword_argument_list_node::fillLiterals(ConstantsTable* constantTable)
+{
+	Keyword_argument_node* arg = First;
+	while (arg != NULL)
+	{
+		arg->expression->fillLiterals(constantTable);
+		arg = arg->Next;
+	}
+}
+
 // ---------- Expression_list_node ----------
 
 void Expression_list_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
