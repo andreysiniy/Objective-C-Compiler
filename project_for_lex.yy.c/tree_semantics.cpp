@@ -1,6 +1,38 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Expression_list_node ----------
+
+void Expression_list_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
+{
+	Expression_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		cur = cur->Next;
+	}
+}
+
+void Expression_list_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement, bool isInInstanceMethod)
+{
+	Expression_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->fillMethodRefs(constantTable, localVariablesTable, classTableElement, isInInstanceMethod);
+		cur = cur->Next;
+	}
+}
+
+void Expression_list_node::fillLiterals(ConstantsTable* constantTable)
+{
+	Expression_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->fillLiterals(constantTable);
+		cur = cur->Next;
+	}
+}
+
 // ---------- Init_declarator_list_node ----------
 void Init_declarator_list_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
 {
