@@ -217,4 +217,35 @@ void Expression_list_node::assignmentTransform()
 	}
 }
 
+
+// -------------------- ADD DEFAULT RETURN --------------------
+void MethodsTableElement::addDefaultReturn(Statement_node* lastStatement)
+{
+	Statement_node* defaultReturn;
+	if (ReturnType->DataType == VOID_TYPE)
+		defaultReturn = Statement_node::createStatementNodeFromSimpleStatement(RETURN_STATEMENT_TYPE, NULL); //Создать пустой return
+	else {
+		int defaultValue = ReturnType->getDefaultValue(); //Получить значение по умолчанию
+		Numeric_constant_node *num = Numeric_constant_node::createNumericConstantNodeFromInteger(defaultValue); //Сформировать константу
+		Expression_node* expr = Expression_node::createExpressionNodeFromNumericConstant(num); //Сформировать expression
+		defaultReturn = Statement_node::createStatementNodeFromSimpleStatement(RETURN_STATEMENT_TYPE, expr); //Сформировать statement с return
+	}
+	
+	lastStatement->Next = defaultReturn;
+}
+
+void FunctionsTableElement::addDefaultReturn(Statement_node* lastStatement)
+{
+	Statement_node* defaultReturn;
+	if (ReturnType->DataType == VOID_TYPE || NameStr == "main")
+		defaultReturn = Statement_node::createStatementNodeFromSimpleStatement(RETURN_STATEMENT_TYPE, NULL); //Создать пустой return
+	else {
+		int defaultValue = ReturnType->getDefaultValue(); //Получить значение по умолчанию
+		Numeric_constant_node* num = Numeric_constant_node::createNumericConstantNodeFromInteger(defaultValue); //Сформировать константу
+		Expression_node* expr = Expression_node::createExpressionNodeFromNumericConstant(num); //Сформировать expression
+		defaultReturn = Statement_node::createStatementNodeFromSimpleStatement(RETURN_STATEMENT_TYPE, expr); //Сформировать statement с return
+	}
+
+	lastStatement->Next = defaultReturn;
+}
 }
