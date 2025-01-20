@@ -187,4 +187,34 @@ void Expression_node::arrayAssignmentTransform()
 
 void Expression_node::memberAccessAssignmentTransform()
 {
+	if (this->type == ASSIGNMENT_EXPRESSION_TYPE && (this->Left->type == DOT_EXPRESSION_TYPE || this->Left->type == ARROW_EXPRESSION_TYPE)) {
+		this->type = MEMBER_ACCESS_ASSIGNMENT_EXPRESSION_TYPE;
+
+		Expression_node* tmp = this->Left;
+		this->Left = tmp->Left; //Левая часть от expr dot
+		this->name = tmp->name; //Правая часть от expr dot (identifier)
+		this->Constant = tmp->Constant;
+		this->Field = tmp->Field;
+		delete tmp;
+	}
+
+	// Вызов преобразования на дочерних
+	if (this->Left != NULL)
+		this->Left->assignmentTransform();
+	if (this->Right != NULL)
+		this->Right->assignmentTransform();
+	if (this->Child != NULL)
+		this->Child->assignmentTransform();
+}
+
+void Expression_list_node::assignmentTransform()
+{
+	Expression_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->assignmentTransform();
+		cur = cur->Next;
+	}
+}
+
 }
