@@ -99,6 +99,7 @@ void Receiver_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariables
 		string methodName = Arguments->MethodName; // Имя метода
 		string methodNameWithType; //Имя метода с dynamic или static
 
+		if (isObject)
 			methodNameWithType = methodName + "Dynamic";
 		else
 			methodNameWithType = methodName + "Static";
