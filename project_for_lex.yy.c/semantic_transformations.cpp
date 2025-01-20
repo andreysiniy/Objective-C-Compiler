@@ -853,4 +853,29 @@ void Message_selector_node::setDataTypes(LocalVariablesTable* locals, string rec
 	}
 
 }
+
+void Keyword_argument_list_node::setDataTypes(LocalVariablesTable* locals)
+{
+	Keyword_argument_node* cur = First;
+	while (cur != NULL)
+	{
+		if (cur->name != NULL) {
+			string msg = "ERROR! Unsupported identifiers in keyword arguments: '" + string(cur->name) + "'";
+			throw new std::exception(msg.c_str());
+		}
+		cur->expression->setDataTypesAndCasts(locals);
+		cur = cur->Next;
+	}
+}
+
+
+void Expression_list_node::setDataTypesAndCasts(LocalVariablesTable* locals)
+{
+	Expression_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->setDataTypesAndCasts(locals);
+		cur = cur->Next;
+	}
+}
 }
