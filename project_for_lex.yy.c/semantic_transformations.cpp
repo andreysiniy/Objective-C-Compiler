@@ -458,6 +458,34 @@ void Expression_node::setDataTypesAndCasts(LocalVariablesTable *locals)
 		DataType = new Type(Left->DataType->DataType, Left->DataType->ClassName);
 	}
 		break;
+	case ARROW_EXPRESSION_TYPE:
+	{
+		if (Left->DataType->ClassName == "") {
+			string msg = string("Can't access to field '") + string(name) + "' because of left is not object in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		className = Left->DataType->ClassName;
+		if (ClassesTable::items->count(className) == 0) {
+			string msg = string("Class '") + className + "' doesn't exist in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		if (Left->type == SUPER_EXPRESSION_TYPE) {
+			string msg = "Can't access to field of super object in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		ClassesTableElement* classElem = ClassesTable::items->at(className);
+		if (classElem->isContainsField(name)) {
+			string descr;
+			string n;
+			FieldsTableElement* field = classElem->getFieldForRef(name, &descr, &n);
+			DataType = field->type;
+		}
+		else {
+			string msg = string("Class '") + className + "' doesn't contains field '" + string(name) + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
 	case ASSIGNMENT_EXPRESSION_TYPE:
 	{
 		DataType = Left->DataType;
