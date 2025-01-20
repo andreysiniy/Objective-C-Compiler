@@ -155,6 +155,10 @@ void Init_declarator_node::semanticTransform(LocalVariablesTable* locals, Type *
 		delete castType;
 	}
 }
+
+
+// -------------------- ASSIGNMENT TRANSFORMATIONS --------------------
+
 void Expression_node::assignmentTransform()
 {
 	arrayAssignmentTransform();
@@ -167,8 +171,8 @@ void Expression_node::arrayAssignmentTransform()
 		this->type = ARRAY_ASSIGNMENT_EXPRESSION_TYPE; 
 		
 		Expression_node* tmp = this->Left;
-		this->Left = tmp->Left; //����� ����� �� expr �������
-		this->Child = tmp->Right; //������ ����� �� expr �������
+		this->Left = tmp->Left; //Левая часть от expr массива
+		this->Child = tmp->Right; //Правая часть от expr массива
 		delete tmp;
 	}
 	
