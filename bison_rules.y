@@ -1,392 +1,289 @@
- %{
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <iostream>
-
-  int yylex(void);
-  int yyerror(const char *s);
-%}
-
+// ---------- Операции с их приоритетом ----------
 %right '='
 %left EQUAL NOT_EQUAL
 %left '<' '>' LESS_EQUAL GREATER_EQUAL
 %left '+' '-'
 %left '*' '/'
 %right UMINUS UPLUS UAMPERSAND
-%left '[' ']' '.' ARROW
-%nonassoc '(' ')' 
-%nonassoc NO_ELSE
-%nonassoc ELSE
-%nonassoc PREC_EXPR
-%nonassoc ARRAY_EXPR 
+%nonassoc '(' ')' '[' ']'
 
-%token INT_TYPE FLOAT_TYPE DOUBLE_TYPE CHAR_TYPE 
-%token INT_C FLOAT_C DOUBLE_C STRING_C 
-%token ID SUPER SELF
-%token IDENTIFIER
-%token IF WHILE DO FOR
+//---------- Терминальные символы ----------
+%token INT CHAR FLOAT ENUM CLASS_NAME
+%token VOID
+%token IF ELSE WHILE DO FOR
 %token IN
-%token RETURN
-%token INTERFACE IMPLEMENTATION
-%token READONLY READWRITE
+%token INTERFACE IMPLEMENTATION 
 %token END
 %token PROPERTY
-%token VOID
+%token READONLY READWRITE
+%token SELF SUPER ID  /* НУЖНО ЛИ SUPER добавлять в expression */
+%token CLASS
+%token RETURN
+%token INTEGER_CONSTANT STRING_CONSTANT CHAR_CONSTANT FLOAT_CONSTANT NSSTRING_CONSTANT
+%token IDENTIFIER
+%token ELIPSIS
 
 %start program
 
 %%
 
-program
-        : stmt_list
-        | classes 
-        ;
+program: statement_list
+	   | class_statement_list
+	   | statement_list class_statement_list
+	   | class_statement_list statement_list
+	   ;
 
-type
-        : INT_TYPE
-        | CHAR_TYPE
-        | FLOAT_TYPE
-        | DOUBLE_TYPE
-        | ID
-        ;
+// ---------- Типы ----------
+type: INT
+    | CHAR
+    | FLOAT
+    | ID
+	| CLASS_NAME '*'
+    ;
 
-constants
-        : INT_C
-        | FLOAT_C
-        | DOUBLE_C
-        | STRING_C
-        ;
+// ---------- Константы ----------
+numeric_constant: FLOAT_CONSTANT
+                | INTEGER_CONSTANT
+                ;
 
-// DECLARATIONS RULES
+literal: STRING_CONSTANT
+       | CHAR_CONSTANT
+	   | NSSTRING_CONSTANT
+       ;
 
-decl
-        : type init_decl_list ';'
-        | IDENTIFIER init_astr_decl_list';'
-        ;
+// ---------- Объявления ----------
+declaration: type init_declarator_list_e ';'
+           ;
 
-decl_list
-        : decl
-        | decl_list decl
-        ;
+declaration_list: declaration
+				| declaration_list declaration
+				;
 
-decl_list_empty
-        : /* empty */
-        | decl_list
-        ;
+declaration_list_e: /*empty*/
+				  | declaration_list
+				  ;
 
-init_decl_list_empty
-        : /* empty */
-        | init_decl_list
-        ;
+init_declarator_list_e: /* empty */
+					| init_declarator_list
+					;
 
-init_decl_list
-        : init_decl
-        | init_decl_list ',' init_decl
-        ;
+init_declarator_list: init_declarator
+					| init_declarator_list ',' init_declarator
+					;
 
-init_decl
-        : IDENTIFIER
-        | IDENTIFIER '=' expr
-        | IDENTIFIER '[' expr ']'
-        | IDENTIFIER '[' expr ']' '=' '{' expr_list_empty '}'
-        | IDENTIFIER '[' expr ']' '=' expr
-        ;
+init_declarator: IDENTIFIER
+			   | IDENTIFIER '=' expression
+			   ;
 
-field
-        : IDENTIFIER
-        | IDENTIFIER '[' expr ']'
-        ;
+parameter_type_list: parameter_list
+				   | parameter_list ',' ELIPSIS
+				   ;
 
-field_list
-        : field
-        | field_list ',' field
-        ;
+parameter_list: parameter_declaration
+			  | parameter_list ',' parameter_declaration
+			  ;
 
-field_astr
-        : '*' IDENTIFIER
-        | '*' IDENTIFIER '[' expr ']'
-        ;
+parameter_declaration: type IDENTIFIER
+					 | CLASS_NAME IDENTIFIER
+					 ;
 
-field_astr_list
-        : field_astr
-        | field_astr_list ',' field_astr
-        ;
+// ---------- Выражения ----------
 
-init_astr_decl
-        : '*' IDENTIFIER
-        | '*' IDENTIFIER '=' expr
-        | IDENTIFIER '[' expr ']'
-        | IDENTIFIER '[' expr ']' '=' '{' expr_list_empty '}'
-        | IDENTIFIER '[' expr ']' '=' expr
-        ;
+expression: IDENTIFIER
+		  | literal
+		  | numeric_constant
+		  | '(' expression ')'
+		  | SELF
+		  | message_expression
+		  | '-' expression %prec UMINUS
+		  | '+' expression %prec UPLUS
+		  | '&' expression %prec UAMPERSAND
+		  | expression '+' expression
+		  | expression '-' expression
+		  | expression '*' expression
+		  | expression '/' expression
+		  | expression EQUAL expression
+		  | expression NOT_EQUAL expression
+		  | expression '>' expression
+		  | expression '<' expression
+		  | expression LESS_EQUAL expression
+		  | expression GREATER_EQUAL expression
+		  | expression '=' expression
+		  ;
 
-init_astr_decl_list
-        : init_astr_decl
-        | init_astr_decl_list ',' init_astr_decl
-        ;
+expression_e: /*empty*/
+			| expression;
 
-init_astr_decl_list_empty
-        : /* empty */
-        | init_astr_decl_list
-        ;
+message_expression: '[' receiver message_selector ']'
+				  ;
 
-param_list
-        : param_decl
-        | param_list ',' param_decl
-        ;
+receiver: SUPER
+		| SELF
+		| CLASS_NAME
+		;
 
-param_decl
-        : type IDENTIFIER
-        | IDENTIFIER '*' IDENTIFIER
-        ;
+message_selector: IDENTIFIER
+				| keyword_argument_list
+				;
 
-// EXPRESSIONS RULES
+keyword_argument_list: keyword_argument
+					 | keyword_argument_list keyword_argument
+					 ;
 
-expr
-        : IDENTIFIER %prec PREC_EXPR
-        | constants
-        | '[' receiver message ']'
-        | '(' expr ')'
-        | IDENTIFIER '(' expr_list_empty ')'
-        | '-' expr %prec UMINUS
-        | '+' expr %prec UPLUS
-        | '&' expr %prec UAMPERSAND
-        | expr '+' expr
-        | expr '-' expr
-        | expr '*' expr
-        | expr '/' expr
-        | expr EQUAL expr
-        | expr NOT_EQUAL expr
-        | expr LESS_EQUAL expr
-        | expr GREATER_EQUAL expr
-        | expr '=' expr
-        | expr '<' expr
-        | expr '>' expr
-        | expr ARROW IDENTIFIER
-        | expr '[' expr ']'
-        ;
+keyword_argument: IDENTIFIER ':' expression
+				| ':' expression
+				;
 
+// ---------- Управляющие структуры: развилки ----------
+if_statement: IF '(' expression ')' statement
+			| IF '(' expression ')' statement ELSE statement
+			;
 
-empty_expr
-        : /* empty */
-        | expr
-        ;
-        
-expr_list_empty
-        : /* empty */
-        | expr_list
-        ;
+// ---------- Управляющие структуры: циклы ----------
+while_statement: WHILE '(' expression ')' statement
+			   ;
 
-expr_list
-        : expr
-        | expr_list ',' expr
+do_while_statement: DO statement WHILE '(' expression ')' ';'
+				  ;
 
-receiver
-        : SUPER
-        | SELF
-        | IDENTIFIER
-        | '[' receiver message ']'
-        ;
+for_statement: FOR '(' expression_e ';' expression_e ';' expression_e ')' statement
+			 | FOR '(' IDENTIFIER IN expression ')' statement
+			 | FOR '(' type IDENTIFIER IN expression ')' statement
+			 ;
 
-message
-        : IDENTIFIER
-	| message_arg_list
-	;
+// ---------- Операторы ----------
 
-message_arg_list
-        : message_arg
-	| message_arg_list message_arg
-	;
+statement: ';'
+		 | expression ';'
+		 | RETURN expression_e ';'
+		 | if_statement
+		 | while_statement
+		 | do_while_statement
+		 | for_statement
+		 | compound_statement
+		 | declaration
+		 | class_declaration_list
+		 ;
 
-message_arg
-        : IDENTIFIER ':' expr
-	| ':' expr
-	;
+compound_statement: '{' statement_list_e '}'
+				  ;
 
-// STATEMENTS RULES 
+statement_list: statement
+			  | statement_list statement
+			  ;
 
-if_stmt
-        : IF '(' expr ')' stmt %prec NO_ELSE
-        | IF '(' expr ')' stmt ELSE stmt
-	;
+statement_list_e: /*empty*/
+				| statement_list
+				;
 
+class_statement: class_interface
+			   | class_implementation
+			   ;
 
-while_stmt
-        : WHILE '(' expr ')' stmt
-	;
+class_statement_list: class_statement
+					| class_statement_list class_statement
+					;
 
-do_while_stmt
-        : DO stmt WHILE '(' expr ')' ';'
-	;
+// ---------- Классы ----------
+class_interface: INTERFACE IDENTIFIER ':' IDENTIFIER interface_statement END
+			   | INTERFACE IDENTIFIER interface_statement END
+			   | INTERFACE IDENTIFIER ':' CLASS_NAME interface_statement END
+			   ;
 
-for_stmt
-        : FOR '(' empty_expr ';' empty_expr ';' empty_expr ')' stmt
-	| FOR '(' IDENTIFIER IN expr ')' stmt
-	| FOR '(' type IDENTIFIER IN expr ')' stmt
-	;
+interface_statement: instance_variables interface_declaration_list
+				   | interface_declaration_list
+				   ;
 
+implementation_statement: instance_variables implementation_definition_list
+						| implementation_definition_list
+						;
 
-stmt
-        : ';'
-        | expr ';' 
-        | if_stmt
-        | while_stmt
-        | do_while_stmt
-        | for_stmt
-        | RETURN empty_expr ';'
-        | '{' empty_stmt_list '}'
-        | decl 
-        ;
+class_implementation: IMPLEMENTATION IDENTIFIER implementation_statement END
+					| IMPLEMENTATION IDENTIFIER ':' IDENTIFIER implementation_statement END
+					| IMPLEMENTATION CLASS_NAME implementation_statement END
+					| IMPLEMENTATION CLASS_NAME ':' IDENTIFIER implementation_statement END
+					| IMPLEMENTATION IDENTIFIER ':' CLASS_NAME implementation_statement END
+					| IMPLEMENTATION CLASS_NAME ':' CLASS_NAME implementation_statement END
+					;
 
-stmt_list
-        : stmt
-        | stmt_list stmt
-        ;
+class_declaration_list: CLASS class_list ';'
+					  ;
 
-empty_stmt_list
-        : /* empty */
-        | stmt_list
-        ;
+class_list: IDENTIFIER
+		  | class_list ',' IDENTIFIER
+		  ;
 
-// CLASSES RULES 
-
-classes
-        : class_interface
-        | class_implementation
-        ;
-
-class_interface
-        : INTERFACE IDENTIFIER ':' IDENTIFIER empty_interface_body END
-	| INTERFACE IDENTIFIER empty_interface_body END
-	;
-
-class_implementation
-        : IMPLEMENTATION IDENTIFIER empty_implementation_body END
-        | IMPLEMENTATION IDENTIFIER ':' IDENTIFIER empty_implementation_body END
-        ;
-
-empty_interface_body
-        : /* empty */
-        | interface_body
-        ;
-
-interface_body
-        : '{' inst_fields_decl_list_empty '}' interface_decl_list_empty
-        | interface_decl_list
-        ;
-
-empty_implementation_body
-        : /* empty */
-        | implementation_body
-        ;
-
-implementation_body
-        : '{' inst_fields_decl_list_empty '}' implementation_decl_list_empty
-        | implementation_decl_list
-        ;
-
-inst_fields_decl_list_empty
-        : /* empty */
-        | inst_fields_decl_list
-        ;
-
-inst_fields_decl_list
-        : inst_fields_decl
-        | inst_fields_decl_list inst_fields_decl
-        ;
-
-inst_fields_decl
-        : type field_list ';'
-        | IDENTIFIER field_astr_list ';'
-        ; 
+instance_variables: '{' declaration_list '}'
+				   ;
 
 
-interface_decl_list_empty
-        : /* empty */
-        | interface_decl_list
-        ;
+interface_declaration_list: declaration
+						  | property
+						  | method_declaration
+						  | interface_declaration_list declaration
+						  | interface_declaration_list method_declaration
+						  | interface_declaration_list property
+						  ;
 
-interface_decl_list
-        : decl
-        | property
-        | method_decl
-        | interface_decl_list decl
-        | interface_decl_list method_decl
-        | interface_decl_list property
-        ;
+method_declaration: class_method_declaration
+				  | instance_method_declaration
+				  ;
 
-method_decl
-        : '+' method_type method_keywords ';'
-        | '+' '(' VOID ')' method_keywords ';'
-        | '+' method_keywords ';'
-        | '-' method_type method_keywords ';'
-        | '-' '(' VOID ')' method_keywords ';'
-        | '-' method_keywords ';'
-        ;
+class_method_declaration: '+' method_type method_selector ';'
+						| '+' '(' VOID ')' method_selector ';'
+						| '+' method_selector ';'
+						;
 
-method_def
-        : '+' method_type method_keywords '{' empty_stmt_list '}' 
-        | '+' '(' VOID ')' method_keywords '{' empty_stmt_list '}'
-        | '+' method_keywords '{' empty_stmt_list '}'
-        | '-' method_type method_keywords '{' empty_stmt_list '}'
-        | '-' '(' VOID ')' method_keywords '{' empty_stmt_list '}'
-        | '-' method_keywords '{' empty_stmt_list '}'
-        ;
+instance_method_declaration: '-' method_type method_selector ';'
+						   | '-' '(' VOID ')' method_selector ';'
+						   | '-' method_selector ';'
+						   ;
 
-method_keywords
-        : IDENTIFIER
-        | IDENTIFIER ':' method_keyword_decl keyword_list_empty
-        ;
+implementation_definition_list: declaration
+							  | property
+							  | method_definition
+							  | implementation_definition_list declaration
+							  | implementation_definition_list method_definition
+							  | implementation_definition_list property
+							  ;
 
-keyword_list_empty
-        : /* empty */
-        | keyword_list
-        ;
+method_definition: class_method_definition
+				 | instance_method_definition
+				 ;
 
-keyword_list
-        : keyword_decl
-        | keyword_list keyword_decl
-        ; 
+class_method_definition: '+' method_type method_selector declaration_list_e compound_statement
+					   | '+' '(' VOID ')' method_selector declaration_list_e compound_statement
+					   | '+' method_selector declaration_list_e compound_statement
+					   ;
 
-method_keyword_decl
-        : method_type IDENTIFIER
-        | IDENTIFIER
-        ;
+instance_method_definition: '-' method_type method_selector declaration_list_e compound_statement
+					   	  | '-' '(' VOID ')' method_selector declaration_list_e compound_statement
+						  | '-' method_selector declaration_list_e compound_statement
+					   	  ;
 
-keyword_decl
-        : ':' method_type IDENTIFIER
-        | ':' IDENTIFIER
-        | IDENTIFIER ':' method_type IDENTIFIER
-        | IDENTIFIER ':' IDENTIFIER
-        ;
+method_selector: IDENTIFIER
+			   | keyword_selector
+			   | keyword_selector ',' parameter_type_list
+			   ;
 
-implementation_decl_list_empty
-        : /* empty */
-        | implementation_decl_list
-        ;
+keyword_selector: keyword_declaration
+				| keyword_selector keyword_declaration
+				;
 
-implementation_decl_list
-        : decl
-        | method_def
-        | implementation_decl_list decl
-        | implementation_decl_list method_def
-        ;
+keyword_declaration: ':' method_type IDENTIFIER
+				   | ':' IDENTIFIER
+				   | IDENTIFIER ':' method_type IDENTIFIER
+				   | IDENTIFIER ':' IDENTIFIER
+				   ;
 
-method_type
-        : '(' type ')'
-        | '(' IDENTIFIER '*' ')'
-        ;
+method_type: '(' type ')'
+		   ;
 
-property
-        : PROPERTY attr type IDENTIFIER ';'
-        | PROPERTY attr IDENTIFIER '*' IDENTIFIER ';'
-        ;
+property: PROPERTY '(' attribute ')' type IDENTIFIER ';'
+		;
 
-attr
-        : /* empty */
-        | '(' ')'
-        | '(' READONLY ')'
-        | '(' READWRITE ')'
-        ;
+attribute: READONLY
+		 | READWRITE
+		 ;
 
 %%
