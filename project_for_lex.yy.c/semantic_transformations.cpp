@@ -549,6 +549,54 @@ void Expression_node::setDataTypesAndCasts(LocalVariablesTable *locals)
 	}
 		break;
 	
+	case MEMBER_ACCESS_ASSIGNMENT_EXPRESSION_TYPE:
+	{
+		if (Left->DataType->ClassName == "") {
+			string msg = string("Can't access to field '") + string(name) + "' because of left is not object in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		className = Left->DataType->ClassName;
+		if (ClassesTable::items->count(className) == 0) {
+			string msg = string("Class '") + className + "' doesn't exist in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		ClassesTableElement* classElem = ClassesTable::items->at(className);
+		if (classElem->isContainsField(name)) {
+			string descr;
+			string n;
+			FieldsTableElement* field = classElem->getFieldForRef(name, &descr, &n);
+			DataType = field->type;
+			if (!field->type->equal(Right->DataType)) {
+				if (Right->DataType->isCastableTo(field->type)) {
+					Expression_node* cast = new Expression_node();
+					cast->id = maxId++;
+					if (field->type->DataType == INT_TYPE) {
+						cast->type = INT_CAST;
+						cast->DataType = new Type(INT_TYPE);
+					}
+					else if (field->type->DataType == CHAR_TYPE) {
+						cast->type = CHAR_CAST;
+						cast->DataType = new Type(CHAR_TYPE);
+					}
+					else {
+						cast->type = CLASS_CAST;
+						cast->DataType = field->type;
+					}
+					cast->Right = Right;
+					Right = cast;
+				}
+				else {
+					string msg = string("Type '") + Right->DataType->toString() + "' doesn't castable to type '" + Left->DataType->toString() + "' in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+			}
+		}
+		else {
+			string msg = string("Class '") + className + "' doesn't contains field '" + string(name) + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
 	default:
 		break;
 	}
