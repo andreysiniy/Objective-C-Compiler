@@ -1,6 +1,39 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Message_selector_node ----------
+void Message_selector_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
+{
+	if (FirstArgument != NULL) {
+		FirstArgument->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	if (Arguments != NULL)
+		Arguments->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	if (ExprArguments != NULL)
+		ExprArguments->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+
+}
+
+void Message_selector_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement, bool isInInstanceMethod)
+{
+	if (FirstArgument != NULL)
+		FirstArgument->fillMethodRefs(constantTable, localVariablesTable, classTableElement, isInInstanceMethod);
+	if (Arguments != NULL)
+		Arguments->fillMethodRefs(constantTable, localVariablesTable, classTableElement, isInInstanceMethod);
+	if (ExprArguments != NULL)
+		ExprArguments->fillMethodRefs(constantTable, localVariablesTable, classTableElement, isInInstanceMethod);
+}
+
+void Message_selector_node::fillLiterals(ConstantsTable* constantTable)
+{
+	if (FirstArgument != NULL)
+		FirstArgument->fillLiterals(constantTable);
+	if (Arguments != NULL)
+		Arguments->fillLiterals(constantTable);
+	if (ExprArguments != NULL)
+		ExprArguments->fillLiterals(constantTable);
+}
+
 // ---------- Keyword_argument_list_node ----------
 void Keyword_argument_list_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
 {
