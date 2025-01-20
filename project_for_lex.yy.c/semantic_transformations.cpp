@@ -248,4 +248,283 @@ void FunctionsTableElement::addDefaultReturn(Statement_node* lastStatement)
 
 	lastStatement->Next = defaultReturn;
 }
+
+// -------------------- SET DATA TYPES AND CASTS --------------------
+
+void Expression_node::setDataTypesAndCasts(LocalVariablesTable *locals)
+{
+	// Вызов на дочерних элементах
+	if (Left != NULL)
+		Left->setDataTypesAndCasts(locals);
+	if (Right != NULL)
+		Right->setDataTypesAndCasts(locals);
+	if (Child != NULL)
+		Child->setDataTypesAndCasts(locals);
+	string className;
+	ClassesTableElement* classElem;
+
+	switch (type) {
+	case IDENTIFIER_EXPRESSION_TYPE:
+	{
+		if (locals->isContains(name)) { //Локальная переменная
+			DataType = locals->items[name]->type;
+		}
+		else { //Поле
+			if (ClassesTable::items->count(locals->items["self"]->type->ClassName) != 0) {
+				ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
+				if (selfClass->isContainsField(name)) {
+					string descr;
+					string className;
+					FieldsTableElement* field = selfClass->getFieldForRef(name, &descr, &className);
+					DataType = field->type;
+				}
+				else {
+					string msg = string("Class '") + selfClass->getClassName() + "doesn't contains field '" + string(name) + "' in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+			}
+
+		}
+	}
+		break;
+	case LITERAL_EXPRESSION_TYPE: //Тип для литерала будет соответствовать типу литерала
+	{
+		if (literal->type == CHAR_CONSTANT_TYPE)
+			DataType = new Type(CHAR_TYPE);
+		else if (literal->type == STRING_CONSTANT_TYPE)
+			DataType = new Type(CHAR_TYPE, strlen(literal->value) + 1);
+		else if (literal->type == NSSTRING_CONSTANT_TYPE) {
+			DataType = new Type(CLASS_NAME_TYPE, ClassesTable::getFullClassName("NSString"));
+			type = MESSAGE_EXPRESSION_EXPRESSION_TYPE;
+
+			char* className = new char[strlen("rtl/NSString")];
+			strcpy(className, "rtl/NSString");
+			Receiver = Receiver_node::createReceiverNode(CLASS_NAME_RECEIVER_TYPE, className);
+			Receiver->DataType = new Type(CLASS_NAME_TYPE, className);
+			Expression_node* val = Expression_node::createExpressionNodeFromLiteral(Literal_node::createLiteralNode(STRING_CONSTANT_TYPE, literal->value));
+			val->DataType = new Type(CHAR_TYPE, strlen(literal->value));
+			char* methodName = new char[strlen("stringWithCStringStatic")];
+			strcpy(methodName, "stringWithCStringStatic");
+		    Arguments = Message_selector_node::createMessageSelectorNode(methodName, val, NULL, NULL);
+			literal = NULL;
+
+			string thisClass = locals->items["self"]->type->ClassName;
+			ConstantsTable* constantTable = ClassesTable::items->at(thisClass)->ConstantTable;
+			Constant = constantTable->findOrAddMethodRefConstant(className, methodName, "([C)Lrtl/NSString;");
+			string d;
+			string c;
+			Method = ClassesTable::items->at(className)->getMethodForRef("stringWithCStringStatic", &d, &c);
+		}
+	}
+		break;
+	case NUMERIIC_CONSTANT_EXPRESSION_TYPE: //Тип для числовой константы будет соответствовать int (т.к. float не поддерживается)
+	{
+		DataType = new Type(INT_TYPE);
+	}
+		break;
+	case SELF_EXPRESSION_TYPE:
+	{
+		DataType = locals->items["self"]->type;
+	}
+		break;
+	case SUPER_EXPRESSION_TYPE:
+	{
+		Type* selfType = locals->items["self"]->type;
+		DataType = selfType->getSuperType();
+		if (DataType == NULL) {
+			string msg = string("Class '") + selfType->ClassName + "' don't have superclass in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case MESSAGE_EXPRESSION_EXPRESSION_TYPE:
+	{
+		Receiver->setDataType(locals);
+		Type* receiverType = Receiver->DataType;
+		if (receiverType->DataType != CLASS_NAME_TYPE && receiverType->DataType != ID_TYPE) {
+			string msg = string("Receiver is not a class or object. It has type: '") + receiverType->toString() + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else if (ClassesTable::items->count(receiverType->ClassName) == 0) {
+			string msg = string("Class '") + receiverType->ClassName + "' doesn't exist in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else if (!ClassesTable::items->at(receiverType->ClassName)->isContainsMethod(Arguments->MethodName)) {
+			string msg = string("Class '") + receiverType->ClassName + "doesn't contains method '" + string(Arguments->MethodName) + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else {
+			string descriptor;
+			string className;
+			MethodsTableElement* method = ClassesTable::items->at(receiverType->ClassName)->getMethodForRef(Arguments->MethodName, &descriptor, &className);
+			if (method->NameStr == "newStatic" || method->NameStr == "allocStatic")
+				DataType = Receiver->DataType;
+			else
+				DataType = method->ReturnType;
+			Arguments->setDataTypes(locals, receiverType->ClassName); //Установить DataType для параметров
+		}
+	}
+		break;
+	case FUNCTION_CALL_EXPRESSION_TYPE:
+	{
+		if (FunctionsTable::items.count(name) != 0) {
+			DataType = FunctionsTable::items[name]->ReturnType;
+			ArgumentsList->setDataTypesAndCasts(locals);
+		}
+		else {
+			string msg = "Function '" + string(name) + "' doesn't exist in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case UMINUS_EXPRESSION_TYPE:
+	case UPLUS_EXPRESSION_TYPE:
+	{
+		if (Right->DataType->isPrimitive())
+			DataType = Right->DataType;
+		else {
+			string msg = string("Type '") + Right->DataType->toString() + "can't using as argument of unary operation in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case UAMPERSAND_EXPRESSION_TYPE:
+	{
+		string msg = "Error! Unsupported operation unary ampersand. in line: " + to_string(line);
+		throw new std::exception(msg.c_str());
+	}
+	break;
+	case PLUS_EXPRESSION_TYPE:
+	case MINUS_EXPRESSION_TYPE:
+	case MUL_EXPRESSION_TYPE:
+	case DIV_EXPRESSION_TYPE:
+	case EQUAL_EXPRESSION_TYPE:
+	case NOT_EQUAL_EXPRESSION_TYPE:
+	case GREATER_EXPRESSION_TYPE:
+	case LESS_EXPRESSION_TYPE:
+	case GREATER_EQUAL_EXPRESSION_TYPE:
+	case LESS_EQUAL_EXPRESSION_TYPE:
+	{
+		if (Left->DataType->isPrimitive() && Right->DataType->isPrimitive()) {
+			if (Left->DataType->DataType == VOID_TYPE || Right->DataType->DataType == VOID_TYPE) {
+				string msg = "Void type can't using as argument of binary arithmetic or comparation operation";
+			}
+			if (Left->DataType->equal(Right->DataType)) {
+				DataType = Left->DataType;
+			}
+			else {
+				if (Right->DataType->isCastableTo(Left->DataType)) {
+					// Преобразовать тип
+					Expression_node* cast = new Expression_node();
+					cast->id = maxId++;
+					if (Left->DataType->DataType == INT_TYPE) {
+						cast->type = INT_CAST;
+						cast->DataType = new Type(INT_TYPE);
+					}
+					else {
+						cast->type = CHAR_CAST;
+						cast->DataType = new Type(CHAR_TYPE);
+					}
+					cast->Right = Right;
+					Right = cast;
+					DataType = Left->DataType;
+				}
+				else {
+					string msg = string("Type '") + Right->DataType->toString() + "' doesn't castable to type '" + Left->DataType->toString() + "' in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+			}
+		}
+		else if (!Left->DataType->isPrimitive() && !Right->DataType->isPrimitive() && (type == EQUAL_EXPRESSION_TYPE || type == NOT_EQUAL_EXPRESSION_TYPE))
+		{
+			DataType = new Type(INT_TYPE);
+		}
+		else {
+			string msg = "Type '";
+			if (!Left->DataType->isPrimitive())
+				msg += Left->DataType->toString() + "can't using as argument of binary arithmetic or comparation operation in line: " + to_string(line);
+			else
+				msg += Right->DataType->toString() + "can't using as argument of binary arithmetic or comparation operation in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case ARRAY_ELEMENT_ACCESS_EXPRESSION_TYPE:
+	{
+		if (!Right->DataType->isCastableTo(new Type(INT_TYPE))) {
+			string msg = "Array element access isn't 'int' or castable to 'int'. It have type '" + Right->DataType->toString() + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		DataType = new Type(Left->DataType->DataType, Left->DataType->ClassName);
+	}
+		break;
+	case ASSIGNMENT_EXPRESSION_TYPE:
+	{
+		DataType = Left->DataType;
+		if (!Right->DataType->equal(Left->DataType)) {
+			if (Right->DataType->isCastableTo(Left->DataType)) {
+				Expression_node* cast = new Expression_node();
+				cast->id = maxId++;
+				if (Left->DataType->DataType == INT_TYPE) {
+					cast->type = INT_CAST;
+					cast->DataType = new Type(INT_TYPE);
+				}
+				else if (Left->DataType->DataType == CHAR_TYPE) {
+					cast->type = CHAR_CAST;
+					cast->DataType = new Type(CHAR_TYPE);
+				}
+				else {
+					cast->type = CLASS_CAST;
+					cast->DataType = Left->DataType;
+				}
+				cast->Right = Right;
+				Right = cast;
+			}
+			else {
+				string msg = string("Type '") + Right->DataType->toString() + "' doesn't castable to type '" + Left->DataType->toString() + "' in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+		}
+	}
+	break;
+	case ARRAY_ASSIGNMENT_EXPRESSION_TYPE:
+	{
+		if (!Child->DataType->isCastableTo(new Type(INT_TYPE))) {
+			string msg = "Array element access isn't 'int' or castable to 'int'. It has type '" + Child->DataType->toString() + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		DataType = Left->DataType;
+		if (!Right->DataType->equal(new Type(Left->DataType->DataType))) {
+			if (Right->DataType->isCastableTo(Left->DataType)) {
+				Expression_node* cast = new Expression_node();
+				cast->id = maxId++;
+				if (Left->DataType->DataType == INT_TYPE) {
+					cast->type = INT_CAST;
+					cast->DataType = new Type(INT_TYPE);
+				}
+				else if (Left->DataType->DataType == CHAR_TYPE) {
+					cast->type = CHAR_CAST;
+					cast->DataType = new Type(CHAR_TYPE);
+				}
+				else {
+					cast->type = CLASS_CAST;
+					cast->DataType = Left->DataType;
+				}
+				cast->Right = Right;
+				Right = cast;
+			}
+			else {
+				string msg = string("Type '") + Right->DataType->toString() + "' doesn't castable to type '" + Left->DataType->toString() + "' in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+		}
+	}
+		break;
+	
+	default:
+		break;
+	}
+
+
+}
 }
