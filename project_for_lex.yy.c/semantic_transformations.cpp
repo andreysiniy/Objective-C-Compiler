@@ -878,4 +878,172 @@ void Expression_list_node::setDataTypesAndCasts(LocalVariablesTable* locals)
 		cur = cur->Next;
 	}
 }
+
+// -------------------- SET ATTRIBUTES --------------------
+
+void Expression_node::setAttributes(LocalVariablesTable* locals, ConstantsTable* constants)
+{
+	// Вызов на дочерних элементах
+	if (Left != NULL)
+		Left->setAttributes(locals, constants);
+	if (Right != NULL)
+		Right->setAttributes(locals, constants);
+	if (Child != NULL)
+		Child->setAttributes(locals, constants);
+	string className;
+	ClassesTableElement* classElem;
+
+	switch (type) {
+	case IDENTIFIER_EXPRESSION_TYPE:
+	{
+		if (locals->isContains(name)) { //Локальная переменная
+			LocalVariable = locals->items[name];
+		}
+		else { //Поле
+				ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
+				string descr;
+				string className;
+				Field = selfClass->getFieldForRef(name, &descr, &className);
+		}
+	}
+	break;
+	case LITERAL_EXPRESSION_TYPE: {
+		if (literal->type != CHAR_CONSTANT_TYPE) {
+			int num = constants->findConstant(UTF8, new string(literal->value));
+			int str = constants->findConstant(String, NULL, NULL, num);
+			literal->constant = constants->getConstant(str);
+		}
+	}
+	break;
+	case NUMERIIC_CONSTANT_EXPRESSION_TYPE: {
+		if (num->Int < -32768 || num->Int > 32767) {
+			num->constant = constants->findConstant(Integer, NULL, num->Int);
+		}
+	}
+	break;
+	case SELF_EXPRESSION_TYPE:
+	case SUPER_EXPRESSION_TYPE:
+	{
+		LocalVariable = locals->items["self"];
+	}
+	break;
+	case MESSAGE_EXPRESSION_EXPRESSION_TYPE:
+	{
+		Receiver->setAttributes(locals, constants);
+		Type* receiverType = Receiver->DataType;
+		string descriptor;
+		string className;
+		Method = ClassesTable::items->at(receiverType->ClassName)->getMethodForRef(Arguments->MethodName, &descriptor, &className);
+		Arguments->setAttributes(locals, constants); //Установить атрибуты для параметров
+	}
+	break;
+	case ARROW_EXPRESSION_TYPE:
+	{
+		className = Left->DataType->ClassName;
+		ClassesTableElement* classElem = ClassesTable::items->at(className);
+		string descr;
+		string n;
+		Field = classElem->getFieldForRef(name, &descr, &n);
+	}
+	break;
+	case MEMBER_ACCESS_ASSIGNMENT_EXPRESSION_TYPE:
+	{
+		className = Left->DataType->ClassName;
+		ClassesTableElement* classElem = ClassesTable::items->at(className);
+		string descr;
+		string n;
+		Field = classElem->getFieldForRef(name, &descr, &n);
+	}
+	break;
+	default:
+		break;
+	}
+}
+
+void Expression_list_node::setAttributes(LocalVariablesTable* locals, ConstantsTable *constants)
+{
+	Expression_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->setAttributes(locals, constants);
+		cur = cur->Next;
+	}
+}
+
+
+void Receiver_node::setAttributes(LocalVariablesTable* locals, ConstantsTable *constants)
+{
+	switch (type)
+	{
+	case SELF_RECEIVER_TYPE:
+	case SUPER_RECEIVER_TYPE:
+	{
+		LocalVariable = locals->items["self"];
+	}
+	break;
+	case OBJECT_NAME_RECEIVER_TYPE:
+	{
+		if (locals->isContains(name)) { //Локальная переменная
+			LocalVariable = locals->items[name];
+		}
+		else { //Поле
+			ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
+			string descr;
+			string className;
+			Field = selfClass->getFieldForRef(name, &descr, &className);
+		}
+	}
+	break;
+	case OBJECT_ARRAY_RECEIVER_TYPE:
+	{
+		if (locals->isContains(name)) { //Локальная переменная
+			LocalVariable = locals->items[name];
+		}
+		else { //Поле
+			ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
+			string descr;
+			string className;
+			Field = selfClass->getFieldForRef(name, &descr, &className);
+		}
+		ObjectArrayIndex->setAttributes(locals, constants);
+	}
+	break;
+	case MESSAGE_EXPRESSION_RECEIVER_TYPE:
+	{
+		Receiver->setAttributes(locals, constants);
+		Type* receiverType = Receiver->DataType;
+		
+		string descriptor;
+		string className;
+		Method = ClassesTable::items->at(receiverType->ClassName)->getMethodForRef(Arguments->MethodName, &descriptor, &className);
+		Arguments->setAttributes(locals, constants); //Установить атрибуты для параметров
+	}
+	break;
+	default:
+		break;
+	}
+}
+
+
+void Message_selector_node::setAttributes(LocalVariablesTable* locals, ConstantsTable *constants)
+{
+	if (FirstArgument != NULL)
+		FirstArgument->setAttributes(locals, constants);
+	if (Arguments != NULL)
+		Arguments->setAttributes(locals, constants);
+	if (ExprArguments != NULL)
+		ExprArguments->setAttributes(locals, constants);
+
+}
+
+void Keyword_argument_list_node::setAttributes(LocalVariablesTable* locals, ConstantsTable *constant)
+{
+	Keyword_argument_node* cur = First;
+	while (cur != NULL)
+	{
+		cur->expression->setAttributes(locals, constant);
+		cur = cur->Next;
+	}
+}
+
 }
