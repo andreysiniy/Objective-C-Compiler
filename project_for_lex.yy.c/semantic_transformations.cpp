@@ -603,4 +603,119 @@ void Expression_node::setDataTypesAndCasts(LocalVariablesTable *locals)
 
 
 }
+
+void Receiver_node::setDataType(LocalVariablesTable* locals)
+{
+	switch (type)
+	{
+	case SUPER_RECEIVER_TYPE:
+	{
+		Type* selfType = locals->items["self"]->type;
+		DataType = selfType->getSuperType();
+		if (DataType == NULL) {
+			string msg = string("Class '") + selfType->ClassName + "' don't have superclass in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case SELF_RECEIVER_TYPE:
+	{
+		DataType = locals->items["self"]->type;
+	}
+		break;
+	case OBJECT_NAME_RECEIVER_TYPE:
+	{
+		if (locals->isContains(name)) { //Локальная переменная
+			DataType = locals->items[name]->type;
+		}
+		else { //Поле
+			if (ClassesTable::items->count(locals->items["self"]->type->ClassName) != 0) {
+				ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
+				if (selfClass->isContainsField(name)) {
+					string descr;
+					string className;
+					FieldsTableElement* field = selfClass->getFieldForRef(name, &descr, &className);
+					DataType = field->type;
+				}
+				else {
+					string msg = string("Class '") + selfClass->getClassName() + "doesn't contains field '" + string(name) + "' in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+			}
+
+		}
+		if (DataType == NULL) { //Отсутствует в локальных переменных и полях
+			string msg = string("Doesn't contains variable '") + string(name) + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case OBJECT_ARRAY_RECEIVER_TYPE: 
+	{
+		if (locals->isContains(name)) { //Локальная переменная
+			DataType = locals->items[name]->type;
+		}
+		else { //Поле
+			if (ClassesTable::items->count(locals->items["self"]->type->ClassName) != 0) {
+				ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
+				if (selfClass->isContainsField(name)) {
+					string descr;
+					string className;
+					FieldsTableElement* field = selfClass->getFieldForRef(name, &descr, &className);
+					DataType = field->type;
+				}
+				else {
+					string msg = string("Class '") + selfClass->getClassName() + "doesn't contains field '" + string(name) + "' in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+			}
+
+		}
+		ObjectArrayIndex->setDataTypesAndCasts(locals);
+		if (DataType == NULL) { //Отсутствует в локальных переменных и полях
+			string msg = string("Doesn't contains variable '") + string(name) + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case CLASS_NAME_RECEIVER_TYPE:
+	{
+		if (ClassesTable::items->count(name) != NULL) {
+			DataType = new Type(CLASS_NAME_TYPE, ClassesTable::getFullClassName(name));
+		}
+		else {
+			string msg = string("Class '") + string(name) + "doesn't exist in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+	}
+		break;
+	case MESSAGE_EXPRESSION_RECEIVER_TYPE:
+	{
+		Receiver->setDataType(locals);
+		Type* receiverType = Receiver->DataType;
+		if (receiverType->DataType != CLASS_NAME_TYPE && receiverType->DataType != ID_TYPE) {
+			string msg = string("Receiver is not a class or object. It has type: '") + receiverType->toString() + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else if (ClassesTable::items->count(receiverType->ClassName) == 0) {
+			string msg = string("Class '") + receiverType->ClassName + "' doesn't exist in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else if (!ClassesTable::items->at(receiverType->ClassName)->isContainsMethod(Arguments->MethodName)) {
+			string msg = string("Class '") + receiverType->ClassName + "doesn't contains method '" + string(Arguments->MethodName) + "' in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else {
+			string descriptor;
+			string className;
+			MethodsTableElement* method = ClassesTable::items->at(receiverType->ClassName)->getMethodForRef(Arguments->MethodName, &descriptor, &className);
+			DataType = method->ReturnType;
+			Arguments->setDataTypes(locals, receiverType->ClassName); //Установить DataType для параметров
+		}
+	}
+		break;
+	default:
+		break;
+	}
+}
 }
