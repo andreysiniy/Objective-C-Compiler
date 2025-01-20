@@ -176,7 +176,7 @@ void Expression_node::arrayAssignmentTransform()
 		delete tmp;
 	}
 	
-	// ����� �������������� �� ��������
+	// Вызов преобразования на дочерних
 	if (this->Left != NULL)
 		this->Left->assignmentTransform();
 	if (this->Right != NULL)
