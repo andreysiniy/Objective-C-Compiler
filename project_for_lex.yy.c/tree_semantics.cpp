@@ -1,6 +1,49 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+//---------- Instance_variables_declaration_node ----------
+
+vector<string> Instance_variables_declaration_node::getInstanceVariables(vector<Type*>* types)
+{
+    vector<string> names; //Вектор имен полей
+    vector<Declarator_node*> variablesDeclarators = *DeclaratorList->Declarators; //Вектор деклараторов
+    for (auto it = variablesDeclarators.begin(); it != variablesDeclarators.end(); it++)
+    {
+        names.push_back((*it)->Identifier); //Добавление имени переменной
+        type_type type = this->type->type; //Получение datatype
+        Expression_node* arrSize = (*it)->Expression; //Размер массива
+        if (type == CLASS_NAME_TYPE)
+        {
+			string className = ClassesTable::getFullClassName(string(this->type->ClassName)); //Имя класса
+			strcpy(this->type->ClassName, className.c_str()); //Преобразование имени класса в узле
+			if (arrSize != NULL)
+			{ // тип класса и массив
+				Type* curType = new Type(type, className, arrSize);
+				types->push_back(curType);
+			}
+			else
+			{ // тип класса 
+				Type* curType = new Type(type, className);
+				types->push_back(curType);
+			}
+        }
+        else
+        {
+            if (arrSize != NULL)
+			{ // Примитивный тип и массив
+				Type* curType = new Type(type, arrSize);
+				types->push_back(curType);
+            }
+            else
+			{ // Примитивный тип 
+				Type* curType = new Type(type);
+				types->push_back(curType);
+            }
+        }
+    }
+	return names;
+}
+
 // ---------- Implementation_body_node ----------
 vector<string> Implementation_body_node::getInstanceVariables(vector<Type*> *varTypes)
 {
