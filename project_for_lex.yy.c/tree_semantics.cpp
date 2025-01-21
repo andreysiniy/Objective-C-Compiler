@@ -1,6 +1,42 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+map<string, Type*> Interface_body_node::getMethods(map<string, vector<string>*>* keywordsNames, map<string, vector<Type*>*> *keywordsTypes, map<string, vector<string>*>* parametersNames, map<string, vector<Type*>*> *parametersTypes, map<string, bool>* isClassMethod)
+{
+	map<string, Type*> res;
+	if (Declaration_list != NULL)
+	{
+		vector<Interface_declaration_list_node::interface_declaration>* declarations = Declaration_list->Declarations; //Список объявлений
+		
+		for (auto it = declarations->cbegin(); it < declarations->cend(); it++)
+		{
+			Method_declaration_node* declaration = it->method_declaration;
+			if (declaration != NULL)
+			{
+				vector<string>* curKeywordsNames = new vector<string>;
+				vector<Type*>* curKeywordsTypes = new vector<Type*>;
+				vector<string>* curParametersNames = new vector<string>;
+				vector<Type*>* curParametersTypes = new vector<Type*>;
+				bool isClass;
+				Type* returnType = new Type(VOID_TYPE);
+				string methodName = declaration->getMethod(&returnType, curKeywordsNames, curKeywordsTypes, curParametersNames, curParametersTypes, &isClass);
+				if (res.count(methodName))
+				{
+					string msg = "Method '" + methodName + "' redeclaration.\n";
+					throw new std::exception(msg.c_str());
+				}
+				(*keywordsNames)[methodName] = curKeywordsNames;
+				(*keywordsTypes)[methodName] = curKeywordsTypes;
+				(*parametersNames)[methodName] = curParametersNames;
+				(*parametersTypes)[methodName] = curParametersTypes;
+				(*isClassMethod)[methodName] = isClass;
+				res[methodName] = returnType;
+			}
+		}
+	}
+	return res;
+}
+
 map<string, Type*> Interface_body_node::getProperties(map<string, bool>* isReadonly)
 {
 	map<string, Type*> res;
