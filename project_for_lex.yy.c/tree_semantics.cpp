@@ -1,6 +1,25 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+map<string, Type*> Interface_body_node::getVariables(map<string, Expression_node*>* initializers)
+{
+	vector<Interface_declaration_list_node::interface_declaration>* declarations = Declaration_list->Declarations; //Список объявлений
+	map<string, Type*> res;
+	for (auto it = declarations->cbegin(); it < declarations->cend(); it++)
+	{
+		Declaration_node* declaration = it->declaration;
+		if (declaration != NULL)
+		{
+			 map<string,Type*> cur = declaration->getDeclaration(initializers);
+			 for (auto iterator = cur.begin(); iterator != cur.end(); iterator++)
+			 {
+				 res[iterator->first] = iterator->second;
+			 }
+		}
+	}
+	return res;
+}
+
 map<string, Type*> Interface_body_node::getMethods(map<string, vector<string>*>* keywordsNames, map<string, vector<Type*>*> *keywordsTypes, map<string, vector<string>*>* parametersNames, map<string, vector<Type*>*> *parametersTypes, map<string, bool>* isClassMethod)
 {
 	map<string, Type*> res;
