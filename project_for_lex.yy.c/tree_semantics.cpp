@@ -1,6 +1,25 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ------------ Method_declaration_node ------------
+string Method_declaration_node::getMethod(Type** returnType, vector<string>* keywordsNames, vector<Type*> *keywordsTypes, vector<string>* parametersNames, vector<Type*> *parametersTypes, bool *isClassmethod)
+{
+	*returnType = MethodType->toDataType(); // Тип возвращаемого значения
+	string methodName = string(MethodSelector->MethodName); // Имя метода
+	// Тип метода
+	if (type == CLASS_METHOD_DECLARATION_TYPE) {
+		*isClassmethod = true;
+		methodName += "Static";
+	}
+	else if (type == INSTANCE_METHOD_DECLARATION_TYPE) {
+		*isClassmethod = false;
+		methodName += "Dynamic";
+	}
+	MethodSelector->getParams(keywordsNames, keywordsTypes, parametersNames, parametersTypes); // Параметры
+	strcpy(MethodSelector->MethodName, methodName.c_str()); //Преобразование имени метода в узле дерева
+	return methodName;
+}
+
 // ---------- Method_definition_node ----------
 string Method_definition_node::getMethod(Type** returnType, vector<string>* keywordsNames, vector<Type*>* keywordsTypes, vector<string>* parametersNames, vector<Type*>* parametersTypes, bool* isClassmethod, Statement_node** bodyStart)
 {
