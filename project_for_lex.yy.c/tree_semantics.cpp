@@ -1,6 +1,28 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+map<string, Type*> Implementation_body_node::getVariables(map<string, Expression_node*>* initializers)
+{
+	map<string, Type*> res;
+	if (Declaration_list != NULL)
+	{
+		vector<Implementation_definition_list_node::implementation_definition>* definitions = Declaration_list->Definitions; //Список определений
+		for (auto it = definitions->cbegin(); it < definitions->cend(); it++)
+		{
+			Declaration_node* declaration = it->declaration;
+			if (declaration != NULL)
+			{
+				map<string, Type*> cur = declaration->getDeclaration(initializers);
+				for (auto iterator = cur.begin(); iterator != cur.end(); iterator++)
+				{
+					res[iterator->first] = iterator->second;
+				}
+			}
+		}
+	}
+	return res;
+}
+
 map<string, Type*> Implementation_body_node::getMethods(map<string, vector<string>*>* keywordsNames, map<string, vector<Type*>*>* keywordsTypes, map<string, vector<string>*>* parametersNames, map<string, vector<Type*>*>* parametersTypes, map<string, bool>* isClassMethod, map<string, Statement_node*> *bodyStartNode)
 {
 	map<string, Type*> res;
