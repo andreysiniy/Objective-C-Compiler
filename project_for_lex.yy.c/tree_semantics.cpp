@@ -1,6 +1,28 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+void Expression_node::fillLiterals(ConstantsTable* constantTable)
+{
+	if (type == LITERAL_EXPRESSION_TYPE) {
+		literal->fillLiterals(constantTable);
+	}
+	else if (type == NUMERIIC_CONSTANT_EXPRESSION_TYPE) {
+		num->fillLiterals(constantTable);
+	}
+
+	if (Left != NULL)
+		Left->fillLiterals(constantTable);
+	if (Right != NULL)
+		Right->fillLiterals(constantTable);
+	if (Receiver != NULL)
+		Receiver->fillLiterals(constantTable);
+	if (Arguments != NULL)
+		Arguments->fillLiterals(constantTable);
+	if (ArgumentsList != NULL)
+		ArgumentsList->fillLiterals(constantTable);
+
+}
+
 // ---------- Receiver_node ----------
 void Receiver_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
 {
