@@ -1,6 +1,31 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+vector<string> Interface_body_node::getInstanceVariables(vector<Type*>* varTypes)
+{
+	vector<string> res;
+	if (Variables != NULL) {
+		Instance_variables_declaration_node* first = Variables->First;
+		while (first != NULL)
+		{
+			vector<Type*>* types = new vector<Type*>;
+			vector <string> names = first->getInstanceVariables(types);
+			for (int i = 0; i < names.size(); i++)
+			{
+				if (std::find(res.begin(), res.end(), names[i]) != res.end())
+				{
+					string msg = "Variable '" + names[i] + "' redeclaration";
+					throw new std::exception(msg.c_str());
+				}
+				res.push_back(names[i]);
+				varTypes->push_back(types->at(i));
+			}
+			first = first->Next;
+		}
+	}
+	return res;
+}
+
 map<string, Type*> Interface_body_node::getVariables(map<string, Expression_node*>* initializers)
 {
 	vector<Interface_declaration_list_node::interface_declaration>* declarations = Declaration_list->Declarations; //Список объявлений
