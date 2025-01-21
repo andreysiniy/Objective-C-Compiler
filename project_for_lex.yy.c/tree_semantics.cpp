@@ -1,6 +1,8 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+//---------- Interface_body_node ---------- 
+
 vector<string> Interface_body_node::getInstanceVariables(vector<Type*>* varTypes)
 {
 	vector<string> res;
