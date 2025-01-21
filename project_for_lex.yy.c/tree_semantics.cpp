@@ -1,6 +1,128 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Expression_node ----------
+void Expression_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable *localVariablesTable, ClassesTableElement *classTableElement)
+{
+	checkLvalueError();
+
+	if (type == IDENTIFIER_EXPRESSION_TYPE) {
+		if (!localVariablesTable->isContains(name) && !classTableElement->isContainsField(name)) {
+			string msg = "Variable '" + string(name) + "' not declarated in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else if (!localVariablesTable->isContains(name) && classTableElement->isContainsField(name)) {
+			string descriptor; //Строка дескриптора
+			string className; //Имя класса
+			classTableElement->getFieldForRef(name, &descriptor, &className); //Получение дескриптора и имени класса
+			//Формирование fieldRef
+			Constant = constantTable->findOrAddFieldRefConstant(className, name, descriptor);
+		}
+	}
+	else if (type == SELF_EXPRESSION_TYPE) {
+
+	}
+	else if (type == SUPER_EXPRESSION_TYPE) {
+		string msg = "Can not call field from super object in line: " + to_string(line);
+		throw new std::exception(msg.c_str());
+	}
+	if (type == ARROW_EXPRESSION_TYPE) {
+		string objName;
+		// Получение имени объекта и проверка его корректности
+		if (Left->type == IDENTIFIER_EXPRESSION_TYPE)
+			objName = Left->name; //Имя объекта
+		else if (Left->type == SELF_EXPRESSION_TYPE)
+			objName = "self";
+		else if (Left->type == SUPER_EXPRESSION_TYPE) {
+			string msg = "Can not call field from super object in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else {
+			string msg = "Invalid expression type in field call. in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+
+
+		if (name == NULL) {
+			string msg = "Field call not to field in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+
+
+		string fieldName = name; //Имя поля
+		if (!localVariablesTable->isContains(objName) && !classTableElement->isContainsField(objName)) { //Не является локальной переменной или полем класса
+			string msg = "Variable '" + string(objName) + "' not declarated in line: " + to_string(line);
+			throw new std::exception(msg.c_str());
+		}
+		else if (classTableElement->isContainsField(objName) && !localVariablesTable->isContains(objName)) {
+			FieldsTableElement* field = classTableElement->Fields->items[objName]; //Локальная переменная
+			if (field->type->DataType != CLASS_NAME_TYPE) { // Не является экземпляром класса
+				string msg = "Variable '" + objName + "' is not instance of object. in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+			string className = field->type->ClassName; //Имя класса локальной переменной
+			ClassesTableElement* classElem = ClassesTable::items->at(className);
+			if (!classElem->isContainsField(fieldName) || classElem->Fields->items[fieldName]->IsInstance == false) { //Поле не содержится в классе объекта
+				string msg = "Class '" + className + "' don't contains field '" + fieldName + "' in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+			if (classElem != classTableElement && classTableElement->getClassName() != "rtl/!Program!" && !classTableElement->isHaveOneOfSuperclass(className)) {
+				// Поле является protected и не выполнено условие для возможности использования protected
+				string msg = "Variable '" + fieldName + "' only protected in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+
+
+			string descriptor; // дескриптор
+			string fieldClassName;  // Имя класса поля
+			classElem->getFieldForRef(fieldName, &descriptor, &fieldClassName); // получение данных для field ref
+			//Формирование fieldRef
+			Constant = constantTable->findOrAddFieldRefConstant(fieldClassName, fieldName, descriptor);
+		}
+		else { //Является локальной переменной
+			LocalVariablesTableElement* local = localVariablesTable->items[objName]; //Локальная переменная
+			if (local->type->DataType != CLASS_NAME_TYPE) { // Не является экземпляром класса
+				string msg = "Variable '" + objName + "' is not instance of object. in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+			string className = local->type->ClassName; //Имя класса локальной переменной
+			ClassesTableElement* classElem = ClassesTable::items->at(className);
+			if (!classElem->isContainsField(fieldName) || classElem->Fields->items[fieldName]->IsInstance == false) { //Поле не содержится в классе объекта
+				string msg = "Class '" + className + "' don't contains field '" + fieldName + "' in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+			if (classElem != classTableElement && classTableElement->getClassName() != "rtl/!Program!" && !classTableElement->isHaveOneOfSuperclass(className)) {
+				// Поле является protected и не выполнено условие для возможности использования protected
+				string msg = "Variable '" + fieldName + "' only protected in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+
+
+			string descriptor; // дескриптор
+			string fieldClassName;  // Имя класса поля
+			classElem->getFieldForRef(fieldName, &descriptor, &fieldClassName); // получение данных для field ref
+			//Формирование fieldRef
+ 			Constant = constantTable->findOrAddFieldRefConstant(fieldClassName, fieldName, descriptor);
+		}
+		
+	}
+	if (Left != NULL) {
+		Left->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	if (Right != NULL) {
+		Right->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	if (Receiver != NULL) {
+		Receiver->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	if (Arguments != NULL) {
+		Arguments->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	if (ArgumentsList != NULL) {
+		ArgumentsList->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+}
+
 void Expression_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement, bool isInInstanceMethod)
 {
 	if (type == MESSAGE_EXPRESSION_EXPRESSION_TYPE) { //Вызов метода
