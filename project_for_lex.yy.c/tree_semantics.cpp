@@ -1,6 +1,43 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+map<string, Type*> Implementation_body_node::getMethods(map<string, vector<string>*>* keywordsNames, map<string, vector<Type*>*>* keywordsTypes, map<string, vector<string>*>* parametersNames, map<string, vector<Type*>*>* parametersTypes, map<string, bool>* isClassMethod, map<string, Statement_node*> *bodyStartNode)
+{
+	map<string, Type*> res;
+	if (Declaration_list != NULL)
+	{
+		vector<Implementation_definition_list_node::implementation_definition>* definitions = Declaration_list->Definitions; //Список объявлений
+		for (auto it = definitions->cbegin(); it < definitions->cend(); it++)
+		{
+			Method_definition_node* definition = it->method_definition;
+			if (definition != NULL)
+			{
+				vector<string>* curKeywordsNames = new vector<string>;
+				vector<Type*>* curKeywordsTypes = new vector<Type*>;
+				vector<string>* curParametersNames = new vector<string>;
+				vector<Type*>* curParametersTypes = new vector<Type*>;
+				bool isClass;
+				Type* returnType = new Type(VOID_TYPE);
+				Statement_node* bodyStart;
+				string methodName = definition->getMethod(&returnType, curKeywordsNames, curKeywordsTypes, curParametersNames, curParametersTypes, &isClass, &bodyStart);
+				if (res.count(methodName))
+				{
+					string msg = "Method '" + methodName + "' redifinition.\n";
+					throw new std::exception(msg.c_str());
+				}
+				(*keywordsNames)[methodName] = curKeywordsNames;
+				(*keywordsTypes)[methodName] = curKeywordsTypes;
+				(*parametersNames)[methodName] = curParametersNames;
+				(*parametersTypes)[methodName] = curParametersTypes;
+				(*isClassMethod)[methodName] = isClass;
+				(*bodyStartNode)[methodName] = bodyStart;
+				res[methodName] = returnType;
+			}
+		}
+	}
+	return res;
+}
+
 // ---------- Declaration_node ----------
 
 map<string, Type*> Declaration_node::getDeclaration(map<string, Expression_node*>* initializators)
