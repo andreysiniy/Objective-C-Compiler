@@ -1,6 +1,35 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Type_node ----------
+Type* Type_node::toDataType()
+{
+	if (type == CLASS_NAME_TYPE)
+	{
+		string className = ClassesTable::getFullClassName(string(ClassName));
+		strcpy(ClassName, className.c_str()); //Преобразование имени класа в узле дерева
+		Type* res;
+		if (isArray) {
+			res = new Type(type, className, 1024);
+		}
+		else {
+			res = new Type(type, className);
+		}
+		return res;
+	}
+	else
+	{
+		Type* res;
+		if (isArray) {
+			res = new Type(type, 1024);
+		}
+		else {
+			res = new Type(type);
+		}
+		return res;
+	}
+}
+
 // ---------- Method_selector_node ----------
 void Method_selector_node::getParams(vector<string>* keywordsNames, vector<Type*>* keywordsTypes, vector<string>* parametersNames, vector<Type*> *parametersTypes)
 {
