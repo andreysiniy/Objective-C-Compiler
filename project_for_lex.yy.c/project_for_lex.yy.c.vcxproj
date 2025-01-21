@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -131,6 +131,9 @@
   <ItemGroup>
     <ClCompile Include="bison_rules_with_code_tab.cpp" />
     <ClCompile Include="classes_nodes.cpp" />
+    <ClCompile Include="code_generation.cpp" />
+    <ClCompile Include="code_generation_helpers.cpp" />
+    <ClCompile Include="error_check.cpp" />
     <ClCompile Include="lex.yy.cpp" />
     <ClCompile Include="semantic_transformations.cpp" />
     <ClCompile Include="tables.cpp" />
@@ -139,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="bison_rules_with_code_tab.h" />
     <ClInclude Include="classes_nodes.h" />
+    <ClInclude Include="code_generation_helpers.h" />
     <ClInclude Include="tables.h" />
     <ClInclude Include="unistd.h" />
   </ItemGroup>
