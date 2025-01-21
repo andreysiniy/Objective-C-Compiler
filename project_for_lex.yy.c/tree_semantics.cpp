@@ -1,6 +1,101 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Declaration_node ----------
+
+map<string, Type*> Declaration_node::getDeclaration(map<string, Expression_node*>* initializators)
+{
+	vector<Init_declarator_node*>* declarators = init_declarator_list->getElements(); //Деклараторы
+	map<string, Type*> res;
+	for (auto it = declarators->begin(); it < declarators->end(); it++)
+	{
+		string name = string((*it)->Declarator); //Имя
+		type_type type = this->typeNode->type; //Тип
+		Expression_node* arrSize = (*it)->ArraySize; //Размер массива
+		Expression_node* initializer = (*it)->expression; // Инициализатор
+		Expression_list_node* initializerList = (*it)->InitializerList; // Инициализатор массива
+		bool isArr = (*it)->isArray;
+		if (type == CLASS_NAME_TYPE)
+		{
+			string className = ClassesTable::getFullClassName(string(this->typeNode->ClassName));
+			strcpy(this->typeNode->ClassName, className.c_str()); //Преобразование имени класса в узле дерева
+			if (arrSize != NULL || initializerList != NULL)
+			{ // Массив типа класса
+				int arraySize;
+				Type* curType;
+				if (arrSize != NULL)
+				{
+					curType = new Type(type, className, arrSize);
+				}
+				else
+				{
+					arraySize = initializerList->getElements()->size();
+					curType = new Type(type, className, arraySize);
+				}
+				
+				res[name] = curType;
+				if (initializators->count(name) && (*initializators)[name] != NULL && initializerList != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+				(*initializators)[name] = initializerList;
+			}
+			else
+			{ //Тип класса
+				Type* curType = new Type(type, className);
+				res[name] = curType;
+				if (initializators->count(name) && (*initializators)[name] != NULL && initializer != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+				(*initializators)[name] = initializer;
+			}
+		}
+		else
+		{ 
+			if (isArr)
+			{ // Массив примитивного типа
+				int arraySize;
+				Type* curType;
+				if (arrSize != NULL)
+				{
+					curType = new Type(type, arrSize);
+				}
+				else
+				{
+					if (initializer != NULL && initializer->type == LITERAL_EXPRESSION_TYPE) {
+						if (initializer->literal->type == STRING_CONSTANT_TYPE) {
+							arraySize = strlen(initializer->literal->value) + 1;
+						}
+					}
+					else if (initializerList != NULL) {
+						arraySize = initializerList->getElements()->size();
+					}
+					curType = new Type(type, arraySize);
+				}
+				
+				res[name] = curType;
+				if (initializators->count(name) && (*initializators)[name] != NULL && initializerList != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+				(*initializators)[name] = initializerList;
+			}
+			else
+			{ //Примитивный тип
+				Type* curType = new Type(type);
+				res[name] = curType;
+				if (initializators->count(name) && (*initializators)[name] != NULL && initializer != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string(line);
+					throw new std::exception(msg.c_str());
+				}
+				(*initializators)[name] = initializer;
+			}
+		}
+	}
+	return res;
+}
+
 // ------------ Method_declaration_node ------------
 string Method_declaration_node::getMethod(Type** returnType, vector<string>* keywordsNames, vector<Type*> *keywordsTypes, vector<string>* parametersNames, vector<Type*> *parametersTypes, bool *isClassmethod)
 {
