@@ -1,6 +1,72 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+void Statement_node::fillLiterals(ConstantsTable* constantTable)
+{
+	if (type == EMPTY_STATEMENT_TYPE) {
+
+	}
+	else if (type == SIMPLE_STATEMENT_TYPE) {
+		if (Expression != NULL)
+			Expression->fillLiterals(constantTable);
+	}
+	else if (type == RETURN_STATEMENT_TYPE) {
+		if (Expression != NULL)
+			Expression->fillLiterals(constantTable);
+	}
+	else if (type == IF_STATEMENT_TYPE) {
+		If_statement_node* cur = (If_statement_node*)this;
+		cur->Condition->fillLiterals(constantTable);
+		if (cur->TrueBranch != NULL)
+			cur->TrueBranch->fillLiterals(constantTable);
+		if (cur->FalseBranch != NULL) {
+			cur->FalseBranch->fillLiterals(constantTable);
+		}
+	}
+	else if (type == WHILE_STATEMENT_TYPE) {
+		While_statement_node* cur = (While_statement_node*)this;
+		cur->LoopCondition->fillLiterals(constantTable);
+		if (cur->LoopBody != NULL) {
+			cur->LoopBody->fillLiterals(constantTable);
+		}
+	}
+	else if (type == DO_WHILE_STATEMENT_TYPE) {
+		Do_while_statement_node* cur = (Do_while_statement_node*)this;
+		cur->LoopCondition->fillLiterals(constantTable);
+		if (cur->LoopBody != NULL) {
+			cur->LoopBody->fillLiterals(constantTable);
+		}
+	}
+	else if (type == FOR_STATEMENT_TYPE) {
+		For_statement_node* cur = (For_statement_node*)this;
+		if (cur->InitExpression != NULL)
+			cur->InitExpression->fillLiterals(constantTable);
+		if (cur->ConditionExpression != NULL)
+			cur->ConditionExpression->fillLiterals(constantTable);
+		if (cur->LoopExpression != NULL)
+			cur->LoopExpression->fillLiterals(constantTable);
+		if (cur->InitList != NULL)
+			cur->InitList->fillLiterals(constantTable);
+		if (cur->LoopBody != NULL)
+			cur->LoopBody->fillLiterals(constantTable);
+	}
+	else if (type == COMPOUND_STATEMENT_TYPE) {
+		Statement_list_node* cur = (Statement_list_node*)this;
+		if (cur->First != NULL) {
+			Statement_node* elem = cur->First;
+			while (elem != NULL) {
+				elem->fillLiterals(constantTable);
+				elem = elem->Next;
+			}
+		}
+	}
+	else if (type == DECLARATION_STATEMENT_TYPE) {
+		Declaration_node* cur = (Declaration_node*)this;
+		if (cur->init_declarator_list != NULL)
+			cur->init_declarator_list->fillLiterals(constantTable);
+	}
+}
+
 // ---------- Function_declaration ----------
 string Function_node::getFunction(Type** returnType, Statement_node** bodyStart)
 {
