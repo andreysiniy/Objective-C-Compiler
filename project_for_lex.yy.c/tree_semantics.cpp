@@ -1,6 +1,15 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Function_declaration ----------
+string Function_node::getFunction(Type** returnType, Statement_node** bodyStart)
+{
+	*returnType = ReturnType->toDataType(); //Тип возвращаемого значения
+	string functionName = string(Name); //Имя функции
+	*bodyStart = statement->First; // Начало тела функции
+	return functionName;
+}
+
 // ---------- Expression_node ----------
 void Expression_node::fillFieldRefs(ConstantsTable* constantTable, LocalVariablesTable *localVariablesTable, ClassesTableElement *classTableElement)
 {
