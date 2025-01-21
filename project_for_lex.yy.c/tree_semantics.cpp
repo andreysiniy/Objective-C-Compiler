@@ -1,6 +1,34 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+map<string, Type*> Interface_body_node::getProperties(map<string, bool>* isReadonly)
+{
+	map<string, Type*> res;
+	if (Declaration_list != NULL)
+	{
+		vector<Interface_declaration_list_node::interface_declaration>* declarations = Declaration_list->Declarations; // Список объявлений
+		for (auto it = declarations->cbegin(); it < declarations->cend(); it++)
+		{
+			Property_node* property = it -> property; //Свойство
+			if (property != NULL)
+			{
+				Type* type = property->type->toDataType(); //Тип
+				for (char* name : *property->Names->Identifier_names)
+				{//Для каждого имени
+					if (res.count(string(name)))
+					{ // Переопределение свойства
+						string msg = "Property '" + string(name) + "' redeclaration.";
+						throw new std::exception(msg.c_str());
+					}
+					res[string(name)] = type; //Добавить тип
+					(*isReadonly)[string(name)] = property->Attribute->type == READONLY_ATTRIBUTE_TYPE; //Добавить атрибут
+				}
+			}
+		}
+	}
+	return res;
+}
+
 //---------- Instance_variables_declaration_node ----------
 
 vector<string> Instance_variables_declaration_node::getInstanceVariables(vector<Type*>* types)
