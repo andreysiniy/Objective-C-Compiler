@@ -1,6 +1,97 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+void getTypesFromInitDeclaratorType(vector<Init_declarator_node*>* declarators, Type_node* typeNode, vector<string>* varsNames, vector<Type*>* varsTypes)
+{
+	for (auto it = declarators->begin(); it < declarators->end(); it++)
+	{
+		string name = string((*it)->Declarator); //Имя
+		type_type type = typeNode->type; //Тип
+		Expression_node* arrSize = (*it)->ArraySize; //Размер массива
+		Expression_node* initializer = (*it)->expression; // Инициализатор
+		Expression_list_node* initializerList = (*it)->InitializerList; // Инициализатор массива
+		bool isArr = (*it)->isArray;
+		if (type == CLASS_NAME_TYPE)
+		{
+			string className = ClassesTable::getFullClassName(string(typeNode->ClassName));
+			strcpy(typeNode->ClassName, className.c_str()); //Преобразование имени класса в узле дерева
+			if (arrSize != NULL || initializerList != NULL)
+			{ // Массив типа класса
+				int arraySize;
+				Type* curType;
+				if (arrSize != NULL)
+				{
+					curType = new Type(type, className, arrSize);
+				}
+				else
+				{
+					arraySize = initializerList->getElements()->size();
+					curType = new Type(type, className, arraySize);
+				}
+				
+				if (std::find(varsNames->begin(), varsNames->end(), name) != varsNames->end() && initializerList != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string((*it)->line);
+					throw new std::exception(msg.c_str());
+				}
+				varsNames->push_back(name);
+				varsTypes->push_back(curType);
+				
+			}
+			else
+			{ //Тип класса
+				Type* curType = new Type(type, className);
+				if (std::find(varsNames->begin(), varsNames->end(), name) != varsNames->end() && initializer != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string((*it)->line);
+					throw new std::exception(msg.c_str());
+				}
+				varsNames->push_back(name);
+				varsTypes->push_back(curType);
+			}
+		}
+		else
+		{
+			if (isArr)
+			{ // Массив примитивного типа
+				Type* curType;
+				int arraySize;
+				if (arrSize != NULL)
+				{
+					curType = new Type(type, arrSize);
+				}
+				else
+				{
+					if (initializer != NULL && initializer->type == LITERAL_EXPRESSION_TYPE) {
+						if (initializer->literal->type == STRING_CONSTANT_TYPE) {
+							arraySize = strlen(initializer->literal->value) + 1;
+						}
+					}
+					else if (initializerList != NULL){
+						arraySize = initializerList->getElements()->size();
+					}
+					curType = new Type(type, arraySize);
+				}
+				
+				if (std::find(varsNames->begin(), varsNames->end(), name) != varsNames->end() && initializerList != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string((*it)->line);
+					throw new std::exception(msg.c_str());
+				}
+				varsNames->push_back(name);
+				varsTypes->push_back(curType);
+			}
+			else
+			{ //Примитивный тип
+				Type* curType = new Type(type);
+				if (std::find(varsNames->begin(), varsNames->end(), name) != varsNames->end() && initializer != NULL) {
+					string msg = "Variable '" + name + "' redifinition in line: " + to_string((*it)->line);
+					throw new std::exception(msg.c_str());
+				}
+				varsNames->push_back(name);
+				varsTypes->push_back(curType);
+			}
+		}
+	}
+}
+
 void Statement_node::fillFieldRefs(ConstantsTable *constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
 {
 	if (type == EMPTY_STATEMENT_TYPE) {
