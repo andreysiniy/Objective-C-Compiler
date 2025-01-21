@@ -1,6 +1,352 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ------------------------------ Обход дерева -------------------------------
+
+void getTypesFromInitDeclaratorType(vector<Init_declarator_node*>* declarators, Type_node* typeNode, vector<string>* varsNames, vector<Type*>* varsTypes);
+
+// ---------- Function_and_class_list_node ----------
+
+void Function_and_class_list_node::fillTables()
+{
+	ClassesTable::initRTL(); //Инициализировать RTL
+
+    for (int i = 0; i < FunctionsAndClasses->size(); i++)
+    { //Для каждого элемента в списке
+        if (FunctionsAndClasses->at(i).class_block != NULL)
+        { //Если элемент - класс
+            Class_block_node* cur = FunctionsAndClasses->at(i).class_block;
+            if (cur->type == IMPLEMENTATION_CLASS_BLOCK_TYPE)
+            { // Реализация
+                Class_implementation_node* curImplementation = (Class_implementation_node*)cur;
+                string className = curImplementation->ClassName; // Имя класса
+                string *superclassName = curImplementation->SuperclassName == NULL ? NULL : new string(curImplementation->SuperclassName); // Имя суперкласса
+				ClassesTableElement *element = ClassesTable::addClass(className, superclassName, true, curImplementation); // Добавление класса в таблицу
+
+				if (curImplementation->Body != NULL)
+				{
+					// Добавление переменных
+					map<string, Expression_node*> initializers;
+					map<string, Type*> vars = curImplementation->Body->getVariables(&initializers);
+					for (auto it = vars.begin(); it != vars.end(); it++) {
+						if (element->Fields->items.count(it->first) && element->Fields->items[it->first]->InitialValue != NULL && initializers[it->first] != NULL) {
+							string msg = "Variable '" + it->first + "' redifinition in class '" + className + "'\n";
+							throw new std::exception(msg.c_str());
+						}
+						if (element->Fields->items.count(it->first) && (element->Fields->items[it->first]->DescriptorStr != it->second->getDescriptor() || !element->Fields->items[it->first]->type->equal(it->second))) {
+							string msg = "Variable '" + it->first + "' in class '" + className + "' has conflict types.\n";
+							throw new std::exception(msg.c_str());
+						}
+						if (!element->Fields->items.count(it->first))
+							element->Fields->addField(element->ConstantTable, it->first, it->second->getDescriptor(), false, it->second, initializers[it->first]);
+					}
+
+					
+					vector<Type*> varTypes;
+					vector<string> instanceVariables;
+					if (curImplementation->Body->Variables != NULL)
+						instanceVariables = curImplementation->Body->getInstanceVariables(&varTypes);
+
+					if (element->IsHaveInterface) { // У класса был интерфейс
+						// Проверить instance variables
+						if (instanceVariables.size() > 0) {
+							map<string, FieldsTableElement*> instVar;
+							for (auto item : element->Fields->items)
+							{
+								if (item.second->IsInstance)
+									instVar[item.first] = item.second;
+							}
+
+							if (instanceVariables.size() != instVar.size())
+							{
+								string msg = "Instance variables have different size in interface and implementation in class'" + className + "'\n";
+								throw new std::exception(msg.c_str());
+							}
+							// Сверить instance variables
+							for (int i = 0; i < instanceVariables.size(); i++)
+							{
+								if (!instVar.count(instanceVariables[i])) {
+									string msg = "Instance variable '" + instanceVariables[i] + "' not found in interface '" + className + "'\n";
+									throw new std::exception(msg.c_str());
+								}
+
+								if (instVar[instanceVariables[i]]->InstanceIndex != i+1)
+								{
+									string msg = "Instance variable '" + instanceVariables[i] + "' in class '" + className + "' has different position from the position specified in the interface'\n";
+									throw new std::exception(msg.c_str());
+								}
+								if (varTypes[i]->getDescriptor() != instVar[instanceVariables[i]]->DescriptorStr)
+								{
+									string msg = "Instance variable '" + instanceVariables[i] + "' in class '" + className + "' has different type from the type specified in the interface'\n";
+									throw new std::exception(msg.c_str());
+								}
+							}
+						}
+
+						// Добавление методов
+						map<string, vector<string>*> keywordsNames; //Словарь для имен keywords
+						map<string, vector<Type*>*> keywordsTypes; //Словарь для типов keywords
+						map<string, vector<string>*> parametersNames; //Словарь для имен параметров
+						map<string, vector<Type*>*> parametersTypes; //Словарь для типов параметров
+						map<string, bool> isClassMethod; //Словарь, содержащий принадлежность метода к классу
+						map<string, Statement_node*> startNodes; //Словарь, содержащий стартовые узлы тел методов
+						map<string, Type*> methods = curImplementation->Body->getMethods(&keywordsNames, &keywordsTypes, &parametersNames, &parametersTypes, &isClassMethod, &startNodes); //Получение методов
+						for (auto it = methods.begin(); it != methods.end(); it++)
+						{
+							// Формирование дескриптора
+							string descriptor = "(";
+							for (int i = 0; i < keywordsTypes[it->first]->size(); i++) {
+								descriptor += keywordsTypes[it->first]->at(i)->getDescriptor();
+							}
+							descriptor += ")";
+							descriptor += it->second->getDescriptor();
+							if (element->Methods->items.count(it->first))
+							{ //Метод есть. Проверка.
+								MethodsTableElement* curMethod = element->Methods->items[it->first];
+								if (descriptor != curMethod->DescriptorStr) {
+									string msg = "Method '" + it->first + "' in class '" + className + "' has different type from the type specified in the interface\n";
+									throw new std::exception(msg.c_str());
+								}
+
+								curMethod->BodyStart = startNodes[it->first]; //Добавление тела
+								if (curMethod->BodyStart != NULL) {
+									//Получение и добавление локальных переменных внутри метода
+									vector<string> varsNames;
+									vector<Type*> varsTypes;
+									curMethod->BodyStart->findLocalVariables(&varsNames, &varsTypes, element, *keywordsNames[it->first], *parametersNames[it->first]);
+									for (int i = 0; i < varsNames.size(); i++)
+									{
+										curMethod->LocalVariables->findOrAddLocalVariable(varsNames[i], varsTypes[i]);
+									}
+								}
+							}
+							else
+							{ //Метода нет. Добавление.
+								bool isClass = isClassMethod[it->first];// Признак принадлежности к классу
+								vector<Type*>* curParametersTypes = parametersTypes[it->first]; // Типы параметров
+								vector<Type*>* curKeywordsTypes = keywordsTypes[it->first]; // Типы keywords
+								Statement_node* curStart = startNodes[it->first]; // Узел начала тела метода
+
+								MethodsTableElement *method = element->Methods->addMethod(element->ConstantTable, it->first, descriptor, isClass, curStart, it->second, curParametersTypes, curKeywordsTypes); //Добавление метода
+								
+								//Формирование таблицы локальных переменных
+								LocalVariablesTable* locals = method->LocalVariables; //Таблица локальных переменных данного метода
+								Type* type = new Type(CLASS_NAME_TYPE, element->getClassName()); // Тип для self переменной
+								locals->findOrAddLocalVariable("self", type); //Добавление self в таблицу локальных переменных
+								//Добавление keywords в таблицу локальных переменных
+								for (int i = 0; i < keywordsNames[it->first]->size(); i++) {
+									locals->findOrAddLocalVariable(keywordsNames[it->first]->at(i), keywordsTypes[it->first]->at(i));
+								}
+								//Добавление parameters в таблицу локальных переменных
+								for (int i = 0; i < parametersNames[it->first]->size(); i++) {
+									locals->findOrAddLocalVariable(parametersNames[it->first]->at(i), parametersTypes[it->first]->at(i));
+								}
+								//Получение и добавление локальных переменных внутри метода
+								vector<string> varsNames;
+								vector<Type*> varsTypes;
+								if (method->BodyStart != NULL)
+									method->BodyStart->findLocalVariables(&varsNames, &varsTypes, element, *keywordsNames[it->first], *parametersNames[it->first]);
+								for (int i = 0; i < varsNames.size(); i++)
+								{
+									locals->findOrAddLocalVariable(varsNames[i], varsTypes[i]);
+								}
+							}
+						}
+					}
+					else { // У класса не было интерфейса
+						// Добавить instance variables
+						for (int i = 0; i < instanceVariables.size(); i++)
+						{
+							element->Fields->addField(element->ConstantTable, instanceVariables[i], varTypes[i]->getDescriptor(), true, varTypes[i], NULL);
+						}
+
+						// Добавление методов
+						map<string, vector<string>*> keywordsNames; //Словарь для имен keywords
+						map<string, vector<Type*>*> keywordsTypes; //Словарь для типов keywords
+						map<string, vector<string>*> parametersNames; //Словарь для имен параметров
+						map<string, vector<Type*>*> parametersTypes; //Словарь для типов параметров
+						map<string, bool> isClassMethod; //Словарь, содержащий принадлежность метода к классу
+						map<string, Statement_node*> startNodes; //Словарь, содержащий стартовые узлы тел методов
+						map<string, Type*> methods = curImplementation->Body->getMethods(&keywordsNames, &keywordsTypes, &parametersNames, &parametersTypes, &isClassMethod, &startNodes); //Получение методов
+						for (auto it = methods.begin(); it != methods.end(); it++)
+						{
+							// Формирование дескриптора
+							string descriptor = "(";
+							for (int i = 0; i < keywordsTypes[it->first]->size(); i++) {
+								descriptor += keywordsTypes[it->first]->at(i)->getDescriptor();
+							}
+							descriptor += ")";
+							descriptor += it->second->getDescriptor();
+
+							bool isClass = isClassMethod[it->first];// Признак принадлежности к классу
+							vector<Type*>* curParametersTypes = parametersTypes[it->first]; // Типы параметров
+							vector<Type*>* curKeywordsTypes = keywordsTypes[it->first]; // Типы keywords
+							Statement_node* curStart = startNodes[it->first]; // Узел начала тела метода
+
+							MethodsTableElement *method = element->Methods->addMethod(element->ConstantTable, it->first, descriptor, isClass, curStart, it->second, curParametersTypes, curKeywordsTypes); //Добавление метода
+							
+							
+							//Формирование таблицы локальных переменных
+							LocalVariablesTable* locals = method->LocalVariables; //Таблица локальных переменных данного метода
+							Type* type = new Type(CLASS_NAME_TYPE, element->getClassName()); // Тип для self переменной
+							locals->findOrAddLocalVariable("self", type); //Добавление self в таблицу локальных переменных
+							//Добавление keywords в таблицу локальных переменных
+							for (int i = 0; i < keywordsNames[it->first]->size(); i++) {
+								locals->findOrAddLocalVariable(keywordsNames[it->first]->at(i), keywordsTypes[it->first]->at(i));
+							}
+							//Добавление parameters в таблицу локальных переменных
+							for (int i = 0; i < parametersNames[it->first]->size(); i++) {
+								locals->findOrAddLocalVariable(parametersNames[it->first]->at(i), parametersTypes[it->first]->at(i));
+							}
+							//Получение и добавление локальных переменных внутри метода
+							vector<string> varsNames;
+							vector<Type*> varsTypes;
+							if (method->BodyStart != NULL)
+								method->BodyStart->findLocalVariables(&varsNames, &varsTypes, element, *keywordsNames[it->first], *parametersNames[it->first]);
+							for (int i = 0; i < varsNames.size(); i++)
+							{
+								locals->findOrAddLocalVariable(varsNames[i], varsTypes[i]);
+							}
+						}
+					}
+
+
+				}
+            }
+            else if (cur->type == INTERFACE_CLASS_BLOCK_TYPE)
+            { // Интерфейс
+                Class_interface_node* curInterface = (Class_interface_node*)cur;
+                string className = curInterface->ClassName; // Имя класса
+				string* superclassName = curInterface->SuperclassName == NULL ? NULL : new string(curInterface->SuperclassName); // Имя суперкласса
+                ClassesTableElement* element = ClassesTable::addClass(className, superclassName, false, curInterface); // Добавление класса в таблицу
+
+				if (curInterface->Body != NULL) {
+					// Добавление переменных
+					map<string, Expression_node*> initializers;
+					map<string, Type*> vars = curInterface->Body->getVariables(&initializers);
+					for (auto it = vars.begin(); it != vars.end(); it++) {
+						if (element->Fields->items.count(it->first) && element->Fields->items[it->first]->InitialValue != NULL && initializers[it->first] != NULL) {
+							string msg = "Variable '" + it->first + "' redifinition in class '" + className + "'\n";
+							throw new std::exception(msg.c_str());
+						}
+						if (element->Fields->items.count(it->first) && (element->Fields->items[it->first]->DescriptorStr != it->second->getDescriptor() || element->Fields->items[it->first]->type->ArrSize != it->second->ArrSize)) {
+							string msg = "Variable '" + it->first + "' in class '" + className + "' has conflict types.\n";
+							throw new std::exception(msg.c_str());
+						}
+						element->Fields->addField(element->ConstantTable, it->first, it->second->getDescriptor(), false, it->second, initializers[it->first]);
+					}
+
+					// Добавление instance variables
+					vector<Type*> varTypes;
+					vector<string> instanceVariables = curInterface->Body->getInstanceVariables(&varTypes);
+					for (int i = 0; i < instanceVariables.size(); i++)
+					{
+						element->Fields->addField(element->ConstantTable, instanceVariables[i], varTypes[i]->getDescriptor(), true, varTypes[i], NULL);
+					}
+
+					// Добавление методов
+					map<string, vector<string>*> keywordsNames; //Словарь для имен keywords
+					map<string, vector<Type*>*> keywordsTypes; //Словарь для типов keywords
+					map<string, vector<string>*> parametersNames; //Словарь для имен параметров
+					map<string, vector<Type*>*> parametersTypes; //Словарь для типов параметров
+					map<string, bool> isClassMethod; //Словарь, содержащий принадлежность метода к классу
+					map<string, Type*> methods = curInterface->Body->getMethods(&keywordsNames, &keywordsTypes, &parametersNames, &parametersTypes, &isClassMethod); //Получение методов
+					for (auto it = methods.begin(); it != methods.end(); it++)
+					{
+						// Формирование дескриптора
+						string descriptor = "(";
+						for (int i = 0; i < keywordsTypes[it->first]->size(); i++) {
+							descriptor += keywordsTypes[it->first]->at(i)->getDescriptor();
+						}
+						descriptor += ")";
+						descriptor += it->second->getDescriptor();
+
+						bool isClass = isClassMethod[it->first];// Признак принадлежности к классу
+						vector<Type*>* curParametersTypes = parametersTypes[it->first]; // Типы параметров
+						vector<Type*>* curKeywordsTypes = keywordsTypes[it->first]; // Типы keywords
+
+						MethodsTableElement *method = element->Methods->addMethod(element->ConstantTable, it->first, descriptor, isClass, NULL, it->second, curParametersTypes, curKeywordsTypes); //Добавление метода
+					
+
+						//Формирование таблицы локальных переменных
+						LocalVariablesTable* locals = method->LocalVariables; //Таблица локальных переменных данного метода
+						Type* type = new Type(CLASS_NAME_TYPE, element->getClassName()); // Тип для self переменной
+						locals->findOrAddLocalVariable("self", type); //Добавление self в таблицу локальных переменных
+						//Добавление keywords в таблицу локальных переменных
+						for (int i = 0; i < keywordsNames[it->first]->size(); i++) {
+							locals->findOrAddLocalVariable(keywordsNames[it->first]->at(i), keywordsTypes[it->first]->at(i));
+						}
+						//Добавление parameters в таблицу локальных переменных
+						for (int i = 0; i < parametersNames[it->first]->size(); i++) {
+							locals->findOrAddLocalVariable(parametersNames[it->first]->at(i), parametersTypes[it->first]->at(i));
+						}
+					}
+
+					// Добавление свойств
+					map<string, bool> isReadonly; //Значение аттрибута readonly для property
+					map<string, Type*> propertiesTypes = curInterface->Body->getProperties(&isReadonly);
+					for (auto it = propertiesTypes.cbegin(); it != propertiesTypes.cend(); it++)
+					{
+						element->Properties->addProperty(element->ConstantTable, it->first, it->second->getDescriptor(), isReadonly[it->first], it->second);
+					}
+				}
+            }
+        }
+		else if (FunctionsAndClasses->at(i).function != NULL)
+		{
+			Function_node* cur = FunctionsAndClasses->at(i).function; //Узел функции
+			Type* returnType; //Возвращаемый тип
+			Statement_node* body; //Узел начала тела функции
+			string functionName = cur->getFunction(&returnType, &body); //Имя функции
+
+			// Формирование дескриптора
+			string descriptor = "()";
+			descriptor += returnType->getDescriptor();
+
+			vector<Type*> *params = new vector<Type*>;
+			FunctionsTableElement* element = FunctionsTable::addFunction(functionName, descriptor, body, params, returnType); // Добавление функции в таблицу
+
+			// Формирование таблицы локальных переменных
+			LocalVariablesTable* locals = element->LocalVariables; //Таблица локальных переменных данной функции
+			Type* type = new Type(CLASS_NAME_TYPE, "rtl/!Program!"); //Тип для this
+			locals->findOrAddLocalVariable("self", type); //Добавление self в таблицу локальных переменных
+			vector<string> varsNames;
+			vector<Type*> varsTypes;
+			ClassesTableElement* classElem = ClassesTable::items->at("rtl/!Program!");
+			vector<string> kwNames;
+			vector<string> paramNames;
+			element->BodyStart->findLocalVariables(&varsNames, &varsTypes, classElem, kwNames, paramNames);
+			for (int i = 0; i < varsNames.size(); i++)
+			{
+				locals->findOrAddLocalVariable(varsNames[i], varsTypes[i]);
+			}
+		}
+    }
+
+	ClassesTable::fillFieldRefs(); // Найти и заполнить field refs для классов
+	FunctionsTable::fillFieldRefs(); //Найти и заполнить fields refs в функции
+
+	ClassesTable::fillMethodRefs(); //Найти и заполнить method refs для классов
+	FunctionsTable::fillMethodRefs(); //Найти и заполнить method refs в функции
+
+	ClassesTable::fillLiterals(); // Найти и заполнить string и integer константы
+	FunctionsTable::fillLiterals(); // Найти и заполнить string и integer константы
+
+
+
+	FunctionsTable::convertToClassProgramMethods(); // Преобразовать функции в статические методы класса Program
+	ClassesTable::semanticTransform(); //Преобразование дерева в классах
+
+	ClassesTable::addConstantsToTable(); // Добавление констант типа Class с переменных
+}
+
+//---------- Program_node ----------
+
+void Program_node::fillClassesTable()
+{
+    list->fillTables();
+}
+
 //---------- Interface_body_node ---------- 
 
 vector<string> Interface_body_node::getInstanceVariables(vector<Type*>* varTypes)
