@@ -1,6 +1,55 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+// ---------- Method_selector_node ----------
+void Method_selector_node::getParams(vector<string>* keywordsNames, vector<Type*>* keywordsTypes, vector<string>* parametersNames, vector<Type*> *parametersTypes)
+{
+	if (KeywordDeclaration != NULL) { //Добавление первого параметра
+		string firstKeywordName = string(KeywordDeclaration->KeywordName); // 
+		Type* firstKeywordType = KeywordDeclaration->KeywordType->toDataType();
+		keywordsNames->push_back(firstKeywordName);
+		keywordsTypes->push_back(firstKeywordType);
+	}
+
+	if (KeywordSelector != NULL) { //Добавление остальных параметров
+		vector<Keyword_declaration_node*>* keywordsList = KeywordSelector->getElements(); //Список keword
+		for (auto it = keywordsList->cbegin(); it < keywordsList->cend(); it++)
+		{
+			Keyword_declaration_node* keyword = *it; //Ключевое слово
+
+			if (keyword->Identifier != NULL) {
+					string msg = "ERROR! Unsupported identifiers in keyword: '" + string(keyword->Identifier) + "' in method '" + MethodName + "'";
+					throw new std::exception(msg.c_str());
+			}
+
+			string name = string(keyword->KeywordName); //Имя
+			Type* type = keyword->KeywordType->toDataType(); //Тип
+			if (std::find(keywordsNames->begin(), keywordsNames->end(), name) != keywordsNames->end()) { //Переопределение параметра
+				string msg = "Parameter '" + name + "' redifinition in method '" + string(MethodName) + "'";
+				throw new std::exception(msg.c_str());
+			}
+			keywordsNames->push_back(name); //Добавление имени
+			keywordsTypes->push_back(type); //Добавление типа
+		}
+	}
+
+	if (ParameterListNode != NULL) { //Добавление параметров
+		vector<Parameter_declaration_node*>* parametersList = ParameterListNode->getElements(); //Список параметров
+		for (auto it = parametersList->cbegin(); it < parametersList->cend(); it++)
+		{
+			Parameter_declaration_node* parameter = *it; //Параметр
+			string name = string(parameter->name); //Имя
+			Type* type = parameter->type->toDataType(); //Тип
+			if (std::find(parametersNames->begin(), parametersNames->end(), name) != parametersNames->end() || std::find(keywordsNames->begin(), keywordsNames->end(), name) != keywordsNames->end()) { //Переопределение параметра
+				string msg = "Parameter '" + name + "' redifinition in line: " + to_string(line);
+				throw new std::exception(msg.c_str());
+			}
+			parametersNames->push_back(name); //Добавление имени
+			parametersTypes->push_back(type); //Добавление типа
+		}
+	}
+}
+
 // ---------- Statement_node ----------
 void Statement_node::findLocalVariables(vector<string>* localVariablesNames, vector<Type*>* localVariablesTypes, ClassesTableElement* classElem, vector<string> keywordNames, vector<string> parameterNames, bool isInTopFunctionLevel)
 {
