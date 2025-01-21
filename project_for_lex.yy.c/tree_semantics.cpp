@@ -1,6 +1,71 @@
 #include "tables.h"
 #include <algorithm>
 #include <string>
+void Statement_node::fillFieldRefs(ConstantsTable *constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement)
+{
+	if (type == EMPTY_STATEMENT_TYPE) {
+
+	}
+	else if (type == SIMPLE_STATEMENT_TYPE) {
+		if (Expression != NULL) {
+			Expression->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		}
+	}
+	else if (type == RETURN_STATEMENT_TYPE) {
+		if (Expression != NULL) {
+			Expression->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		}
+	}
+	else if (type == IF_STATEMENT_TYPE) {
+		If_statement_node *cur = (If_statement_node*)this;
+		cur->Condition->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->TrueBranch != NULL)
+			cur->TrueBranch->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->FalseBranch != NULL)
+			cur->FalseBranch->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	else if (type == WHILE_STATEMENT_TYPE) {
+		While_statement_node *cur = (While_statement_node*)this;
+		cur->LoopCondition->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->LoopBody != NULL)
+			cur->LoopBody->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	else if (type == DO_WHILE_STATEMENT_TYPE) {
+		Do_while_statement_node *cur = (Do_while_statement_node*)this;
+		cur->LoopCondition->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->LoopBody != NULL)
+			cur->LoopBody->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	else if (type == FOR_STATEMENT_TYPE) {
+		For_statement_node *cur = (For_statement_node*)this;
+		if (cur->InitExpression != NULL)
+			cur->InitExpression->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->ConditionExpression != NULL)
+			cur->ConditionExpression->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->LoopExpression != NULL)
+			cur->LoopExpression->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->InitList != NULL)
+			cur->InitList->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+		if (cur->LoopBody != NULL)
+			cur->LoopBody->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+	else if (type == COMPOUND_STATEMENT_TYPE) {
+		Statement_list_node *cur = (Statement_list_node*)this;
+		if (cur->First != NULL) {
+			Statement_node *elem = cur->First;
+			while (elem != NULL) {
+				elem->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+				elem = elem->Next;
+			}
+		}
+	}
+	else if (type == DECLARATION_STATEMENT_TYPE) {
+		Declaration_node *cur = (Declaration_node*)this;
+		if (cur->init_declarator_list != NULL)
+			cur->init_declarator_list->fillFieldRefs(constantTable, localVariablesTable, classTableElement);
+	}
+}
+
 void Statement_node::fillMethodRefs(ConstantsTable* constantTable, LocalVariablesTable* localVariablesTable, ClassesTableElement* classTableElement, bool isInInstanceMethod)
 {
 	if (type == EMPTY_STATEMENT_TYPE) {
