@@ -5,6 +5,48 @@
 #include <string>
 
 using namespace std;
+vector<char> Statement_node::generateCodeForIfStatement(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable* locals)
+{
+	vector<char> res;
+	
+	If_statement_node* if_stmt = (If_statement_node*)this;
+
+	vector<char> condition = if_stmt->Condition->generateCode(isInsideClassMethod, constantsTable); //Условие
+	CodeGenerationHelpers::appendArrayToByteVector(&res, condition.data(), condition.size());
+
+	vector<char> trueBytes;
+	vector<char> falseBytes;
+	vector<char> gotoBytes;
+
+	if (if_stmt->TrueBranch != NULL)
+		trueBytes = if_stmt->TrueBranch->generateCode(isInsideClassMethod, constantsTable, locals);
+
+	if (if_stmt->FalseBranch != NULL) {
+		falseBytes = if_stmt->FalseBranch->generateCode(isInsideClassMethod, constantsTable, locals);
+		gotoBytes = CodeGenerationCommands::goto_(falseBytes.size());
+	}
+
+	int offset = trueBytes.size() + gotoBytes.size();
+	vector<char> ifBytes;
+	if (if_stmt->Condition->DataType->isPrimitive()) {
+		ifBytes = CodeGenerationCommands::if_(CodeGenerationCommands::EQ, offset);
+	}
+	else {
+		vector<char> aconst_null = CodeGenerationCommands::aconst_null(); //Загрузка null для сравнения объекта
+		CodeGenerationHelpers::appendArrayToByteVector(&res, aconst_null.data(), aconst_null.size());
+		ifBytes = CodeGenerationCommands::if_acmp(CodeGenerationCommands::EQ, offset);
+	}
+
+
+	// Формирование кода
+	CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+
+	return res;
+}
+// ---------- Expression ----------
 vector<char> Expression_node::generateCodeForPlus(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
