@@ -14,6 +14,7 @@ UNDERLINE_LETTER [A-Za-z_]
 
 /*Подключение библиотек*/
 %{
+    #include "tables.h"
     #include "bison_rules_with_code_tab.h"
     #include <stdio.h>
     #include <crtdbg.h>
@@ -28,7 +29,6 @@ UNDERLINE_LETTER [A-Za-z_]
     int isContainsSymbol(char *string, char symbol);
     void removeSymbol(char *string, char symbol);
     void removeFloatSuffix(char *string);
-	void removeULSuffix(char *string);
     int countChar(const char *str, char character);
     int lineCount = 1;
 %}
@@ -291,20 +291,6 @@ void removeFloatSuffix(char *string)
     }
 }
 
-void removeULSuffix(char *string)
-{
-    if (isContainsSymbol(string, 'u') || isContainsSymbol(string, 'U') || isContainsSymbol(string, 'l') ||
-	isContainsSymbol(string, 'L'))
-    {
-        removeSymbol(string, 'u');
-        removeSymbol(string, 'U');
-		removeSymbol(string, 'L');
-		removeSymbol(string, 'L');
-		removeSymbol(string, 'l');
-		removeSymbol(string, 'l');
-    }
-}
-
 //Количество вхождения символа в строку
 int countChar(const char *str, char character)
 {
@@ -338,6 +324,7 @@ if (parseRes == 0) {
 	bool isPreviousSuccess = true;
 
 
+	//Построение dot дерева до семантического анализа
 	if (isPreviousSuccess) {
 		try {
 			printf("Start generating dot file before semantic analysis\n");
@@ -352,4 +339,103 @@ if (parseRes == 0) {
 			isPreviousSuccess = false;
 		}
 	}
+    
+	//Семантический анализ
+	if (isPreviousSuccess) {
+		try {
+			printf("Start semantic analysis\n");
+			root->fillClassesTable();
+			printf("Successful semantic analysis\n");
+		}
+		catch (std::exception *e) {
+			printf("%s", e->what());
+			isPreviousSuccess = false;
+		}
+		catch (...) {
+			printf("Failed semantic analysis\n");
+			isPreviousSuccess = false;
+		}
+		
+	}
+
+	// Вывод таблиц после семантического анализа
+	if (isPreviousSuccess) {
+		try {
+			printf("Start printing tables after semantic analysis\n");
+			filesystem::path p = filesystem::path("./out/tables/");
+			filesystem::remove_all(p);
+			filesystem::create_directory(p);
+			ClassesTable::toCsvFile("./out/tables/");
+			FunctionsTable::toCsvFile("FunctionsTable.csv", "./out/tables/");
+			printf("Successful printing tables after semantic analysis\n");
+		}
+		catch (...) {
+			printf("Failed printing tables after semantic analysis\n");
+			isPreviousSuccess = false;
+		}
+	}
+
+	//Построение dot дерева после семантического анализа
+	if (isPreviousSuccess) {
+		try {
+			printf("Start generating dot file after semantic analysis\n");
+			string res = root->toDot();
+			ofstream out("dot_after.dot");
+			out << res;
+			out.close();
+			printf("Successful generating dot file after semantic analysis\n");
+		}
+		catch (...) {
+			printf("Failed generating dot file after semantic analysis\n");
+			isPreviousSuccess = false;
+		}
+	}
+
+	//Генерация .class файлов
+	if (isPreviousSuccess) {
+		try {
+			printf("Start code generation\n");
+			filesystem::path p = filesystem::path("./out/code/global/");
+			filesystem::remove_all(p);
+			filesystem::create_directory(p);
+			ClassesTable::generateClassFiles("./out/code/");
+			printf("Successful code generation\n");
+		}
+		catch (std::exception* e) {
+			printf("%s", e->what());
+			isPreviousSuccess = false;
+		}
+		catch (...) {
+			printf("Failed code generation\n");
+			isPreviousSuccess = false;
+		}
+	}
+
+	delete root;
+	delete ClassesTable::items;
+
+	//Генерация .jar файла
+	if (isPreviousSuccess) {
+		try {
+			printf("Start generating .jar file\n");
+			string manifest = "main-class: rtl.!Program!\nclass-path: code/\n";
+			ofstream out("./out/manifest.mf");
+			out << manifest;
+			out.close();
+			string jar = "cd ./out/ && jar -cmf manifest.mf code.jar -C code .";
+			system(jar.c_str());
+			string runBat = "@echo off\njava -noverify -jar code.jar";
+			ofstream outBat("./out/run.bat");
+			outBat << runBat;
+			outBat.close();
+
+			printf("Successful generating .jar file\n");
+		}
+		catch (...) {
+			printf("Failed generating .jar file\n");
+			isPreviousSuccess = false;
+		}
+	}
+}
+	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
 }
