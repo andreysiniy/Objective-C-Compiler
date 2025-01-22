@@ -66,6 +66,30 @@ vector<char> CodeGenerationCommands::iconstBipushSipush(int num)
 		throw std::exception("Error in iconstBipushSipush: Invalid number");
 	}
 }
+
+
+// ---------- ldc, ldc_w ----------
+vector<char> CodeGenerationCommands::ldc(int num)
+{
+	vector<char> res;
+	if (num >= 0 && num <= 255) {
+		//ldc
+		res.push_back(0x12); //ldc
+		res.push_back(num);
+	}
+	else if (num >= 256 && num <= 65535) {
+		//ldc_w
+		res.push_back(0x13); //ldc_w
+		vector <char> temp = CodeGenerationHelpers::intToByteArray(num, 2);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	}
+	else {
+		throw std::exception("Error in ldc, ldc_w: Invalid number");
+	}
+
+	return res;
+}
+
 // ---------- iload ----------
 vector<char> CodeGenerationCommands::iload(int num)
 {
