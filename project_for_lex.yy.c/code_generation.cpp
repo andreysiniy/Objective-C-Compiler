@@ -541,6 +541,153 @@ vector<char> Statement_node::generateCodeForForStatement(bool isInsideClassMetho
 
 
 // ---------- Expression ----------
+
+vector<char> Expression_node::generateCode(bool isInsideClassMethod, ConstantsTable *constantsTable)
+{
+	vector<char> res;
+
+	switch (type)
+	{
+	case IDENTIFIER_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForIdentifier(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case LITERAL_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForLiteral();
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case NUMERIIC_CONSTANT_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForNumericConstant();
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case SELF_EXPRESSION_TYPE: {
+		if (!isInsideClassMethod) {
+			vector<char> bytes = generateCodeForSelf();
+			CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+		}
+	}
+		break;
+	case SUPER_EXPRESSION_TYPE: {
+		if (!isInsideClassMethod) {
+			vector<char> bytes = generateCodeForSuper();
+			CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+		}
+	}
+		break;
+	case MESSAGE_EXPRESSION_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForMessageExpression(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case UMINUS_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForUminus(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case UPLUS_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForUplus(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case PLUS_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForPlus(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case MINUS_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForMinus(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case MUL_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForMul(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case DIV_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForDiv(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case EQUAL_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForEqual(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case NOT_EQUAL_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForNotEqual(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case GREATER_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForGreater(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case LESS_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForLess(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case LESS_EQUAL_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForLessEqual(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case GREATER_EQUAL_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForGreaterEqual(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case ASSIGNMENT_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForAssignment(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case ARROW_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForArrow(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case ARRAY_ELEMENT_ACCESS_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForArrayElementAccess(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case ARRAY_ASSIGNMENT_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForArrayAssignment(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case MEMBER_ACCESS_ASSIGNMENT_EXPRESSION_TYPE: {
+		vector<char> bytes = generateCodeForMemberAccessAssignment(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case CHAR_CAST: {
+		vector<char> bytes = generateCodeForCharCast(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case INT_CAST: {
+		vector<char> bytes = generateCodeForIntCast(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case CLASS_CAST: {
+		vector<char> bytes = generateCodeForClassCast(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	default:
+		break;
+	}
+
+	return res;
+}
 vector<char> Expression_node::generateCodeForPlus(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
