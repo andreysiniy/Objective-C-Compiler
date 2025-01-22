@@ -5,6 +5,25 @@
 #include <string>
 
 using namespace std;
+vector<char> Expression_node::generateCodeForUminus(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //Число
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> bytes = CodeGenerationCommands::ineg(); //Команда
+	CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForUplus(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res = Right->generateCode(isInsideClassMethod, constantsTable); //Число
+	return res;
+}
+
 vector<char> Expression_node::generateCodeForLiteral()
 {
 	vector<char> res;
