@@ -5,6 +5,23 @@
 #include <string>
 
 using namespace std;
+vector<char> Statement_node::generateCodeForDeclarationStatement(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable *locals)
+{
+	vector<char> res;
+
+	Declaration_node* declaration = (Declaration_node*)this;
+	Init_declarator_node* initDeclarator = declaration->init_declarator_list->First;
+
+	while (initDeclarator != NULL) {
+		
+		vector<char> bytes = initDeclarator->generateCodeForInitDeclarator(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+
+		initDeclarator = initDeclarator->Next;
+	}
+
+	return res;
+}
 vector<char> Statement_node::generateCodeForIfStatement(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable* locals)
 {
 	vector<char> res;
