@@ -379,3 +379,26 @@ vector<char> CodeGenerationCommands::goto_(int offset)
 	return res;
 }
 
+// ---------- ireturn ----------
+vector<char> CodeGenerationCommands::ireturn()
+{
+	vector<char> res;
+	res.push_back(0xAC); //ireturn
+	return res;
+}
+
+// ---------- areturn ----------
+vector<char> CodeGenerationCommands::areturn()
+{
+	vector<char> res;
+	res.push_back(0xB0); //areturn
+	return res;
+}
+
+// ---------- return ----------
+vector<char> CodeGenerationCommands::return_()
+{
+	vector<char> res;
+	res.push_back(0xB1); //return
+	return res;
+}
