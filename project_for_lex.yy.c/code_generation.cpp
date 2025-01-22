@@ -5,6 +5,16 @@
 #include <string>
 
 using namespace std;
+vector<char> Statement_node::generateCodeForSimpleStatement(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> expr = Expression->generateCode(isInsideClassMethod, constantsTable);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, expr.data(), expr.size());
+
+	return res;
+}
+
 vector<char> Statement_node::generateCodeForReturnStatement(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
