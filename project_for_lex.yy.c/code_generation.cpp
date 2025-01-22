@@ -5,6 +5,70 @@
 #include <string>
 
 using namespace std;
+vector<char> Expression_node::generateCodeForPlus(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //1-ое слагаемое
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //2-ое слагаемое
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> bytes = CodeGenerationCommands::iadd(); //Команда
+	CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForMinus(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //Уменьшаемое
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //Вычитаемое
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> bytes = CodeGenerationCommands::isub(); //Команда
+	CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForMul(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //1-ый множитель
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //2-ой множитель
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> bytes = CodeGenerationCommands::imul(); //Команда
+	CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForDiv(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //Делимое
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //Делитель
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> bytes = CodeGenerationCommands::idiv(); //Команда
+	CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+
+	return res;
+}
+
 vector<char> Expression_node::generateCodeForUminus(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
