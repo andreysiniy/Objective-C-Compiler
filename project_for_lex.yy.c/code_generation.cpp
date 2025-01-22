@@ -5,6 +5,64 @@
 #include <string>
 
 using namespace std;
+// -------------------- Генерация байт-кода метода для атрибута Code --------------------
+
+// ---------- Statement ----------
+vector<char> Statement_node::generateCode(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable *locals)
+{
+	vector<char> res;
+
+	switch (type)
+	{
+	case EMPTY_STATEMENT_TYPE:
+		break;
+	case SIMPLE_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForSimpleStatement(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case RETURN_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForReturnStatement(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case IF_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForIfStatement(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case WHILE_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForWhileStatement(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case DO_WHILE_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForDoWhileStatement(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case FOR_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForForStatement(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case COMPOUND_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForCompoundStatement(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	case DECLARATION_STATEMENT_TYPE: {
+		vector<char> bytes = generateCodeForDeclarationStatement(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+		break;
+	default:
+		break;
+	}
+
+	return res;
+}
+
 vector<char> Statement_node::generateCodeForSimpleStatement(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
