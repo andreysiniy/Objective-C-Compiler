@@ -455,6 +455,85 @@ vector<char> CodeGenerationCommands::aastore()
 	return res;
 }
 
+// ---------- new ----------
+vector<char> CodeGenerationCommands::new_(int constant)
+{
+	vector <char> res;
+	res.push_back(0xBB); //new
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- getfield ----------
+vector<char> CodeGenerationCommands::getfield(int constant)
+{
+	vector <char> res;
+	res.push_back(0xB4); //getfield
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- putfield ----------
+vector<char> CodeGenerationCommands::putfield(int constant)
+{
+	vector<char> res;
+	res.push_back(0xB5); //putfield
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- instanceof ----------
+vector<char> CodeGenerationCommands::instanceof(int constant)
+{
+	vector <char> res;
+	res.push_back(0xC1); //instanceof
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- checkcast ----------
+vector<char> CodeGenerationCommands::checkcast(int constant)
+{
+	vector <char> res;
+	res.push_back(0xC0); //checkcast
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- invokevirtual ----------
+vector<char> CodeGenerationCommands::invokevirtual(int constant)
+{
+	vector <char> res;
+	res.push_back(0xB6); //invokevirtual
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- invokespecial ----------
+vector<char> CodeGenerationCommands::invokespecial(int constant)
+{
+	vector<char> res;
+	res.push_back(0xB7); //invokespecial
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- invokestatic ----------
+vector<char> CodeGenerationCommands::invokestatic(int constant)
+{
+	vector<char> res;
+	res.push_back(0xB8); //invokestatic
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
 // ---------- ireturn ----------
 vector<char> CodeGenerationCommands::ireturn()
 {
