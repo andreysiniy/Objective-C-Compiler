@@ -38,6 +38,21 @@ vector<char> Expression_node::generateCodeForIntCast(bool isInsideClassMethod, C
 	return res;
 }
 
+vector<char> Expression_node::generateCodeForClassCast(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	if (Right->DataType->isCastableTo(DataType)) {
+		vector<char> value = Right->generateCode(isInsideClassMethod, constantsTable); //Значение
+		CodeGenerationHelpers::appendArrayToByteVector(&res, value.data(), value.size());
+	}
+	else {
+		string msg = "Cannot cast " + Right->DataType->ClassName + " to " + DataType->ClassName;
+		throw new std::exception(msg.c_str());
+	}
+
+	return res;
+}
 vector<char> Expression_list_node::generateCode(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
