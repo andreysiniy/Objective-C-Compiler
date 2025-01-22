@@ -379,6 +379,82 @@ vector<char> CodeGenerationCommands::goto_(int offset)
 	return res;
 }
 
+// ---------- newarray ----------
+vector<char> CodeGenerationCommands::newarray(ArrayCommandType type)
+{
+	vector<char> res;
+	res.push_back(0xBC); //newarray
+	res.push_back(type);
+	return res;
+
+}
+
+// ---------- anewarray ----------
+vector<char> CodeGenerationCommands::anewarray(int constant)
+{
+	vector<char> res;
+	res.push_back(0xBD); //anewarray
+	vector <char> temp = CodeGenerationHelpers::intToByteArray(constant, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, temp.data(), temp.size());
+	return res;
+}
+
+// ---------- arraylength ----------
+vector<char> CodeGenerationCommands::arraylength()
+{
+	vector<char> res;
+	res.push_back(0xBE); //arraylength
+	return res;
+}
+
+// ---------- iaload ----------
+vector<char> CodeGenerationCommands::iaload()
+{
+	vector<char> res;
+	res.push_back(0x2E); //iaload
+	return res;
+}
+
+// ---------- caload ----------
+vector<char> CodeGenerationCommands::caload()
+{
+	vector<char> res;
+	res.push_back(0x34); //caload
+	return res;
+}
+
+// ---------- aaload ----------
+vector<char> CodeGenerationCommands::aaload()
+{
+	vector<char> res;
+	res.push_back(0x32); //aaload
+	return res;
+}
+
+// ---------- iastore ----------
+vector<char> CodeGenerationCommands::iastore()
+{
+	vector<char> res;
+	res.push_back(0x4F); //iastore
+	return res;
+}
+
+// ---------- castore ----------
+vector<char> CodeGenerationCommands::castore()
+{
+	vector<char> res;
+	res.push_back(0x55); //castore
+	return res;
+}
+
+// ---------- aastore ----------
+vector<char> CodeGenerationCommands::aastore()
+{
+	vector<char> res;
+	res.push_back(0x53); //aastore
+	return res;
+}
+
 // ---------- ireturn ----------
 vector<char> CodeGenerationCommands::ireturn()
 {
