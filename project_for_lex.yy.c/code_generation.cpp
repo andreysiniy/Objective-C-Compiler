@@ -45,6 +45,109 @@ vector<char> FieldsTableElement::generateBytes()
 
 	return res;
 }
+
+// -------------------- Таблица методов --------------------
+vector<char> MethodsTable::generateBytes(ConstantsTable* constantsTable, int parrentInitNumber)
+{
+	vector<char> res;
+	for (auto iter = items.cbegin(); iter != items.cend(); ++iter) {
+		vector<char> bytes = iter->second->generateBytes(constantsTable, parrentInitNumber);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+	return res;
+}
+
+vector<char> MethodsTableElement::generateBytes(ConstantsTable* constantsTable, int parrentInitNumber)
+{
+	vector<char> res;
+
+	// Добавление флага доступа
+	char publicDynamicFlag[2] = { 0x00, 0x01 }; //ACC_PUBLIC
+	char publicStaticFlag[2] = { 0x00, 0x09 }; //ACC_PUBLIC + ACC_STATIC
+
+	if (IsClassMethod)
+		CodeGenerationHelpers::appendArrayToByteVector(&res, publicStaticFlag, 2);
+	else
+		CodeGenerationHelpers::appendArrayToByteVector(&res, publicDynamicFlag, 2);
+
+	//Добавление имени метода
+	vector<char> nameBytes = CodeGenerationHelpers::intToByteArray(Name, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, nameBytes.data(), nameBytes.size());
+
+	// Добавление дескриптора метода
+	vector<char> typeBytes = CodeGenerationHelpers::intToByteArray(Descriptor, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, typeBytes.data(), typeBytes.size());
+
+	//Добавление атрибутов TODO:Code
+	vector<char> codeAttributeSizeBytes = CodeGenerationHelpers::intToByteArray(1, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, codeAttributeSizeBytes.data(), codeAttributeSizeBytes.size());
+
+	if (NameStr != "<init>") {
+		vector<char> codeAttributeBytes = generateCodeAttribute(constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, codeAttributeBytes.data(), codeAttributeBytes.size());
+	}
+	else {
+		vector<char> codeAttributeBytes = CodeGenerationHelpers::defaultConstructorCodeAttribute(parrentInitNumber);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, codeAttributeBytes.data(), codeAttributeBytes.size());
+	}
+
+	return res;
+}
+
+vector<char> MethodsTableElement::generateCodeAttribute(ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	//Добавление имени атрибута
+	vector<char> nameBytes = CodeGenerationHelpers::intToByteArray(1, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, nameBytes.data(), nameBytes.size());
+
+	//Формирование байт-кода метода
+	vector<char> codeBytes;
+	if (BodyStart != NULL) {
+		Statement_node* curStatement = BodyStart;
+		while (curStatement != NULL) {
+			vector<char> bytes = curStatement->generateCode(IsClassMethod, constantsTable, LocalVariables);
+			CodeGenerationHelpers::appendArrayToByteVector(&codeBytes, bytes.data(), bytes.size());
+			curStatement = curStatement->Next;
+		}
+	}
+
+	//Добавление длины атрибута
+	vector<char> lengthBytes = CodeGenerationHelpers::intToByteArray(12 + codeBytes.size(), 4);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, lengthBytes.data(), lengthBytes.size());
+
+	//Добавление размера стека операндов
+	vector<char> stackSizeBytes = CodeGenerationHelpers::intToByteArray(CodeGenerationHelpers::stackSize, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, stackSizeBytes.data(), stackSizeBytes.size());
+
+	//Добавление количества локальных переменных
+	int localsSize = LocalVariables->items.size();
+	if (IsClassMethod)
+		localsSize -= 1;
+	vector<char> localsSizeBytes = CodeGenerationHelpers::intToByteArray(localsSize, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, localsSizeBytes.data(), localsSizeBytes.size());
+
+
+	//Добавление длины байт-кода TODO: сделать
+	vector<char> codeSizeBytes = CodeGenerationHelpers::intToByteArray(codeBytes.size(), 4);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, codeSizeBytes.data(), codeSizeBytes.size());
+
+	//Добавление байт-кода
+	CodeGenerationHelpers::appendArrayToByteVector(&res, codeBytes.data(), codeBytes.size());
+
+	//Добавление количества записей в таблице исключений
+	vector<char> exceptionTableSizeBytes = CodeGenerationHelpers::intToByteArray(0, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, exceptionTableSizeBytes.data(), exceptionTableSizeBytes.size());
+
+	//Добавление количества атрибутов
+	vector<char> attributesCountBytes = CodeGenerationHelpers::intToByteArray(0, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, attributesCountBytes.data(), attributesCountBytes.size());
+
+	return res;
+}
+
+
 // -------------------- Генерация байт-кода метода для атрибута Code --------------------
 
 // ---------- Statement ----------
