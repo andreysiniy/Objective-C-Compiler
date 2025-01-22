@@ -688,6 +688,29 @@ vector<char> Expression_node::generateCode(bool isInsideClassMethod, ConstantsTa
 
 	return res;
 }
+
+vector<char> Expression_node::generateCodeForNumericConstant()
+{
+	vector<char> res;
+	
+	int number = num->Int; // Число
+
+	if (number >= -32768 && number <= 32767) { //Число занимает до 2-х байт
+		vector<char> bytes = CodeGenerationCommands::iconstBipushSipush(number); //Команда
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+	else { //Число занимает более 2-х байт
+		if (num->constant == -1) {
+			string msg = string("Constant for number '") + to_string(num->Int) + "' doesn't exist";
+			throw new std::exception(msg.c_str());
+		}
+		vector <char> bytes = CodeGenerationCommands::ldc(num->constant); //Команда
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+
+	return res;
+}
+
 vector<char> Expression_node::generateCodeForPlus(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
