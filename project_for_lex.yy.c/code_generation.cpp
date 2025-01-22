@@ -5,6 +5,185 @@
 #include <string>
 
 using namespace std;
+vector<char> Expression_node::generateCodeForEqual(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	if (Left->type != SUPER_EXPRESSION_TYPE && Left->type != SELF_EXPRESSION_TYPE && Right->type != SUPER_EXPRESSION_TYPE && Right->type != SELF_EXPRESSION_TYPE) {
+		vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //левый операнд	
+		CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+		vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //правый операнд
+		CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+		vector<char> trueBytes = CodeGenerationCommands::iconstBipushSipush(1); //Ветка, если равны
+		vector<char> falseBytes = CodeGenerationCommands::iconstBipushSipush(0); //Ветка, если не равны
+		vector<char> gotoBytes = CodeGenerationCommands::goto_(falseBytes.size()); //Безусловный переход в случае положительной ветки
+
+		int offset = trueBytes.size() + gotoBytes.size(); //Смещение, с которого начинается альтернативная ветка
+		vector<char> ifBytes; //Условный переход
+		if (Left->DataType->isPrimitive() && Right->DataType->isPrimitive())
+			ifBytes = CodeGenerationCommands::if_icmp(CodeGenerationCommands::NE, offset);
+		else
+			ifBytes = CodeGenerationCommands::if_acmp(CodeGenerationCommands::NE, offset);
+
+		// Формирование кода
+		CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+		CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+		CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+		CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+	}
+	else {
+		if (Left->type == Right->type)
+			res = CodeGenerationCommands::iconstBipushSipush(1);
+		else
+			res = CodeGenerationCommands::iconstBipushSipush(0);
+	}
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForNotEqual(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	if (Left->type != SUPER_EXPRESSION_TYPE && Left->type != SELF_EXPRESSION_TYPE && Right->type != SUPER_EXPRESSION_TYPE && Right->type != SELF_EXPRESSION_TYPE) {
+		vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //левый операнд	
+		CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+		vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //правый операнд
+		CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+		vector<char> trueBytes = CodeGenerationCommands::iconstBipushSipush(1); //Ветка, если не равны
+		vector<char> falseBytes = CodeGenerationCommands::iconstBipushSipush(0); //Ветка, если равны
+		vector<char> gotoBytes = CodeGenerationCommands::goto_(falseBytes.size()); //Безусловный переход в случае положительной ветки
+
+		int offset = trueBytes.size() + gotoBytes.size(); //Смещение, с которого начинается альтернативная ветка
+		vector<char> ifBytes; //Условный переход
+		if (Left->DataType->isPrimitive() && Right->DataType->isPrimitive())
+			ifBytes = CodeGenerationCommands::if_icmp(CodeGenerationCommands::EQ, offset);
+		else
+			ifBytes = CodeGenerationCommands::if_acmp(CodeGenerationCommands::EQ, offset);
+
+		// Формирование кода
+		CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+		CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+		CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+		CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+	}
+	else {
+		if (Left->type != Right->type)
+			res = CodeGenerationCommands::iconstBipushSipush(1);
+		else
+			res = CodeGenerationCommands::iconstBipushSipush(0);
+	}
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForGreater(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //левый операнд	
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //правый операнд
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> trueBytes = CodeGenerationCommands::iconstBipushSipush(1); //Ветка, если больше
+	vector<char> falseBytes = CodeGenerationCommands::iconstBipushSipush(0); //Ветка, если меньше или равно
+	vector<char> gotoBytes = CodeGenerationCommands::goto_(falseBytes.size()); //Безусловный переход в случае положительной ветки
+
+	int offset = trueBytes.size() + gotoBytes.size(); //Смещение, с которого начинается альтернативная ветка
+	vector<char> ifBytes = CodeGenerationCommands::if_icmp(CodeGenerationCommands::LE, offset); //Условный переход
+
+	// Формирование кода
+	CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForLess(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //левый операнд	
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //правый операнд
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> trueBytes = CodeGenerationCommands::iconstBipushSipush(1); //Ветка, если меньше
+	vector<char> falseBytes = CodeGenerationCommands::iconstBipushSipush(0); //Ветка, если больше или равно
+	vector<char> gotoBytes = CodeGenerationCommands::goto_(falseBytes.size()); //Безусловный переход в случае положительной ветки
+
+	int offset = trueBytes.size() + gotoBytes.size(); //Смещение, с которого начинается альтернативная ветка
+	vector<char> ifBytes = CodeGenerationCommands::if_icmp(CodeGenerationCommands::GE, offset); //Условный переход
+
+	// Формирование кода
+	CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForLessEqual(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //левый операнд	
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //правый операнд
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> trueBytes = CodeGenerationCommands::iconstBipushSipush(1); //Ветка, если меньше или равно
+	vector<char> falseBytes = CodeGenerationCommands::iconstBipushSipush(0); //Ветка, если больше
+	vector<char> gotoBytes = CodeGenerationCommands::goto_(falseBytes.size()); //Безусловный переход в случае положительной ветки
+
+	int offset = trueBytes.size() + gotoBytes.size(); //Смещение, с которого начинается альтернативная ветка
+	vector<char> ifBytes = CodeGenerationCommands::if_icmp(CodeGenerationCommands::GT, offset); //Условный переход
+
+	// Формирование кода
+	CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForGreaterEqual(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	vector<char> leftOperand = Left->generateCode(isInsideClassMethod, constantsTable); //левый операнд	
+	CodeGenerationHelpers::appendArrayToByteVector(&res, leftOperand.data(), leftOperand.size());
+
+	vector<char> rightOperand = Right->generateCode(isInsideClassMethod, constantsTable); //правый операнд
+	CodeGenerationHelpers::appendArrayToByteVector(&res, rightOperand.data(), rightOperand.size());
+
+	vector<char> trueBytes = CodeGenerationCommands::iconstBipushSipush(1); //Ветка, если больше или равно
+	vector<char> falseBytes = CodeGenerationCommands::iconstBipushSipush(0); //Ветка, если меньше
+	vector<char> gotoBytes = CodeGenerationCommands::goto_(falseBytes.size()); //Безусловный переход в случае положительной ветки
+
+	int offset = trueBytes.size() + gotoBytes.size(); //Смещение, с которого начинается альтернативная ветка
+	vector<char> ifBytes = CodeGenerationCommands::if_icmp(CodeGenerationCommands::LT, offset); //Условный переход
+
+	// Формирование кода
+	CodeGenerationHelpers::appendArrayToByteVector(&res, ifBytes.data(), ifBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, trueBytes.data(), trueBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, gotoBytes.data(), gotoBytes.size());
+	CodeGenerationHelpers::appendArrayToByteVector(&res, falseBytes.data(), falseBytes.size());
+
+	return res;
+}
 vector<char> Expression_node::generateCodeForSelf()
 {
 	vector<char> res = CodeGenerationCommands::aload(LocalVariable->Id);
