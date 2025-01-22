@@ -5,6 +5,34 @@
 #include <string>
 
 using namespace std;
+vector<char> Expression_node::generateCodeForArrow(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	if (Field != NULL) {
+		vector<char> obj = Left->generateCode(isInsideClassMethod, constantsTable); //Объект
+		CodeGenerationHelpers::appendArrayToByteVector(&res, obj.data(), obj.size());
+
+		if (constantsTable->items.count(Constant) == 0) {
+			string msg = "Class doesn't have constant " + to_string(Constant);
+			throw new std::exception(msg.c_str());
+		}
+		else if (constantsTable->items[Constant]->Type != FieldRef) {
+			string msg = "Constant " + to_string(Constant) + " is not fieldRef";
+			throw new std::exception(msg.c_str());
+		}
+
+		vector<char> field = CodeGenerationCommands::getfield(Constant); //Поле
+		CodeGenerationHelpers::appendArrayToByteVector(&res, field.data(), field.size());
+	}
+	else {
+		string msg = "Unknown identifier '" + string(name);
+		throw new std::exception(msg.c_str());
+	}
+
+	return res;
+}
+
 vector<char> Expression_node::generateCodeForArrayElementAccess(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
