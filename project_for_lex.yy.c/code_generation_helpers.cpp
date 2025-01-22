@@ -209,3 +209,52 @@ vector<char> CodeGenerationCommands::dup2()
 	return res;
 }
 
+// ---------- iadd ----------
+vector<char> CodeGenerationCommands::iadd()
+{
+	vector<char> res;
+	res.push_back(0x60); //iadd
+	return res;
+}
+
+// ---------- imul ----------
+vector<char> CodeGenerationCommands::imul()
+{
+	vector<char> res;
+	res.push_back(0x68); //imul
+	return res;
+}
+
+// ---------- isub ----------
+vector<char> CodeGenerationCommands::isub()
+{
+	vector<char> res;
+	res.push_back(0x64); //isub
+	return res;
+}
+
+// ---------- idiv ----------
+vector<char> CodeGenerationCommands::idiv()
+{
+	vector<char> res;
+	res.push_back(0x6C); //idiv
+	return res;
+}
+
+// ---------- iinc ----------
+vector<char> CodeGenerationCommands::iinc(int index, int num)
+{
+	vector<char> res;
+	res.push_back(0x84); //iinc
+	res.push_back(index);
+	res.push_back(num);
+	return res;
+}
+
+// ---------- ineg ----------
+vector<char> CodeGenerationCommands::ineg()
+{
+	vector<char> res;
+	res.push_back(0x74); //ineg
+	return res;
+}
