@@ -5,6 +5,46 @@
 #include <string>
 
 using namespace std;
+// -------------------- Таблица полей --------------------
+vector<char> FieldsTable::generateBytes()
+{
+	vector<char> res;
+	for (auto iter = items.cbegin(); iter != items.cend(); ++iter) {
+		vector<char> bytes = iter->second->generateBytes();
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+	}
+	return res;
+}
+
+vector<char> FieldsTableElement::generateBytes()
+{
+	vector<char> res;
+
+	//Добавление флага доступа
+	char publicFlag[2] = { 0x00, 0x01 }; //Флаг ACC_PUBLIC
+	char protectedFlag[2] = { 0x00, 0x04 }; //Флаг ACC_PROTECTED
+	
+	if (IsInstance) {
+		CodeGenerationHelpers::appendArrayToByteVector(&res, publicFlag, 2);
+	}
+	else {
+		CodeGenerationHelpers::appendArrayToByteVector(&res, protectedFlag, 2);
+	}
+
+	//Добавление имени поля
+	vector<char> nameBytes = CodeGenerationHelpers::intToByteArray(Name, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, nameBytes.data(), nameBytes.size());
+
+	//Добавление дескриптора поля
+	vector<char> typeBytes = CodeGenerationHelpers::intToByteArray(Descriptor, 2);
+	CodeGenerationHelpers::appendArrayToByteVector(&res, typeBytes.data(), typeBytes.size());
+
+	//Добавление атрибутов
+	res.push_back(0x00);
+	res.push_back(0x00);
+
+	return res;
+}
 // -------------------- Генерация байт-кода метода для атрибута Code --------------------
 
 // ---------- Statement ----------
