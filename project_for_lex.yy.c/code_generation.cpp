@@ -1306,6 +1306,164 @@ vector<char> Expression_node::generateCodeForClassCast(bool isInsideClassMethod,
 
 	return res;
 }
+
+vector<char> Receiver_node::generateCode(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+	
+	switch (type)
+	{
+	case SUPER_RECEIVER_TYPE: {
+		if (!isInsideClassMethod) {
+			vector<char> obj = CodeGenerationCommands::aload(LocalVariable->Id); //Объект
+			CodeGenerationHelpers::appendArrayToByteVector(&res, obj.data(), obj.size());
+		}
+	}
+		break;
+	case SELF_RECEIVER_TYPE: {
+		if (!isInsideClassMethod) {
+			vector<char> obj = CodeGenerationCommands::aload(LocalVariable->Id); //Объект
+			CodeGenerationHelpers::appendArrayToByteVector(&res, obj.data(), obj.size());
+		}
+	}
+		break;
+	case OBJECT_NAME_RECEIVER_TYPE: {
+		if (LocalVariable != NULL)
+		{
+			vector<char> obj = CodeGenerationCommands::aload(LocalVariable->Id - isInsideClassMethod); //Объект
+			CodeGenerationHelpers::appendArrayToByteVector(&res, obj.data(), obj.size());
+		}
+		else if (Field != NULL) {
+			vector<char> obj = CodeGenerationCommands::aload(0); //Объект
+			CodeGenerationHelpers::appendArrayToByteVector(&res, obj.data(), obj.size());
+
+			string className = Receiver->DataType->ClassName;
+			ConstantsTable* constantsTable = ClassesTable::items->at(className)->ConstantTable;
+			if (constantsTable->items.count(Constant) == 0) {
+				string msg = "Class " + className + " doesn't have constant " + to_string(Constant);
+				throw std::exception(msg.c_str());
+			}
+			else if (constantsTable->items[Constant]->Type != FieldRef) {
+				string msg = "Constant " + to_string(Constant) + " is not fieldRef";
+				throw std::exception(msg.c_str());
+			}
+
+			vector<char> field = CodeGenerationCommands::getfield(Constant); //Поле
+			CodeGenerationHelpers::appendArrayToByteVector(&res, field.data(), field.size());
+		}
+	}
+		break;
+	case OBJECT_ARRAY_RECEIVER_TYPE:
+	{
+		if (LocalVariable != NULL)
+		{
+			vector<char> arr = CodeGenerationCommands::aload(LocalVariable->Id - isInsideClassMethod); //Массив
+			CodeGenerationHelpers::appendArrayToByteVector(&res, arr.data(), arr.size());
+		}
+		else if (Field != NULL) {
+			vector<char> obj = CodeGenerationCommands::aload(0); //Объект
+			CodeGenerationHelpers::appendArrayToByteVector(&res, obj.data(), obj.size());
+
+			string className = Receiver->DataType->ClassName;
+			ConstantsTable* constantsTable = ClassesTable::items->at(className)->ConstantTable;
+			if (constantsTable->items.count(Constant) == 0) {
+				string msg = "Class " + className + " doesn't have constant " + to_string(Constant);
+				throw std::exception(msg.c_str());
+			}
+			else if (constantsTable->items[Constant]->Type != FieldRef) {
+				string msg = "Constant " + to_string(Constant) + " is not fieldRef";
+				throw std::exception(msg.c_str());
+			}
+
+			vector<char> field = CodeGenerationCommands::getfield(Constant); //Поле
+			CodeGenerationHelpers::appendArrayToByteVector(&res, field.data(), field.size());
+		}
+		vector<char> index = ObjectArrayIndex->generateCode(isInsideClassMethod, constantsTable); //Индекс
+		CodeGenerationHelpers::appendArrayToByteVector(&res, index.data(), index.size());
+		vector<char> array = CodeGenerationCommands::aaload(); //Объект
+		CodeGenerationHelpers::appendArrayToByteVector(&res, array.data(), array.size());
+	}
+	break;
+	case CLASS_NAME_RECEIVER_TYPE: {
+
+	}
+		break;
+	case MESSAGE_EXPRESSION_RECEIVER_TYPE: {
+		vector<char> receiver = Receiver->generateCode(isInsideClassMethod, constantsTable); //Объект
+
+		vector<char> messageSelector = Arguments->generateCode(isInsideClassMethod, constantsTable); //Аргументы
+
+		
+
+		if (constantsTable->items.count(Constant) == 0) {
+			string msg = "Class doesn't have constant " + to_string(Constant);
+			throw std::exception(msg.c_str());
+		}
+		else if (constantsTable->items[Constant]->Type != MethodRef) {
+			string msg = "Constant " + to_string(Constant) + " is not methodRef";
+			throw std::exception(msg.c_str());
+		}
+
+		if (isInitMethod) {
+			int utf = constantsTable->findConstant(UTF8, &Receiver->DataType->ClassName);
+			int classConst = constantsTable->findConstant(Class, NULL, NULL, utf);
+			vector<char> newBytes = CodeGenerationCommands::new_(classConst);
+			CodeGenerationHelpers::appendArrayToByteVector(&res, newBytes.data(), newBytes.size());
+			vector<char> dupBytes = CodeGenerationCommands::dup();
+			CodeGenerationHelpers::appendArrayToByteVector(&res, dupBytes.data(), dupBytes.size());
+			CodeGenerationHelpers::appendArrayToByteVector(&res, receiver.data(), receiver.size());
+			CodeGenerationHelpers::appendArrayToByteVector(&res, messageSelector.data(), messageSelector.size());
+			vector<char> invoke = CodeGenerationCommands::invokespecial(Constant);
+			CodeGenerationHelpers::appendArrayToByteVector(&res, invoke.data(), invoke.size());
+		}
+		else if (Method->IsClassMethod) {
+			CodeGenerationHelpers::appendArrayToByteVector(&res, messageSelector.data(), messageSelector.size());
+			vector<char> invoke = CodeGenerationCommands::invokestatic(Constant);
+			CodeGenerationHelpers::appendArrayToByteVector(&res, invoke.data(), invoke.size());
+		}
+		else {
+			CodeGenerationHelpers::appendArrayToByteVector(&res, messageSelector.data(), messageSelector.size());
+			CodeGenerationHelpers::appendArrayToByteVector(&res, receiver.data(), receiver.size());
+			vector<char> invoke;
+			if (Receiver->type == SUPER_RECEIVER_TYPE)
+				invoke = CodeGenerationCommands::invokespecial(Constant);
+			else
+				invoke = CodeGenerationCommands::invokevirtual(Constant);
+			CodeGenerationHelpers::appendArrayToByteVector(&res, invoke.data(), invoke.size());
+		}
+	}
+		break;
+	default:
+		break;
+	}
+
+	return res;
+}
+
+vector<char> Message_selector_node::generateCode(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	if (FirstArgument != NULL) {
+		vector<char> firstArgument = FirstArgument->generateCode(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, firstArgument.data(), firstArgument.size());
+	}
+	if (Arguments != NULL) {
+		Keyword_argument_node* cur = Arguments->First;
+		while (cur != NULL) {
+			vector<char> argument = cur->expression->generateCode(isInsideClassMethod, constantsTable);
+			CodeGenerationHelpers::appendArrayToByteVector(&res, argument.data(), argument.size());
+			cur = cur->Next;
+		}
+	}
+	if (ExprArguments != NULL) {
+		vector<char> exprArguments = ExprArguments->generateCode(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, exprArguments.data(), exprArguments.size());
+	}
+
+	return res;
+}
+
 vector<char> Expression_list_node::generateCode(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
