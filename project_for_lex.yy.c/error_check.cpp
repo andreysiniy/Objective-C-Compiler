@@ -242,15 +242,15 @@ string Expression_node::getTypeName()
 
 void For_statement_node::checkFastEnumerationTypes(LocalVariablesTable* locals)
 {
-	// Ïðîâåðêà èòåðèðóþùåé ïåðåìåííîé
-	if (locals->isContains(name)) { //Ëîêàëüíàÿ ïåðåìåííàÿ
+	// ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¸Ñ‚ÐµÑ€Ð¸Ñ€ÑƒÑŽÑ‰ÐµÐ¹ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹
+	if (locals->isContains(name)) { //Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð°Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð°Ñ
 		Type* type = locals->items[name]->type;
 		if (type->ClassName == "") {
 			string msg = "Variable in fast enumeration isn't an object. It has type '" + type->toString() + "' in line: " + to_string(line);
 			throw new std::exception(msg.c_str());
 		}
 	}
-	else { //Ïîëå
+	else { //ÐŸÐ¾Ð»Ðµ
 		if (ClassesTable::items->count(locals->items["self"]->type->ClassName) != 0) {
 			ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
 			if (selfClass->isContainsField(name)) {
@@ -270,19 +270,19 @@ void For_statement_node::checkFastEnumerationTypes(LocalVariablesTable* locals)
 		}
 	}
 
-	//Ïðîâåðêà èòåðèðóåìîé ïåðåìåííîé
+	//ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¸Ñ‚ÐµÑ€Ð¸Ñ€ÑƒÐµÐ¼Ð¾Ð¹ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹
 	if (ConditionExpression->type != IDENTIFIER_EXPRESSION_TYPE) {
 		string msg = "Iterable variable isn't variable. It has type '" + ConditionExpression->getTypeName() + "' in line: " + to_string(line);
 		throw new std::exception(msg.c_str());
 	}
-	if (locals->isContains(ConditionExpression->name)) { //Ëîêàëüíàÿ ïåðåìåííàÿ
+	if (locals->isContains(ConditionExpression->name)) { //Ð›Ð¾ÐºÐ°Ð»ÑŒÐ½Ð°Ñ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð°Ñ
 		Type* type = locals->items[ConditionExpression->name]->type;
 		if (type->ClassName == "") {
 			string msg = "Variable in fast enumeration isn't an object. It has type '" + type->toString() + "' in line: " + to_string(line);
 			throw new std::exception(msg.c_str());
 		}
 	}
-	else { //Ïîëå
+	else { //ÐŸÐ¾Ð»Ðµ
 		if (ClassesTable::items->count(locals->items["self"]->type->ClassName) != 0) {
 			ClassesTableElement* selfClass = ClassesTable::items->at(locals->items["self"]->type->ClassName);
 			if (selfClass->isContainsField(ConditionExpression->name)) {
