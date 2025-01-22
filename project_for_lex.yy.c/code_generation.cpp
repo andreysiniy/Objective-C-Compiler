@@ -240,6 +240,23 @@ vector<char> Statement_node::generateCodeForIfStatement(bool isInsideClassMethod
 
 	return res;
 }
+
+vector<char> Statement_node::generateCodeForCompoundStatement(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable* locals)
+{
+	vector<char> res;
+	
+	Statement_list_node* statements = (Statement_list_node*)this;
+	
+	Statement_node* cur = statements->First;
+	while (cur != NULL) {
+		vector<char> bytes = cur->generateCode(isInsideClassMethod, constantsTable, locals);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, bytes.data(), bytes.size());
+		cur = cur->Next;
+	}
+
+	return res;
+}
+
 vector<char> Statement_node::generateCodeForWhileStatement(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable* locals)
 {
 	vector<char> res;
