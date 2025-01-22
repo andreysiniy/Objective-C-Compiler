@@ -5,6 +5,17 @@
 #include <string>
 
 using namespace std;
+vector<char> Expression_node::generateCodeForSelf()
+{
+	vector<char> res = CodeGenerationCommands::aload(LocalVariable->Id);
+	return res;
+}
+
+vector<char> Expression_node::generateCodeForSuper()
+{
+	vector<char> res = CodeGenerationCommands::aload(LocalVariable->Id);
+	return res;
+}
 vector<char> Expression_node::generateCodeForArrow(bool isInsideClassMethod, ConstantsTable* constantsTable)
 {
 	vector<char> res;
