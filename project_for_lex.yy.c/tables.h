@@ -60,6 +60,7 @@ public:
 
 	int findOrAddMethodRefConstant(string className, string methodName, string descriptor); // Поиск или формирование константы methodRef
 
+	vector<char> generateBytes(); //Генерация байт кода таблицы констант
 
     int findConstant(constantType type, string* utf8string, int number = NULL, int firstRef = NULL, int secondRef = NULL);
 };
@@ -147,6 +148,8 @@ public:
 	void semanticTransform();
 	void addConstantsToTable(); //Добавляет константы типа Class в таблицу
 
+	void generateClassFile(string filepath); //Генерация файла .class
+	bool isNeedToGenerateClassFile(); //Проверка необходимости генерации файла .class
 
 private:
 	void appendConstructor();
@@ -171,6 +174,8 @@ public:
 
     static void semanticTransform(); // Преобразования дерева
 	static void addConstantsToTable(); //Добавляет константы типа Class в таблицу
+
+	static void generateClassFiles(string filepath); //Генерация файла .class
 
 private:
     static void initClassProgram();
@@ -200,6 +205,7 @@ public:
 
     void fillLiterals(ConstantsTable* constantTable);
 
+	vector<char> generateBytes(); //Генерация байт кода поля
 };
 
 class FieldsTable
@@ -212,6 +218,7 @@ public:
 
     void toCsvFile(string filename, string filepath, char separator = '|'); //Преобразование в CSV-файл
 
+	vector<char> generateBytes(); //Генерация байт кода таблицы полей
 };
 
 // ---------- Таблица методов ----------
@@ -243,6 +250,10 @@ public:
     void semanticTransform(ConstantsTable* constants);
     void addDefaultReturn(Statement_node *lastStatement);
 	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
+
+
+	vector<char> generateBytes(ConstantsTable* constantsTable, int parrentInitNumber); //Генерация байт кода метода
+	vector<char> generateCodeAttribute(ConstantsTable* constantsTable); //Генерация атрибута Code для метода
 };
 
 class MethodsTable
@@ -256,6 +267,7 @@ public:
 
 	void addConstantsToTable(ConstantsTable* constantsTable); //Добавляет константы типа Class в таблицу
 
+	vector<char> generateBytes(ConstantsTable* constantsTable, int parrentInitNumber); //Генерация байт кода таблицы методов
 };
 
 // ----------- Таблица свойств ----------
