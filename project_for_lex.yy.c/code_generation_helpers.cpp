@@ -161,3 +161,27 @@ vector<char> CodeGenerationCommands::astore(int num)
 	return res;
 }
 
+// ---------- pop ----------
+vector<char> CodeGenerationCommands::pop()
+{
+	vector <char> res;
+	res.push_back(0x57); //pop
+	return res;
+}
+
+// ---------- dup ----------
+vector<char> CodeGenerationCommands::dup()
+{
+	vector <char> res;
+	res.push_back(0x59); //dup
+	return res;
+}
+
+// ---------- dup2 ----------
+vector<char> CodeGenerationCommands::dup2()
+{
+	vector <char> res;
+	res.push_back(0x5C); //dup2
+	return res;
+}
+
