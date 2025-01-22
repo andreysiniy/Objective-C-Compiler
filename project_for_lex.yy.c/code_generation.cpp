@@ -5,6 +5,31 @@
 #include <string>
 
 using namespace std;
+vector<char> Statement_node::generateCodeForReturnStatement(bool isInsideClassMethod, ConstantsTable* constantsTable)
+{
+	vector<char> res;
+
+	if (Expression != NULL) {
+		vector<char> expr = Expression->generateCode(isInsideClassMethod, constantsTable);
+		CodeGenerationHelpers::appendArrayToByteVector(&res, expr.data(), expr.size()); //Загрузить expression (значение)
+
+		if (Expression->DataType->DataType == CLASS_NAME_TYPE || Expression->DataType->DataType == ID_TYPE) { //Возвращается ссылка
+			vector<char> returnBytes = CodeGenerationCommands::areturn();
+			CodeGenerationHelpers::appendArrayToByteVector(&res, returnBytes.data(), returnBytes.size());
+		}
+		else { //Возвращается значение
+			vector<char> returnBytes = CodeGenerationCommands::ireturn();
+			CodeGenerationHelpers::appendArrayToByteVector(&res, returnBytes.data(), returnBytes.size());
+		}
+	}
+	else { //void return
+		vector<char> returnBytes = CodeGenerationCommands::return_();
+		CodeGenerationHelpers::appendArrayToByteVector(&res, returnBytes.data(), returnBytes.size());
+	}
+
+	return res;
+}
+
 vector<char> Statement_node::generateCodeForDeclarationStatement(bool isInsideClassMethod, ConstantsTable* constantsTable, LocalVariablesTable *locals)
 {
 	vector<char> res;
