@@ -1,0 +1,71 @@
+ID|Type|Value
+1|UTF8|Code
+2|UTF8|rtl/InOutFuncs
+3|Class|2
+4|UTF8|printIntStatic
+5|UTF8|(I)V
+6|UTF8|printCharStatic
+7|UTF8|(C)V
+8|UTF8|printNSStringStatic
+9|UTF8|(Lrtl/NSString;)V
+10|UTF8|printCharArrayStatic
+11|UTF8|([C)V
+12|UTF8|printObjectStatic
+13|UTF8|(Ljava/lang/Object;)V
+14|UTF8|readStatic
+15|UTF8|()Ljava/lang/String;
+16|UTF8|readIntStatic
+17|UTF8|()I
+18|UTF8|readCharStatic
+19|UTF8|()C
+20|UTF8|java/lang/System
+21|Class|20
+22|UTF8|out
+23|UTF8|Ljava/io/PrintStream;
+24|NameAndType|22, 23
+25|FieldRef|24, 21
+26|UTF8|java/lang/Object
+27|Class|26
+28|UTF8|<init>
+29|UTF8|()V
+30|NameAndType|28, 29
+31|MethodRef|30, 27
+32|UTF8|java/io/PrintStream
+33|Class|32
+34|UTF8|print
+35|NameAndType|34, 5
+36|MethodRef|35, 33
+37|NameAndType|34, 7
+38|MethodRef|37, 33
+39|UTF8|(Ljava/lang/String;)V
+40|NameAndType|34, 39
+41|MethodRef|40, 33
+42|NameAndType|34, 11
+43|MethodRef|42, 33
+44|UTF8|Ljava/lang/Object;
+45|NameAndType|34, 44
+46|MethodRef|45, 33
+47|UTF8|console
+48|UTF8|Ljava/io/Console;
+49|NameAndType|47, 48
+50|MethodRef|49, 21
+51|UTF8|java/io/Console
+52|Class|51
+53|UTF8|readLine
+54|NameAndType|53, 15
+55|MethodRef|54, 52
+56|UTF8|read
+57|NameAndType|56, 15
+58|MethodRef|57, 3
+59|UTF8|java/lang/Integer
+60|Class|59
+61|UTF8|parseInt
+62|UTF8|(Ljava/lang/String;)I
+63|NameAndType|61, 62
+64|MethodRef|63, 60
+65|UTF8|java/lang/String
+66|Class|65
+67|UTF8|charAt
+68|UTF8|(I)C
+69|NameAndType|67, 68
+70|MethodRef|69, 66

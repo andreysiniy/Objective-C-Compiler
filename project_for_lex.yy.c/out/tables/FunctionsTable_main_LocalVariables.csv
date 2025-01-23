@@ -1,0 +1,7 @@
+Id|Name|Type
+3|arr|int[ expr(26) ]
+1|arrSize|int
+2|i|int
+5|j|int
+0|self|rtl/!Program!
+4|tmp|int
