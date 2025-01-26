@@ -16,6 +16,7 @@ int main() {
     int tmp;
     while (i < arrSize) {
         j = 0;
+
         while (j < i) {
             if (arr[i] > arr[j]) {
                 tmp = arr[i];
@@ -26,7 +27,7 @@ int main() {
         }
         i = i + 1;
     }
-    
+
     
     [InOutFuncs printCharArray: "\nOutput arr:"];
     for (i=0; i < arrSize; i = i + 1) {
