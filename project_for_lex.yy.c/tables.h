@@ -227,7 +227,7 @@ class MethodsTableElement
 {
 public:
     int Name = NULL; // Ссылка на константу с именем метода
-    int Descriptor = NULL; // Ссылка на константу с дескриптором метода (НУЖНО ЛИ НА KEYWORD ИЛИ ИХ НУЖНО ПРЕОБРАЗОВЫВАТЬ К СТАНДАРТНОМУ ДЕСКРИПТОРУ ФУНКЦИИ?)
+    int Descriptor = NULL; // Ссылка на константу с дескриптором метода 
     bool IsClassMethod = NULL; // Флаг, который показывает принадлежность метода к классу, а не объекту
     Statement_node* BodyStart = NULL; // Ссылка на узел начала тела метода
     LocalVariablesTable* LocalVariables = NULL; // Ссылка на соответствующую таблицу локальных переменных
